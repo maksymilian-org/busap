@@ -1,0 +1,100 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: busap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: busap
+      POSTGRES_PASSWORD: busap_secret
+      POSTGRES_DB: busap
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U busap -d busap"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: busap-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NestJS API (for development with hot reload)
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: busap-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./packages/shared:/app/packages/shared
+      - /app/node_modules
+      - /app/apps/api/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://busap:busap_secret@postgres:5432/busap?schema=public
+      - REDIS_URL=redis://redis:6379
+      - APPWRITE_ENDPOINT=http://appwrite/v1
+      - APPWRITE_PROJECT_ID=busap
+      - APPWRITE_API_KEY=${APPWRITE_API_KEY:-}
+      - API_PORT=3001
+      - API_HOST=0.0.0.0
+    networks:
+      - default
+      - appwrite_gateway
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: pnpm --filter @busap/api dev
+
+  # Next.js Web (for development with hot reload)
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    container_name: busap-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - ./packages/shared:/app/packages/shared
+      - /app/node_modules
+      - /app/apps/web/node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - NEXT_PUBLIC_APPWRITE_ENDPOINT=http://localhost/v1
+      - NEXT_PUBLIC_APPWRITE_PROJECT_ID=busap
+    depends_on:
+      - api
+    command: pnpm --filter @busap/web dev
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  appwrite_gateway:
+    external: true
+    name: gateway
