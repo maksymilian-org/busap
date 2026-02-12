@@ -1,14 +1,30 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
+import { useAuthStore } from '../../stores/auth-store';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const login = useAuthStore((s) => s.login);
 
-  const handleLogin = () => {
-    // TODO: Implement Appwrite login
-    router.replace('/(tabs)/search');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Błąd', 'Wypełnij wszystkie pola');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login(email, password);
+      router.replace('/(tabs)/search');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Logowanie nie powiodło się';
+      Alert.alert('Błąd', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,8 +49,14 @@ export default function LoginScreen() {
         secureTextEntry
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Zaloguj się</Text>
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleLogin}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? 'Logowanie...' : 'Zaloguj się'}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
@@ -77,6 +99,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginBottom: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: '#fff',

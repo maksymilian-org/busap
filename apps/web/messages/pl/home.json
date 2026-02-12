@@ -1,0 +1,102 @@
+{
+  "hero": {
+    "badge": "Nowa era transportu autobusowego",
+    "title": "Zarządzaj flotą",
+    "titleHighlight": "inteligentnie",
+    "description": "Busap to kompleksowa platforma do zarządzania transportem autobusowym. Śledź pojazdy, optymalizuj trasy i zapewnij pasażerom najlepsze doświadczenie podróży.",
+    "ctaPrimary": "Rozpocznij za darmo",
+    "ctaSecondary": "Zobacz funkcje",
+    "benefit1": "14 dni za darmo",
+    "benefit2": "Bez karty kredytowej"
+  },
+  "demo": {
+    "line": "Linia 42",
+    "route": "Warszawa - Kraków",
+    "status": "W trasie",
+    "nextStop": "Następny przystanek",
+    "nextStopValue": "Radom Dworzec",
+    "eta": "ETA",
+    "etaValue": "12 min",
+    "speed": "Prędkość",
+    "speedValue": "87 km/h",
+    "progress": "{percent}% trasy ukończone"
+  },
+  "features": {
+    "title": "Wszystko czego potrzebujesz",
+    "description": "Busap oferuje kompletny zestaw narzędzi dla pasażerów, kierowców i zarządzających flotą.",
+    "gpsTracking": {
+      "title": "Śledzenie GPS w czasie rzeczywistym",
+      "description": "Śledź autobusy na mapie w czasie rzeczywistym. Zawsze wiesz, gdzie jest Twój autobus."
+    },
+    "eta": {
+      "title": "Dokładne ETA",
+      "description": "Inteligentny silnik ETA uwzględnia ruch drogowy i dane historyczne dla precyzyjnych przewidywań."
+    },
+    "driverPanel": {
+      "title": "Panel dla kierowców",
+      "description": "Dedykowana aplikacja dla kierowców z automatycznym przydzielaniem kursów i raportowaniem."
+    },
+    "security": {
+      "title": "Bezpieczeństwo danych",
+      "description": "Twoje dane są bezpieczne. Zgodność z RODO i najwyższe standardy bezpieczeństwa."
+    },
+    "offline": {
+      "title": "Tryb offline",
+      "description": "Aplikacja działa nawet bez internetu. Dane synchronizują się automatycznie."
+    },
+    "reports": {
+      "title": "Raporty i analityka",
+      "description": "Szczegółowe raporty punktualności, wydajności kierowców i wykorzystania floty."
+    }
+  },
+  "stats": {
+    "vehicles": "Aktywnych pojazdów",
+    "passengers": "Pasażerów miesięcznie",
+    "uptime": "Dostępność systemu",
+    "languages": "Obsługiwanych języków"
+  },
+  "pricing": {
+    "title": "Prosty, przejrzysty cennik",
+    "description": "Wybierz plan dopasowany do wielkości Twojej floty. Wszystkie plany zawierają 14-dniowy okres próbny.",
+    "perMonth": "/miesiąc",
+    "mostPopular": "Najpopularniejszy",
+    "starter": {
+      "name": "Starter",
+      "price": "99",
+      "description": "Dla małych firm",
+      "feature1": "Do 5 pojazdów",
+      "feature2": "Śledzenie GPS",
+      "feature3": "Podstawowe raporty",
+      "feature4": "Wsparcie email",
+      "cta": "Rozpocznij"
+    },
+    "professional": {
+      "name": "Professional",
+      "price": "249",
+      "description": "Dla rosnących firm",
+      "feature1": "Do 20 pojazdów",
+      "feature2": "Zaawansowane ETA",
+      "feature3": "Panel managera",
+      "feature4": "Priorytetowe wsparcie",
+      "feature5": "API dostęp",
+      "cta": "Rozpocznij"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Indywidualnie",
+      "description": "Dla dużych przewoźników",
+      "feature1": "Nieograniczona liczba pojazdów",
+      "feature2": "Dedykowany opiekun",
+      "feature3": "SLA 99.9%",
+      "feature4": "Integracje custom",
+      "feature5": "Szkolenia on-site",
+      "cta": "Skontaktuj się"
+    }
+  },
+  "cta": {
+    "title": "Gotowy na transformację transportu?",
+    "description": "Dołącz do setek firm, które już korzystają z Busap. Zacznij 14-dniowy okres próbny i przekonaj się, jak możemy usprawnić Twoją działalność.",
+    "primary": "Rozpocznij za darmo",
+    "secondary": "Umów demo"
+  }
+}

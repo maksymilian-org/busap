@@ -1,16 +1,37 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
+import { useAuthStore } from '../../stores/auth-store';
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const register = useAuthStore((s) => s.register);
 
-  const handleRegister = () => {
-    // TODO: Implement Appwrite registration
-    router.replace('/(tabs)/search');
+  const handleRegister = async () => {
+    if (!email || !password || !firstName || !lastName) {
+      Alert.alert('Błąd', 'Wypełnij wszystkie pola');
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert('Błąd', 'Hasło musi mieć minimum 8 znaków');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await register(email, password, firstName, lastName);
+      router.replace('/(tabs)/search');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Rejestracja nie powiodła się';
+      Alert.alert('Błąd', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,8 +70,14 @@ export default function RegisterScreen() {
         secureTextEntry
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Zarejestruj się</Text>
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleRegister}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? 'Rejestracja...' : 'Zarejestruj się'}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.back()}>
@@ -93,6 +120,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginBottom: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: '#fff',

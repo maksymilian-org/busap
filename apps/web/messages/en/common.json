@@ -1,0 +1,102 @@
+{
+  "navigation": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "business": "For Business",
+    "contact": "Contact",
+    "login": "Sign in",
+    "register": "Sign up",
+    "logout": "Sign out",
+    "profile": "Profile",
+    "settings": "Settings",
+    "adminPanel": "Admin Panel",
+    "userPanel": "User Panel",
+    "goToApp": "Go to App",
+    "myAccount": "My Account"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "sending": "Sending...",
+    "creating": "Creating...",
+    "showMap": "Show map",
+    "hideMap": "Hide map"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "scheduled": "Scheduled",
+    "inProgress": "In Progress",
+    "error": "Error",
+    "recurring": "Recurring",
+    "single": "Single"
+  },
+  "pagination": {
+    "showing": "Showing {from}-{to} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {total}"
+  },
+  "form": {
+    "required": "This field is required",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "date": "Date"
+  },
+  "language": {
+    "label": "Language",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "footer": {
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "features": "Features",
+    "pricing": "Pricing",
+    "business": "For Business",
+    "mobileApp": "Mobile App",
+    "about": "About Us",
+    "blog": "Blog",
+    "careers": "Careers",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "gdpr": "GDPR",
+    "description": "Modern platform for bus transport management. Track buses, plan trips, and manage your fleet.",
+    "copyright": "© {year} Busap. All rights reserved."
+  },
+  "brand": {
+    "name": "Busap",
+    "tagline": "Bus Transport Platform"
+  }
+}

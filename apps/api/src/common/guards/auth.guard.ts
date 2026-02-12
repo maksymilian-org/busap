@@ -5,22 +5,17 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Client, Account } from 'node-appwrite';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private client: Client;
-
   constructor(
     private reflector: Reflector,
+    private jwtService: JwtService,
     private configService: ConfigService,
-  ) {
-    this.client = new Client()
-      .setEndpoint(this.configService.get('APPWRITE_ENDPOINT', 'http://localhost/v1'))
-      .setProject(this.configService.get('APPWRITE_PROJECT_ID', 'busap'));
-  }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -40,20 +35,13 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      // Create a client with the user's session token
-      const userClient = new Client()
-        .setEndpoint(this.configService.get('APPWRITE_ENDPOINT', 'http://localhost/v1'))
-        .setProject(this.configService.get('APPWRITE_PROJECT_ID', 'busap'))
-        .setSession(token);
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get('JWT_SECRET'),
+      });
 
-      const account = new Account(userClient);
-      const user = await account.get();
-
-      // Attach user to request
       request.user = {
-        appwriteId: user.$id,
-        email: user.email,
-        name: user.name,
+        id: payload.sub,
+        email: payload.email,
       };
 
       return true;

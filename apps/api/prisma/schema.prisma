@@ -10,23 +10,82 @@ datasource db {
 // ==================== Users & Companies ====================
 
 model User {
-  id                String   @id @default(uuid())
-  appwriteId        String   @unique @map("appwrite_id")
-  email             String   @unique
-  firstName         String   @map("first_name")
-  lastName          String   @map("last_name")
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
   phone             String?
-  avatarUrl         String?  @map("avatar_url")
-  preferredLanguage String   @default("pl") @map("preferred_language")
-  isActive          Boolean  @default(true) @map("is_active")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  avatarUrl         String?   @map("avatar_url")
+  preferredLanguage String    @default("pl") @map("preferred_language")
+  systemRole        String    @default("passenger") @map("system_role") // passenger, admin, superadmin
+  emailVerified     Boolean   @default(false) @map("email_verified")
+  emailVerifiedAt   DateTime? @map("email_verified_at")
+  lastLoginAt       DateTime? @map("last_login_at")
+  isActive          Boolean   @default(true) @map("is_active")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
-  companyUsers CompanyUser[]
-  driverTrips  Trip[]        @relation("DriverTrips")
-  auditLogs    AuditLog[]
+  companyUsers    CompanyUser[]
+  driverTrips     Trip[]         @relation("DriverTrips")
+  auditLogs       AuditLog[]
+  refreshTokens   RefreshToken[]
+  invitations     Invitation[]
+  authTokens      AuthToken[]
+  driverSchedules TripSchedule[] @relation("ScheduleDriver")
 
   @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  family    String
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([family])
+  @@map("refresh_tokens")
+}
+
+model AuthToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  token     String    @unique
+  type      String // email_verification, password_reset
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type, token])
+  @@map("auth_tokens")
+}
+
+model Invitation {
+  id          String    @id @default(uuid())
+  email       String
+  token       String    @unique
+  role        String    @default("passenger") // role to assign upon registration
+  companyId   String?   @map("company_id")
+  companyRole String?   @map("company_role") // role within company
+  invitedById String    @map("invited_by_id")
+  expiresAt   DateTime  @map("expires_at")
+  acceptedAt  DateTime? @map("accepted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  invitedBy User @relation(fields: [invitedById], references: [id])
+
+  @@index([token])
+  @@index([email])
+  @@map("invitations")
 }
 
 model Company {
@@ -42,13 +101,15 @@ model Company {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  companyUsers CompanyUser[]
-  stops        Stop[]
-  routes       Route[]
-  vehicles     Vehicle[]
-  trips        Trip[]
-  prices       Price[]
-  auditLogs    AuditLog[]
+  companyUsers  CompanyUser[]
+  stops         Stop[]
+  routes        Route[]
+  vehicles      Vehicle[]
+  trips         Trip[]
+  prices        Price[]
+  auditLogs     AuditLog[]
+  tripSchedules TripSchedule[]
+  calendars     Calendar[]
 
   @@map("companies")
 }
@@ -57,7 +118,7 @@ model CompanyUser {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
   companyId String   @map("company_id")
-  role      String   // passenger, driver, manager, owner, superadmin
+  role      String // passenger, driver, manager, owner, superadmin
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -113,6 +174,7 @@ model Route {
   exceptions     RouteException[]
   trips          Trip[]
   prices         Price[]
+  schedules      TripSchedule[]
 
   @@index([companyId])
   @@map("routes")
@@ -146,9 +208,10 @@ model RouteStop {
   isPickup          Boolean @default(true) @map("is_pickup")
   isDropoff         Boolean @default(true) @map("is_dropoff")
 
-  routeVersion RouteVersion   @relation(fields: [routeVersionId], references: [id], onDelete: Cascade)
-  stop         Stop           @relation(fields: [stopId], references: [id])
-  stopTimes    TripStopTime[]
+  routeVersion       RouteVersion        @relation(fields: [routeVersionId], references: [id], onDelete: Cascade)
+  stop               Stop                @relation(fields: [stopId], references: [id])
+  stopTimes          TripStopTime[]
+  scheduleStopTimes  ScheduleStopTime[]
 
   @@unique([routeVersionId, sequenceNumber])
   @@map("route_stops")
@@ -157,7 +220,7 @@ model RouteStop {
 model RouteException {
   id                 String    @id @default(uuid())
   routeId            String    @map("route_id")
-  type               String    // temporary, permanent
+  type               String // temporary, permanent
   reason             String
   affectedStopIds    String[]  @map("affected_stop_ids")
   alternativeRouteId String?   @map("alternative_route_id")
@@ -190,6 +253,7 @@ model Vehicle {
   company   Company           @relation(fields: [companyId], references: [id])
   trips     Trip[]
   positions VehiclePosition[]
+  schedules TripSchedule[]
 
   @@unique([companyId, registrationNumber])
   @@map("vehicles")
@@ -201,9 +265,9 @@ model VehiclePosition {
   tripId    String?  @map("trip_id")
   latitude  Float
   longitude Float
-  speed     Float?   // km/h
-  heading   Float?   // degrees 0-360
-  accuracy  Float?   // meters
+  speed     Float? // km/h
+  heading   Float? // degrees 0-360
+  accuracy  Float? // meters
   timestamp DateTime @default(now())
 
   vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
@@ -221,8 +285,10 @@ model Trip {
   companyId              String    @map("company_id")
   routeId                String    @map("route_id")
   routeVersionId         String    @map("route_version_id")
-  vehicleId              String    @map("vehicle_id")
-  driverId               String    @map("driver_id")
+  vehicleId              String?   @map("vehicle_id")
+  driverId               String?   @map("driver_id")
+  scheduleId             String?   @map("schedule_id")
+  scheduleDate           DateTime? @map("schedule_date") @db.Date
   scheduledDepartureTime DateTime  @map("scheduled_departure_time")
   scheduledArrivalTime   DateTime  @map("scheduled_arrival_time")
   actualDepartureTime    DateTime? @map("actual_departure_time")
@@ -235,25 +301,28 @@ model Trip {
   company      Company           @relation(fields: [companyId], references: [id])
   route        Route             @relation(fields: [routeId], references: [id])
   routeVersion RouteVersion      @relation(fields: [routeVersionId], references: [id])
-  vehicle      Vehicle           @relation(fields: [vehicleId], references: [id])
-  driver       User              @relation("DriverTrips", fields: [driverId], references: [id])
+  vehicle      Vehicle?          @relation(fields: [vehicleId], references: [id])
+  driver       User?             @relation("DriverTrips", fields: [driverId], references: [id])
+  schedule     TripSchedule?     @relation(fields: [scheduleId], references: [id])
   stopTimes    TripStopTime[]
   positions    VehiclePosition[]
 
+  @@unique([scheduleId, scheduleDate])
   @@index([companyId, scheduledDepartureTime])
   @@index([driverId, scheduledDepartureTime])
+  @@index([scheduleId])
   @@index([status])
   @@map("trips")
 }
 
 model TripStopTime {
-  id                String    @id @default(uuid())
-  tripId            String    @map("trip_id")
-  routeStopId       String    @map("route_stop_id")
-  scheduledArrival  DateTime  @map("scheduled_arrival")
-  scheduledDeparture DateTime @map("scheduled_departure")
-  actualArrival     DateTime? @map("actual_arrival")
-  actualDeparture   DateTime? @map("actual_departure")
+  id                 String    @id @default(uuid())
+  tripId             String    @map("trip_id")
+  routeStopId        String    @map("route_stop_id")
+  scheduledArrival   DateTime  @map("scheduled_arrival")
+  scheduledDeparture DateTime  @map("scheduled_departure")
+  actualArrival      DateTime? @map("actual_arrival")
+  actualDeparture    DateTime? @map("actual_departure")
 
   trip      Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
   routeStop RouteStop @relation(fields: [routeStopId], references: [id])
@@ -290,7 +359,7 @@ model SegmentPrice {
   priceId    String @map("price_id")
   fromStopId String @map("from_stop_id")
   toStopId   String @map("to_stop_id")
-  price      Int    // in cents/grosze
+  price      Int // in cents/grosze
 
   priceConfig Price @relation(fields: [priceId], references: [id], onDelete: Cascade)
 
@@ -321,4 +390,141 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ==================== Trip Scheduling ====================
+
+model TripSchedule {
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
+  routeId   String  @map("route_id")
+  vehicleId String? @map("vehicle_id")
+  driverId  String? @map("driver_id")
+
+  name        String
+  description String?
+
+  // Trip times
+  departureTime String @map("departure_time") // "HH:MM" format
+  arrivalTime   String @map("arrival_time") // "HH:MM" format
+
+  // Schedule type
+  scheduleType String @map("schedule_type") // single, recurring
+
+  // RRULE for recurring schedules (RFC 5545)
+  rrule String?
+
+  // Validity period
+  validFrom DateTime  @map("valid_from")
+  validTo   DateTime? @map("valid_to")
+
+  // Calendar modifiers (JSON array)
+  calendarModifiers Json @default("[]") @map("calendar_modifiers")
+
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  company        Company             @relation(fields: [companyId], references: [id])
+  route          Route               @relation(fields: [routeId], references: [id])
+  vehicle        Vehicle?            @relation(fields: [vehicleId], references: [id])
+  driver         User?               @relation("ScheduleDriver", fields: [driverId], references: [id])
+  exceptions     ScheduleException[]
+  generatedTrips Trip[]
+  stopTimes      ScheduleStopTime[]
+
+  @@index([companyId, isActive])
+  @@index([routeId])
+  @@map("trip_schedules")
+}
+
+model ScheduleException {
+  id         String @id @default(uuid())
+  scheduleId String @map("schedule_id")
+
+  date DateTime @db.Date
+  type String // skip, modify
+
+  // For type=modify (optional overrides)
+  newDepartureTime String? @map("new_departure_time")
+  newArrivalTime   String? @map("new_arrival_time")
+  newVehicleId     String? @map("new_vehicle_id")
+  newDriverId      String? @map("new_driver_id")
+
+  reason    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  schedule TripSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@unique([scheduleId, date])
+  @@map("schedule_exceptions")
+}
+
+// ==================== Calendars ====================
+
+model Calendar {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  country     String // "PL", "DE", etc.
+  region      String? // "mazowieckie", "slaskie"
+  type        String // holidays, school_days, custom
+  year        Int? // null = recurring yearly
+  companyId   String?  @map("company_id") // null = system calendar, non-null = company calendar
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  entries CalendarEntry[]
+  company Company?       @relation(fields: [companyId], references: [id])
+
+  @@index([country, type])
+  @@index([companyId])
+  @@map("calendars")
+}
+
+model CalendarEntry {
+  id         String @id @default(uuid())
+  calendarId String @map("calendar_id")
+
+  name String // "Boze Narodzenie", "Ferie zimowe"
+
+  // Date type
+  dateType String @map("date_type") // fixed, easter_relative, nth_weekday
+
+  // For fixed: specific date
+  fixedDate String? @map("fixed_date") // "MM-DD" or "YYYY-MM-DD"
+
+  // For easter_relative: offset from Easter
+  easterOffset Int? @map("easter_offset") // days, e.g. -2 (Good Friday), +1 (Easter Monday)
+
+  // For nth_weekday: n-th weekday in month
+  nthWeekday Json? @map("nth_weekday") // {"month": 11, "weekday": 4, "nth": 4} = 4th Thursday of November
+
+  // Date range (for multi-day events like school breaks)
+  startDate String? @map("start_date") // "YYYY-MM-DD"
+  endDate   String? @map("end_date") // "YYYY-MM-DD"
+
+  isRecurring Boolean @default(true) @map("is_recurring")
+
+  calendar Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+
+  @@map("calendar_entries")
+}
+
+// ==================== Schedule Stop Times ====================
+
+model ScheduleStopTime {
+  id            String @id @default(uuid())
+  scheduleId    String @map("schedule_id")
+  routeStopId   String @map("route_stop_id")
+  arrivalTime   String @map("arrival_time")    // "HH:MM"
+  departureTime String @map("departure_time")  // "HH:MM"
+
+  schedule  TripSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  routeStop RouteStop    @relation(fields: [routeStopId], references: [id])
+
+  @@unique([scheduleId, routeStopId])
+  @@map("schedule_stop_times")
 }

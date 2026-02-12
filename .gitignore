@@ -40,6 +40,14 @@ coverage/
 docker/data/
 docker/appwrite/.env
 
+# Expo CNG - native directories are generated
+apps/mobile/android/
+apps/mobile/ios/
+
+# Uploads
+uploads/
+
 # Temporary files
 tmp/
 temp/
+nul

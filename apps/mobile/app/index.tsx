@@ -1,11 +1,25 @@
+import { useEffect } from 'react';
 import { Redirect } from 'expo-router';
+import { ActivityIndicator, View } from 'react-native';
+import { useAuthStore } from '../stores/auth-store';
 
 export default function Index() {
-  // TODO: Check if user is authenticated
-  const isAuthenticated = true;
+  const { user, loading, initialize } = useAuthStore();
 
-  if (isAuthenticated) {
-    return <Redirect href="/(tabs)/search/index" />;
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#10b981" />
+      </View>
+    );
+  }
+
+  if (user) {
+    return <Redirect href="/(tabs)/search" />;
   }
 
   return <Redirect href="/(auth)/login" />;

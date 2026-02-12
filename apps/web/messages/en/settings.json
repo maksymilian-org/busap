@@ -1,0 +1,12 @@
+{
+  "title": "Settings",
+  "description": "Manage your application preferences",
+  "language": {
+    "title": "Language",
+    "description": "Choose your preferred language"
+  },
+  "theme": {
+    "title": "Theme",
+    "description": "Choose your preferred color scheme"
+  }
+}

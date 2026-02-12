@@ -1,27 +1,32 @@
-import Link from 'next/link';
-import { Bus, Mail, Phone, MapPin } from 'lucide-react';
+'use client';
 
-const footerLinks = {
-  product: [
-    { name: 'Funkcje', href: '#features' },
-    { name: 'Cennik', href: '#pricing' },
-    { name: 'Dla firm', href: '#business' },
-    { name: 'Aplikacja mobilna', href: '#mobile' },
-  ],
-  company: [
-    { name: 'O nas', href: '/about' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Kariera', href: '/careers' },
-    { name: 'Kontakt', href: '/contact' },
-  ],
-  legal: [
-    { name: 'Polityka prywatności', href: '/privacy' },
-    { name: 'Regulamin', href: '/terms' },
-    { name: 'RODO', href: '/gdpr' },
-  ],
-};
+import { useTranslations } from 'next-intl';
+import { Bus, Mail, Phone, MapPin } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 
 export function Footer() {
+  const t = useTranslations('common.footer');
+
+  const footerLinks = {
+    product: [
+      { name: t('features'), href: '#features' },
+      { name: t('pricing'), href: '#pricing' },
+      { name: t('business'), href: '#business' },
+      { name: t('mobileApp'), href: '#mobile' },
+    ],
+    company: [
+      { name: t('about'), href: '/about' },
+      { name: t('blog'), href: '/blog' },
+      { name: t('careers'), href: '/careers' },
+      { name: t('contact'), href: '/contact' },
+    ],
+    legal: [
+      { name: t('privacy'), href: '/privacy' },
+      { name: t('terms'), href: '/terms' },
+      { name: t('gdpr'), href: '/gdpr' },
+    ],
+  };
+
   return (
     <footer className="border-t bg-muted/50">
       <div className="container mx-auto px-4 py-12">
@@ -35,8 +40,7 @@ export function Footer() {
               <span className="text-xl font-bold text-primary">Busap</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-              Nowoczesna platforma do zarządzania transportem autobusowym.
-              Śledź autobusy, planuj podróże i zarządzaj flotą.
+              {t('description')}
             </p>
             <div className="mt-6 space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
@@ -56,16 +60,16 @@ export function Footer() {
 
           {/* Product links */}
           <div>
-            <h3 className="font-semibold">Produkt</h3>
+            <h3 className="font-semibold">{t('product')}</h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.product.map((link) => (
                 <li key={link.name}>
-                  <Link
+                  <a
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-foreground"
                   >
                     {link.name}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -73,7 +77,7 @@ export function Footer() {
 
           {/* Company links */}
           <div>
-            <h3 className="font-semibold">Firma</h3>
+            <h3 className="font-semibold">{t('company')}</h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
@@ -90,7 +94,7 @@ export function Footer() {
 
           {/* Legal links */}
           <div>
-            <h3 className="font-semibold">Prawne</h3>
+            <h3 className="font-semibold">{t('legal')}</h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
@@ -107,7 +111,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Busap. Wszelkie prawa zastrzeżone.</p>
+          <p>{t('copyright', { year: new Date().getFullYear() })}</p>
         </div>
       </div>
     </footer>

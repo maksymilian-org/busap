@@ -10,9 +10,9 @@ export class StopsService {
     return this.prisma.stop.findMany({
       where: {
         isActive: true,
-        OR: companyId
-          ? [{ companyId: null }, { companyId }]
-          : [{ companyId: null }],
+        ...(companyId && {
+          OR: [{ companyId: null }, { companyId }],
+        }),
       },
       orderBy: { name: 'asc' },
     });
@@ -54,7 +54,7 @@ export class StopsService {
     const stops = await this.prisma.stop.findMany({
       where,
       take: limit,
-      skip: offset,
+      skip: offset || 0,
       orderBy: { name: 'asc' },
     });
 

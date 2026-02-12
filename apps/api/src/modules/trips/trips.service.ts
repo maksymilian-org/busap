@@ -16,9 +16,12 @@ export class TripsService {
       status,
       fromDate,
       toDate,
-      limit = 20,
-      offset = 0,
+      limit,
+      offset,
     } = params;
+
+    const take = limit != null && !isNaN(Number(limit)) ? Number(limit) : 20;
+    const skip = offset != null && !isNaN(Number(offset)) ? Number(offset) : 0;
 
     return this.prisma.trip.findMany({
       where: {
@@ -47,8 +50,8 @@ export class TripsService {
         driver: true,
       },
       orderBy: { scheduledDepartureTime: 'asc' },
-      take: limit,
-      skip: offset,
+      take,
+      skip,
     });
   }
 
@@ -123,8 +126,8 @@ export class TripsService {
           companyId: data.companyId,
           routeId: data.routeId,
           routeVersionId: route.currentVersion!.id,
-          vehicleId: data.vehicleId,
-          driverId: data.driverId,
+          vehicleId: data.vehicleId || null,
+          driverId: data.driverId || null,
           scheduledDepartureTime: data.scheduledDepartureTime,
           scheduledArrivalTime,
           status: TripStatus.SCHEDULED,
@@ -302,5 +305,141 @@ export class TripsService {
       const toIndex = stops.findIndex((s: { stopId: string }) => s.stopId === toStopId);
       return fromIndex !== -1 && toIndex !== -1 && fromIndex < toIndex;
     });
+  }
+
+  /**
+   * Get all company trips for a driver with assignment flag
+   */
+  async getDriverCompanyTrips(driverId: string, date?: Date) {
+    // First, get the driver's company memberships
+    const driverMemberships = await this.prisma.companyUser.findMany({
+      where: {
+        userId: driverId,
+        role: 'driver',
+        isActive: true,
+      },
+      select: { companyId: true },
+    });
+
+    if (driverMemberships.length === 0) {
+      return { trips: [], nextTrip: null };
+    }
+
+    const companyIds = driverMemberships.map((m) => m.companyId);
+    const targetDate = date ?? new Date();
+    const startOfDay = new Date(targetDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(targetDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Get all company trips for today
+    const trips = await this.prisma.trip.findMany({
+      where: {
+        companyId: { in: companyIds },
+        scheduledDepartureTime: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+      include: {
+        route: {
+          include: {
+            currentVersion: {
+              include: {
+                stops: {
+                  include: { stop: true },
+                  orderBy: { sequenceNumber: 'asc' },
+                },
+              },
+            },
+          },
+        },
+        vehicle: true,
+        driver: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: { scheduledDepartureTime: 'asc' },
+    });
+
+    // Add isAssignedToMe flag to each trip
+    const tripsWithAssignment = trips.map((trip) => ({
+      ...trip,
+      isAssignedToMe: trip.driverId === driverId,
+    }));
+
+    return tripsWithAssignment;
+  }
+
+  /**
+   * Get driver's next upcoming trip with time until departure
+   */
+  async getDriverNextTrip(driverId: string) {
+    const now = new Date();
+
+    // Find the next scheduled trip for this driver
+    const nextTrip = await this.prisma.trip.findFirst({
+      where: {
+        driverId,
+        status: TripStatus.SCHEDULED,
+        scheduledDepartureTime: { gte: now },
+      },
+      include: {
+        route: {
+          include: {
+            currentVersion: {
+              include: {
+                stops: {
+                  include: { stop: true },
+                  orderBy: { sequenceNumber: 'asc' },
+                },
+              },
+            },
+          },
+        },
+        vehicle: true,
+        stopTimes: {
+          include: {
+            routeStop: { include: { stop: true } },
+          },
+          orderBy: { scheduledArrival: 'asc' },
+        },
+      },
+      orderBy: { scheduledDepartureTime: 'asc' },
+    });
+
+    if (!nextTrip) {
+      return {
+        trip: null,
+        timeUntilDeparture: null,
+        timeUntilDepartureMs: null,
+      };
+    }
+
+    const timeUntilDepartureMs =
+      nextTrip.scheduledDepartureTime.getTime() - now.getTime();
+
+    // Format time remaining
+    const hours = Math.floor(timeUntilDepartureMs / (1000 * 60 * 60));
+    const minutes = Math.floor(
+      (timeUntilDepartureMs % (1000 * 60 * 60)) / (1000 * 60),
+    );
+
+    let timeUntilDeparture: string;
+    if (hours > 0) {
+      timeUntilDeparture = `${hours}h ${minutes}m`;
+    } else {
+      timeUntilDeparture = `${minutes}m`;
+    }
+
+    return {
+      trip: nextTrip,
+      timeUntilDeparture,
+      timeUntilDepartureMs,
+    };
   }
 }

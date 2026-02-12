@@ -1,0 +1,669 @@
+{
+  "layout": {
+    "title": "Admin Panel",
+    "admin": "Admin",
+    "superAdmin": "Super Admin"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "invitations": "Invitations",
+    "companies": "Companies",
+    "stops": "Stops",
+    "routes": "Routes",
+    "vehicles": "Vehicles",
+    "trips": "Trips",
+    "schedules": "Schedules",
+    "calendars": "Calendars",
+    "simulator": "Simulator",
+    "audit": "Audit Logs"
+  },
+  "dashboard": {
+    "title": "Admin Panel",
+    "subtitle": "System overview and resource management",
+    "stats": {
+      "users": "Users",
+      "companies": "Companies",
+      "routes": "Routes",
+      "vehicles": "Vehicles",
+      "trips": "Trips",
+      "invitations": "Invitations",
+      "active": "{count} active",
+      "defined": "defined",
+      "registered": "registered",
+      "inProgress": "{count} in progress",
+      "pending": "pending"
+    },
+    "quickActions": "Quick Actions",
+    "manageUsers": "Manage users",
+    "manageUsersDesc": "Add, edit, delete",
+    "sendInvitation": "Send invitation",
+    "sendInvitationDesc": "Invite new users",
+    "manageCompanies": "Manage companies",
+    "manageCompaniesDesc": "Transport companies",
+    "stopsOnMap": "Stops on map",
+    "stopsOnMapDesc": "OSM map view"
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "User account management ({count})",
+    "addUser": "Add user",
+    "searchPlaceholder": "Search by name or email...",
+    "table": {
+      "user": "User",
+      "email": "Email",
+      "systemRole": "System Role",
+      "companyRoles": "Company Roles",
+      "status": "Status",
+      "registrationDate": "Registration Date",
+      "actions": "Actions"
+    },
+    "roles": {
+      "superadmin": "Super Admin",
+      "admin": "Admin",
+      "passenger": "User",
+      "driver": "Driver",
+      "manager": "Manager",
+      "owner": "Owner"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "loading": "Loading...",
+    "noUsers": "No users",
+    "confirmDeactivate": "Are you sure you want to deactivate this user?",
+    "deactivated": "User deactivated",
+    "createModal": {
+      "title": "New user",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "password": "Password",
+      "phone": "Phone",
+      "systemRole": "System role",
+      "submit": "Create user",
+      "submitting": "Creating...",
+      "success": "User created"
+    },
+    "editModal": {
+      "title": "Edit user",
+      "accountActive": "Account active",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "User updated"
+    }
+  },
+  "invitations": {
+    "title": "Invitations",
+    "subtitle": "Invitation management ({count})",
+    "sendInvitation": "Send invitation",
+    "searchPlaceholder": "Search by email...",
+    "table": {
+      "email": "Email",
+      "role": "Role",
+      "company": "Company",
+      "invitedBy": "Invited by",
+      "expiresAt": "Expires",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "expired": "Expired"
+    },
+    "noInvitations": "No invitations",
+    "confirmDelete": "Are you sure you want to delete this invitation?",
+    "deleted": "Invitation deleted",
+    "resent": "Invitation resent",
+    "createModal": {
+      "title": "New invitation",
+      "email": "Email",
+      "role": "System role",
+      "company": "Company (optional)",
+      "companyRole": "Company role",
+      "submit": "Send invitation",
+      "submitting": "Sending...",
+      "success": "Invitation sent"
+    }
+  },
+  "companies": {
+    "title": "Companies",
+    "subtitle": "Transport company management ({count})",
+    "addCompany": "Add company",
+    "manageMembers": "Members",
+    "searchPlaceholder": "Search by name...",
+    "table": {
+      "name": "Name",
+      "slug": "Slug",
+      "nip": "Tax ID",
+      "vehicles": "Vehicles",
+      "routes": "Routes",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "noCompanies": "No companies",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "createModal": {
+      "title": "New company",
+      "logo": "Company logo",
+      "name": "Company name",
+      "contactEmail": "Contact email",
+      "contactPhone": "Phone",
+      "description": "Description",
+      "address": "Address",
+      "isActive": "Company active",
+      "selectLogo": "Select logo",
+      "uploading": "Uploading...",
+      "uploadError": "Failed to upload logo",
+      "submit": "Create company",
+      "submitting": "Creating...",
+      "success": "Company created"
+    },
+    "editModal": {
+      "title": "Edit company",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "Company updated"
+    },
+    "details": {
+      "title": "Company Details",
+      "backToList": "Back to companies list",
+      "info": "Company Information",
+      "members": "Members ({count})",
+      "addMember": "Add member",
+      "noMembers": "No members",
+      "searchUsers": "Search users...",
+      "selectRole": "Select role",
+      "confirmRemove": "Are you sure you want to remove this member from the company?",
+      "memberAdded": "Member added to company",
+      "memberUpdated": "Member role updated",
+      "memberRemoved": "Member removed from company",
+      "changeRole": "Change role",
+      "removeMember": "Remove from company",
+      "roles": {
+        "owner": "Owner",
+        "manager": "Manager",
+        "driver": "Driver",
+        "passenger": "Passenger"
+      },
+      "addMemberModal": {
+        "title": "Add member to company",
+        "searchPlaceholder": "Search by name or email...",
+        "noUsersFound": "No users found",
+        "selectUser": "Select user",
+        "selectedUser": "Selected user",
+        "role": "Role in company",
+        "submit": "Add to company",
+        "submitting": "Adding..."
+      },
+      "changeRoleModal": {
+        "title": "Change role",
+        "currentRole": "Current role",
+        "newRole": "New role",
+        "submit": "Change role",
+        "submitting": "Saving..."
+      },
+      "vehicles": "Vehicles ({count})",
+      "noVehicles": "No vehicles assigned to this company",
+      "vehicleTable": {
+        "registration": "Registration",
+        "brandModel": "Brand / Model",
+        "capacity": "Capacity",
+        "status": "Status"
+      },
+      "routes": "Routes ({count})",
+      "noRoutes": "No routes for this company",
+      "routeTable": {
+        "name": "Name",
+        "code": "Code",
+        "type": "Type",
+        "status": "Status"
+      },
+      "routeType": {
+        "linear": "Linear",
+        "loop": "Loop"
+      },
+      "trips": "Trips ({count})",
+      "noTrips": "No trips for this company",
+      "tripTable": {
+        "route": "Route",
+        "vehicle": "Vehicle",
+        "driver": "Driver",
+        "departure": "Departure",
+        "status": "Status"
+      },
+      "showingTrips": "Showing {shown} of {total} trips",
+      "stops": "Stops ({count})",
+      "noStops": "No stops used by this company",
+      "stopTable": {
+        "name": "Name",
+        "code": "Code",
+        "city": "City",
+        "status": "Status"
+      },
+      "statusActive": "Active",
+      "statusInactive": "Inactive"
+    }
+  },
+  "stops": {
+    "title": "Stops",
+    "subtitle": "Stop management ({count})",
+    "addStop": "Add stop",
+    "searchPlaceholder": "Search by name or city...",
+    "viewList": "List",
+    "viewMap": "Map",
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "city": "City",
+      "coordinates": "Coordinates",
+      "routes": "Routes",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "noStops": "No stops",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "createModal": {
+      "title": "New stop",
+      "name": "Name",
+      "code": "Code",
+      "city": "City",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "address": "Address",
+      "submit": "Add",
+      "submitting": "Saving...",
+      "success": "Stop created"
+    },
+    "editModal": {
+      "title": "Edit stop",
+      "submit": "Save",
+      "submitting": "Saving...",
+      "success": "Stop updated"
+    }
+  },
+  "routes": {
+    "title": "Routes",
+    "subtitle": "Route management ({count})",
+    "addRoute": "Add route",
+    "searchPlaceholder": "Search by name or company...",
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "type": "Type",
+      "description": "Description",
+      "company": "Company",
+      "stops": "Stops",
+      "trips": "Trips",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "noRoutes": "No routes",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "type": {
+      "linear": "Linear",
+      "loop": "Loop"
+    },
+    "details": "Details",
+    "confirmDelete": "Are you sure you want to delete this route?",
+    "deleted": "Route deleted",
+    "createModal": {
+      "title": "New route",
+      "company": "Company",
+      "selectCompany": "-- Select company --",
+      "name": "Route name",
+      "code": "Code",
+      "type": "Route type",
+      "description": "Description",
+      "isActive": "Route active",
+      "submit": "Create route",
+      "submitting": "Creating...",
+      "success": "Route created"
+    },
+    "editModal": {
+      "title": "Edit route",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "Route updated"
+    }
+  },
+  "vehicles": {
+    "title": "Vehicles",
+    "subtitle": "Vehicle management ({count})",
+    "addVehicle": "Add vehicle",
+    "searchPlaceholder": "Search by registration number or company...",
+    "table": {
+      "photo": "Photo",
+      "registration": "Registration",
+      "brandModel": "Brand / Model",
+      "brand": "Brand",
+      "model": "Model",
+      "company": "Company",
+      "capacity": "Capacity",
+      "seats": "Seats",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "noVehicles": "No vehicles",
+    "seatsCount": "{count} seats",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "maintenance": "Maintenance",
+      "out_of_service": "Out of service"
+    },
+    "confirmDelete": "Are you sure you want to delete this vehicle?",
+    "deleted": "Vehicle deleted",
+    "createModal": {
+      "title": "New vehicle",
+      "company": "Company",
+      "selectCompany": "-- Select company --",
+      "submit": "Add vehicle",
+      "submitting": "Adding...",
+      "success": "Vehicle added"
+    },
+    "editModal": {
+      "title": "Edit vehicle",
+      "photo": "Vehicle photo",
+      "selectPhoto": "Select photo",
+      "uploading": "Uploading...",
+      "uploadSuccess": "Photo uploaded",
+      "uploadError": "Failed to upload photo",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "Vehicle updated"
+    }
+  },
+  "trips": {
+    "title": "Trips",
+    "subtitle": "Trip overview ({count})",
+    "addTrip": "Add trip",
+    "searchPlaceholder": "Search...",
+    "filterAll": "All",
+    "table": {
+      "route": "Route",
+      "vehicle": "Vehicle",
+      "driver": "Driver",
+      "departure": "Scheduled dep.",
+      "arrival": "Scheduled arr.",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "noTrips": "No trips",
+    "status": {
+      "scheduled": "Scheduled",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "delayed": "Delayed"
+    },
+    "cancelTrip": "Cancel trip",
+    "confirmCancel": "Are you sure you want to cancel this trip?",
+    "cancelled": "Trip cancelled",
+    "createModal": {
+      "title": "New trip",
+      "route": "Route",
+      "selectRoute": "-- Select route --",
+      "vehicle": "Vehicle",
+      "selectVehicle": "-- Select vehicle --",
+      "driver": "Driver",
+      "selectDriver": "-- Select driver --",
+      "departureTime": "Scheduled departure",
+      "arrivalTime": "Scheduled arrival",
+      "notes": "Notes",
+      "submit": "Create trip",
+      "submitting": "Creating...",
+      "success": "Trip created"
+    },
+    "editModal": {
+      "title": "Edit trip",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "Trip updated"
+    }
+  },
+  "simulator": {
+    "title": "Vehicle Simulator",
+    "subtitle": "Simulate bus movement for GPS tracking testing",
+    "newSimulation": "New simulation",
+    "trip": "Trip",
+    "selectTrip": "-- Select trip --",
+    "noRoute": "No route",
+    "noVehicle": "No vehicle",
+    "speedMultiplier": "Speed multiplier: {value}x",
+    "speedRealtime": "1x (realtime)",
+    "updateInterval": "Update interval: {value}s",
+    "startSimulation": "Start simulation",
+    "starting": "Starting...",
+    "activeSimulations": "Active simulations ({count})",
+    "noActiveSimulations": "No active simulations",
+    "speed": "Speed",
+    "heading": "Heading",
+    "segment": "Segment {current}/{total}",
+    "elapsed": "Elapsed",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "status": {
+      "running": "Running",
+      "paused": "Paused",
+      "completed": "Completed",
+      "stopped": "Stopped"
+    }
+  },
+  "audit": {
+    "title": "Audit Logs",
+    "subtitle": "System change history",
+    "filterAll": "All",
+    "table": {
+      "date": "Date",
+      "timestamp": "Time",
+      "user": "User",
+      "action": "Action",
+      "type": "Type",
+      "entityId": "Entity ID",
+      "ip": "IP",
+      "resource": "Resource",
+      "details": "Details"
+    },
+    "noLogs": "No logs"
+  },
+  "schedules": {
+    "title": "Schedules",
+    "subtitle": "Trip schedule management ({count})",
+    "addSchedule": "Add schedule",
+    "searchPlaceholder": "Search by name...",
+    "table": {
+      "name": "Name",
+      "route": "Route",
+      "type": "Type",
+      "departure": "Departure",
+      "arrival": "Arrival",
+      "validFrom": "Valid from",
+      "validTo": "Valid to",
+      "status": "Status",
+      "trips": "Trips",
+      "exceptions": "Exceptions",
+      "actions": "Actions"
+    },
+    "noSchedules": "No schedules",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "type": {
+      "single": "Single",
+      "recurring": "Recurring"
+    },
+    "createModal": {
+      "title": "New schedule",
+      "name": "Schedule name",
+      "description": "Description",
+      "route": "Route",
+      "vehicle": "Vehicle (optional)",
+      "driver": "Driver (optional)",
+      "departureTime": "Departure time",
+      "arrivalTime": "Arrival time",
+      "scheduleType": "Schedule type",
+      "rrule": "Recurrence rule (RRULE)",
+      "validFrom": "Valid from",
+      "validTo": "Valid to (optional)",
+      "calendarModifiers": "Calendar modifiers",
+      "submit": "Create schedule",
+      "submitting": "Creating...",
+      "success": "Schedule created"
+    },
+    "editModal": {
+      "title": "Edit schedule",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "Schedule updated"
+    },
+    "details": {
+      "title": "Schedule details",
+      "backToList": "Back to schedule list",
+      "info": "Schedule information",
+      "preview": "Trip preview",
+      "previewDays": "Days to preview",
+      "generateTrips": "Generate trips",
+      "generating": "Generating...",
+      "generated": "Generated {count} trips",
+      "exceptions": "Exceptions ({count})",
+      "addException": "Add exception",
+      "noExceptions": "No exceptions"
+    },
+    "exceptions": {
+      "title": "Schedule exception",
+      "date": "Date",
+      "type": "Exception type",
+      "typeSkip": "Skip (no trip)",
+      "typeModify": "Modify",
+      "newDepartureTime": "New departure time",
+      "newArrivalTime": "New arrival time",
+      "newVehicle": "Different vehicle",
+      "newDriver": "Different driver",
+      "reason": "Reason",
+      "submit": "Add exception",
+      "submitting": "Adding...",
+      "success": "Exception added",
+      "deleted": "Exception deleted",
+      "confirmDelete": "Are you sure you want to delete this exception?"
+    },
+    "rruleBuilder": {
+      "frequency": "Frequency",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "interval": "Interval",
+      "every": "Every",
+      "days": "days",
+      "weeks": "weeks",
+      "months": "months",
+      "weekdays": "Weekdays",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "calendarModifier": {
+      "exclude": "Exclude days from calendar",
+      "includeOnly": "Only days from calendar",
+      "excludeDates": "Exclude specific dates",
+      "selectCalendar": "Select calendar",
+      "addModifier": "Add modifier",
+      "noModifiers": "No modifiers"
+    }
+  },
+  "calendars": {
+    "title": "Calendars",
+    "subtitle": "Holiday and special day calendar management ({count})",
+    "addCalendar": "Add calendar",
+    "searchPlaceholder": "Search by name...",
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "country": "Country",
+      "region": "Region",
+      "type": "Type",
+      "year": "Year",
+      "entries": "Entries",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "noCalendars": "No calendars",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "type": {
+      "holidays": "Holidays",
+      "school_days": "School days",
+      "custom": "Custom"
+    },
+    "createModal": {
+      "title": "New calendar",
+      "code": "Calendar code",
+      "name": "Name",
+      "description": "Description",
+      "country": "Country (ISO 3166-1 alpha-2)",
+      "region": "Region/province",
+      "type": "Calendar type",
+      "year": "Year (empty = recurring)",
+      "submit": "Create calendar",
+      "submitting": "Creating...",
+      "success": "Calendar created"
+    },
+    "editModal": {
+      "title": "Edit calendar",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "Calendar updated"
+    },
+    "details": {
+      "title": "Calendar details",
+      "backToList": "Back to calendar list",
+      "info": "Calendar information",
+      "entries": "Entries ({count})",
+      "addEntry": "Add entry",
+      "noEntries": "No entries",
+      "previewYear": "Preview year",
+      "previewDates": "Dates in year {year}"
+    },
+    "entry": {
+      "title": "Calendar entry",
+      "name": "Name",
+      "dateType": "Date type",
+      "dateTypeFixed": "Fixed date",
+      "dateTypeEaster": "Relative to Easter",
+      "dateTypeNthWeekday": "Nth weekday",
+      "fixedDate": "Date (MM-DD or YYYY-MM-DD)",
+      "easterOffset": "Easter offset (days)",
+      "nthWeekday": "Nth weekday",
+      "nthMonth": "Month",
+      "nthWeekdayDay": "Weekday",
+      "nthNumber": "Which",
+      "startDate": "Start date (for ranges)",
+      "endDate": "End date (for ranges)",
+      "isRecurring": "Repeats yearly",
+      "submit": "Add entry",
+      "submitting": "Adding...",
+      "success": "Entry added",
+      "deleted": "Entry deleted",
+      "confirmDelete": "Are you sure you want to delete this entry?"
+    }
+  }
+}

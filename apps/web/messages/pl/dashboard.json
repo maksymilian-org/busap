@@ -1,0 +1,98 @@
+{
+  "layout": {
+    "passengerPanel": "Panel pasażera",
+    "driverPanel": "Panel kierowcy",
+    "managerPanel": "Panel managera"
+  },
+  "passengerNav": {
+    "search": "Szukaj",
+    "map": "Mapa",
+    "history": "Historia"
+  },
+  "driverNav": {
+    "myCourses": "Moje kursy",
+    "onRoute": "W trasie",
+    "history": "Historia"
+  },
+  "managerNav": {
+    "dashboard": "Dashboard",
+    "stops": "Przystanki",
+    "routes": "Trasy",
+    "trips": "Kursy",
+    "vehicles": "Pojazdy",
+    "users": "Użytkownicy",
+    "reports": "Raporty"
+  },
+  "passenger": {
+    "title": "Szukaj połączenia",
+    "subtitle": "Znajdź autobus i sprawdź rozkład jazdy",
+    "fromLabel": "Skąd",
+    "fromPlaceholder": "Przystanek początkowy",
+    "toLabel": "Dokąd",
+    "toPlaceholder": "Przystanek końcowy",
+    "dateLabel": "Data",
+    "searchButton": "Szukaj",
+    "searching": "Szukanie...",
+    "results": "Wyniki ({count})",
+    "noResults": "Brak połączeń na wybranej trasie",
+    "noResultsHint": "Spróbuj zmienić datę lub przystanki",
+    "selectStops": "Wybierz przystanki",
+    "selectStopsHint": "Wybierz przystanek początkowy i końcowy z listy",
+    "departure": "Odjazd",
+    "arrival": "Przyjazd",
+    "live": "Na żywo",
+    "stopsOnRoute": "Przystanki na trasie",
+    "vehicle": "Pojazd",
+    "howToSearch": "Jak szukać?",
+    "step1Title": "Wpisz przystanek",
+    "step1Desc": "Zacznij pisać nazwę przystanku i wybierz z listy",
+    "step2Title": "Wybierz datę",
+    "step2Desc": "Domyślnie pokazujemy kursy na dzisiaj",
+    "step3Title": "Sprawdź wyniki",
+    "step3Desc": "Zobacz dostępne kursy, ceny i śledzenie na żywo",
+    "featuresTitle": "Funkcje",
+    "featureLiveTracking": "Śledzenie na żywo",
+    "featureLiveTrackingDesc": "Pozycja autobusu w czasie rzeczywistym",
+    "featureEta": "Szacowany czas przyjazdu",
+    "featureEtaDesc": "ETA na podstawie GPS",
+    "featureRouteMap": "Mapa trasy",
+    "featureRouteMapDesc": "Zobacz przystanki na mapie",
+    "tripStatus": {
+      "scheduled": "Zaplanowany",
+      "inProgress": "W trasie",
+      "completed": "Zakończony",
+      "cancelled": "Anulowany"
+    }
+  },
+  "profile": {
+    "title": "Mój profil",
+    "subtitle": "Zarządzaj swoimi danymi osobowymi i ustawieniami konta",
+    "personalDataTitle": "Dane osobowe",
+    "personalDataDesc": "Zaktualizuj swoje dane kontaktowe",
+    "firstNameLabel": "Imię",
+    "lastNameLabel": "Nazwisko",
+    "emailLabel": "Email",
+    "emailChangeHint": "Aby zmienić email, skontaktuj się z administratorem",
+    "phoneLabel": "Telefon",
+    "phonePlaceholder": "+48 123 456 789",
+    "saveButton": "Zapisz zmiany",
+    "saving": "Zapisywanie...",
+    "accountInfoTitle": "Informacje o koncie",
+    "userId": "ID użytkownika",
+    "registrationDate": "Data rejestracji",
+    "avatarUpdated": "Avatar zaktualizowany",
+    "avatarError": "Nie udało się przesłać avatara",
+    "profileUpdated": "Profil zaktualizowany",
+    "profileError": "Nie udało się zaktualizować profilu",
+    "uploading": "Przesyłanie...",
+    "changeAvatar": "Zmień"
+  },
+  "driver": {
+    "title": "Panel kierowcy",
+    "subtitle": "Zarządzaj swoimi kursami"
+  },
+  "manager": {
+    "title": "Panel managera",
+    "subtitle": "Zarządzaj operacjami"
+  }
+}

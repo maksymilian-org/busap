@@ -1,0 +1,98 @@
+{
+  "layout": {
+    "passengerPanel": "Passenger Panel",
+    "driverPanel": "Driver Panel",
+    "managerPanel": "Manager Panel"
+  },
+  "passengerNav": {
+    "search": "Search",
+    "map": "Map",
+    "history": "History"
+  },
+  "driverNav": {
+    "myCourses": "My Courses",
+    "onRoute": "On Route",
+    "history": "History"
+  },
+  "managerNav": {
+    "dashboard": "Dashboard",
+    "stops": "Stops",
+    "routes": "Routes",
+    "trips": "Trips",
+    "vehicles": "Vehicles",
+    "users": "Users",
+    "reports": "Reports"
+  },
+  "passenger": {
+    "title": "Search Connection",
+    "subtitle": "Find a bus and check the schedule",
+    "fromLabel": "From",
+    "fromPlaceholder": "Starting stop",
+    "toLabel": "To",
+    "toPlaceholder": "Destination stop",
+    "dateLabel": "Date",
+    "searchButton": "Search",
+    "searching": "Searching...",
+    "results": "Results ({count})",
+    "noResults": "No connections on this route",
+    "noResultsHint": "Try changing the date or stops",
+    "selectStops": "Select stops",
+    "selectStopsHint": "Select starting and destination stops from the list",
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "live": "Live",
+    "stopsOnRoute": "Stops on route",
+    "vehicle": "Vehicle",
+    "howToSearch": "How to search?",
+    "step1Title": "Enter stop",
+    "step1Desc": "Start typing a stop name and select from the list",
+    "step2Title": "Select date",
+    "step2Desc": "By default we show trips for today",
+    "step3Title": "Check results",
+    "step3Desc": "See available trips, prices, and live tracking",
+    "featuresTitle": "Features",
+    "featureLiveTracking": "Live tracking",
+    "featureLiveTrackingDesc": "Real-time bus position",
+    "featureEta": "Estimated arrival time",
+    "featureEtaDesc": "ETA based on GPS",
+    "featureRouteMap": "Route map",
+    "featureRouteMapDesc": "View stops on the map",
+    "tripStatus": {
+      "scheduled": "Scheduled",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal data and account settings",
+    "personalDataTitle": "Personal Data",
+    "personalDataDesc": "Update your contact information",
+    "firstNameLabel": "First name",
+    "lastNameLabel": "Last name",
+    "emailLabel": "Email",
+    "emailChangeHint": "To change your email, contact the administrator",
+    "phoneLabel": "Phone",
+    "phonePlaceholder": "+1 123 456 789",
+    "saveButton": "Save changes",
+    "saving": "Saving...",
+    "accountInfoTitle": "Account Information",
+    "userId": "User ID",
+    "registrationDate": "Registration date",
+    "avatarUpdated": "Avatar updated",
+    "avatarError": "Failed to upload avatar",
+    "profileUpdated": "Profile updated",
+    "profileError": "Failed to update profile",
+    "uploading": "Uploading...",
+    "changeAvatar": "Change"
+  },
+  "driver": {
+    "title": "Driver Panel",
+    "subtitle": "Manage your courses"
+  },
+  "manager": {
+    "title": "Manager Panel",
+    "subtitle": "Manage operations"
+  }
+}

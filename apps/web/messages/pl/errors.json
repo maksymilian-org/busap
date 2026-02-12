@@ -1,0 +1,49 @@
+{
+  "general": {
+    "title": "Błąd",
+    "unknown": "Wystąpił nieznany błąd",
+    "tryAgain": "Spróbuj ponownie",
+    "goBack": "Wróć",
+    "goHome": "Strona główna"
+  },
+  "network": {
+    "offline": "Brak połączenia z internetem",
+    "timeout": "Przekroczono limit czasu żądania",
+    "serverError": "Błąd serwera. Spróbuj ponownie później."
+  },
+  "auth": {
+    "unauthorized": "Musisz być zalogowany",
+    "forbidden": "Brak uprawnień do tej operacji",
+    "sessionExpired": "Sesja wygasła. Zaloguj się ponownie.",
+    "invalidCredentials": "Nieprawidłowy email lub hasło",
+    "accountDisabled": "Konto zostało dezaktywowane",
+    "emailNotVerified": "Email nie został zweryfikowany"
+  },
+  "validation": {
+    "required": "To pole jest wymagane",
+    "email": "Podaj prawidłowy adres email",
+    "minLength": "Minimalna długość to {min} znaków",
+    "maxLength": "Maksymalna długość to {max} znaków",
+    "passwordMismatch": "Hasła nie są identyczne",
+    "invalidFormat": "Nieprawidłowy format"
+  },
+  "api": {
+    "notFound": "Nie znaleziono zasobu",
+    "conflict": "Zasób już istnieje",
+    "badRequest": "Nieprawidłowe żądanie",
+    "rateLimited": "Zbyt wiele żądań. Poczekaj chwilę."
+  },
+  "form": {
+    "submitError": "Nie udało się wysłać formularza",
+    "loadError": "Nie udało się załadować danych"
+  },
+  "search": {
+    "noResults": "Brak wyników",
+    "searchError": "Błąd wyszukiwania"
+  },
+  "file": {
+    "uploadError": "Nie udało się przesłać pliku",
+    "tooLarge": "Plik jest za duży",
+    "invalidType": "Nieprawidłowy typ pliku"
+  }
+}

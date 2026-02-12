@@ -1,0 +1,102 @@
+{
+  "hero": {
+    "badge": "A new era of bus transport",
+    "title": "Manage your fleet",
+    "titleHighlight": "intelligently",
+    "description": "Busap is a comprehensive platform for bus transport management. Track vehicles, optimize routes, and provide passengers with the best travel experience.",
+    "ctaPrimary": "Start for free",
+    "ctaSecondary": "See features",
+    "benefit1": "14 days free",
+    "benefit2": "No credit card required"
+  },
+  "demo": {
+    "line": "Line 42",
+    "route": "New York - Boston",
+    "status": "In transit",
+    "nextStop": "Next stop",
+    "nextStopValue": "Hartford Station",
+    "eta": "ETA",
+    "etaValue": "12 min",
+    "speed": "Speed",
+    "speedValue": "54 mph",
+    "progress": "{percent}% of route completed"
+  },
+  "features": {
+    "title": "Everything you need",
+    "description": "Busap offers a complete set of tools for passengers, drivers, and fleet managers.",
+    "gpsTracking": {
+      "title": "Real-time GPS tracking",
+      "description": "Track buses on the map in real time. Always know where your bus is."
+    },
+    "eta": {
+      "title": "Accurate ETA",
+      "description": "Smart ETA engine considers traffic and historical data for precise predictions."
+    },
+    "driverPanel": {
+      "title": "Driver panel",
+      "description": "Dedicated app for drivers with automatic course assignment and reporting."
+    },
+    "security": {
+      "title": "Data security",
+      "description": "Your data is safe. GDPR compliant and highest security standards."
+    },
+    "offline": {
+      "title": "Offline mode",
+      "description": "App works even without internet. Data syncs automatically."
+    },
+    "reports": {
+      "title": "Reports and analytics",
+      "description": "Detailed reports on punctuality, driver performance, and fleet utilization."
+    }
+  },
+  "stats": {
+    "vehicles": "Active vehicles",
+    "passengers": "Passengers monthly",
+    "uptime": "System uptime",
+    "languages": "Supported languages"
+  },
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "description": "Choose a plan that fits your fleet size. All plans include a 14-day trial.",
+    "perMonth": "/month",
+    "mostPopular": "Most Popular",
+    "starter": {
+      "name": "Starter",
+      "price": "99",
+      "description": "For small businesses",
+      "feature1": "Up to 5 vehicles",
+      "feature2": "GPS tracking",
+      "feature3": "Basic reports",
+      "feature4": "Email support",
+      "cta": "Get started"
+    },
+    "professional": {
+      "name": "Professional",
+      "price": "249",
+      "description": "For growing businesses",
+      "feature1": "Up to 20 vehicles",
+      "feature2": "Advanced ETA",
+      "feature3": "Manager panel",
+      "feature4": "Priority support",
+      "feature5": "API access",
+      "cta": "Get started"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Custom",
+      "description": "For large carriers",
+      "feature1": "Unlimited vehicles",
+      "feature2": "Dedicated account manager",
+      "feature3": "SLA 99.9%",
+      "feature4": "Custom integrations",
+      "feature5": "On-site training",
+      "cta": "Contact us"
+    }
+  },
+  "cta": {
+    "title": "Ready to transform your transport?",
+    "description": "Join hundreds of companies already using Busap. Start your 14-day trial and see how we can improve your operations.",
+    "primary": "Start for free",
+    "secondary": "Schedule demo"
+  }
+}

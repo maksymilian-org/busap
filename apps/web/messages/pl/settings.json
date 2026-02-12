@@ -1,0 +1,12 @@
+{
+  "title": "Ustawienia",
+  "description": "Zarządzaj preferencjami aplikacji",
+  "language": {
+    "title": "Język",
+    "description": "Wybierz preferowany język"
+  },
+  "theme": {
+    "title": "Motyw",
+    "description": "Wybierz preferowany schemat kolorów"
+  }
+}

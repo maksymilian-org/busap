@@ -8,8 +8,10 @@ export interface Trip {
   companyId: string;
   routeId: string;
   routeVersionId: string;
-  vehicleId: string;
-  driverId: string;
+  vehicleId: string | null;
+  driverId: string | null;
+  scheduleId?: string | null;
+  scheduleDate?: string | null;
   scheduledDepartureTime: Date;
   scheduledArrivalTime: Date;
   actualDepartureTime?: Date;
@@ -40,8 +42,8 @@ export interface TripStopTime {
 export interface CreateTripInput {
   companyId: string;
   routeId: string;
-  vehicleId: string;
-  driverId: string;
+  vehicleId?: string;
+  driverId?: string;
   scheduledDepartureTime: Date;
   notes?: string;
 }
@@ -66,6 +68,42 @@ export interface SearchTripsInput {
   toStopId?: string;
   limit?: number;
   offset?: number;
+}
+
+// ==================== Virtual Trips ====================
+
+export interface VirtualStopTime {
+  routeStopId: string;
+  stopId: string;
+  stopName: string;
+  sequenceNumber: number;
+  scheduledArrival: string;   // ISO datetime
+  scheduledDeparture: string; // ISO datetime
+}
+
+export interface VirtualTrip {
+  id: string;                      // "virtual:{scheduleId}:{YYYY-MM-DD}" or UUID
+  type: 'virtual' | 'materialized';
+  scheduleId: string;
+  scheduleDate: string;            // YYYY-MM-DD
+  companyId: string;
+  routeId: string;
+  routeName: string;
+  vehicleId: string | null;
+  driverId: string | null;
+  driverName: string | null;
+  scheduledDepartureTime: string;  // ISO datetime
+  scheduledArrivalTime: string;    // ISO datetime
+  status: TripStatusType;
+  stopTimes: VirtualStopTime[];
+  isModified: boolean;
+}
+
+export interface ParsedTripId {
+  type: 'virtual' | 'materialized';
+  scheduleId?: string;
+  date?: string;
+  tripId?: string;
 }
 
 export interface DriverTripView {

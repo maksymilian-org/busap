@@ -34,6 +34,20 @@ services:
       timeout: 5s
       retries: 5
 
+  # Mailpit (dev email server)
+  mailpit:
+    image: axllent/mailpit
+    container_name: busap-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8025/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # NestJS API (for development with hot reload)
   api:
     build:
@@ -48,22 +62,36 @@ services:
       - ./packages/shared:/app/packages/shared
       - /app/node_modules
       - /app/apps/api/node_modules
+      - api_uploads:/app/apps/api/uploads
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://busap:busap_secret@postgres:5432/busap?schema=public
       - REDIS_URL=redis://redis:6379
-      - APPWRITE_ENDPOINT=http://appwrite/v1
-      - APPWRITE_PROJECT_ID=busap
-      - APPWRITE_API_KEY=${APPWRITE_API_KEY:-}
+      - JWT_SECRET=${JWT_SECRET:-busap_dev_jwt_secret_change_in_production}
+      - JWT_ACCESS_EXPIRES_IN=15m
+      - JWT_REFRESH_EXPIRES_IN=7d
+      - UPLOAD_DIR=./uploads
+      - MAX_FILE_SIZE=5242880
+      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID:-}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID:-}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY:-}
+      - R2_BUCKET_NAME=${R2_BUCKET_NAME:-busap-storage}
+      - R2_PUBLIC_URL=${R2_PUBLIC_URL:-}
       - API_PORT=3001
       - API_HOST=0.0.0.0
-    networks:
-      - default
-      - appwrite_gateway
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - SMTP_USER=
+      - SMTP_PASS=
+      - SMTP_SECURE=false
+      - MAIL_FROM=Busap <noreply@busap.pl>
+      - FRONTEND_URL=http://localhost:3000
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      mailpit:
         condition: service_healthy
     command: pnpm --filter @busap/api dev
 
@@ -84,8 +112,6 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:3001
-      - NEXT_PUBLIC_APPWRITE_ENDPOINT=http://localhost/v1
-      - NEXT_PUBLIC_APPWRITE_PROJECT_ID=busap
     depends_on:
       - api
     command: pnpm --filter @busap/web dev
@@ -93,8 +119,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
-
-networks:
-  appwrite_gateway:
-    external: true
-    name: gateway
+  api_uploads:

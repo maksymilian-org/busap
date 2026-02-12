@@ -35,7 +35,7 @@ export class RolesGuard implements CanActivate {
 
     // Get user from database with their company roles
     const dbUser = await this.prisma.user.findUnique({
-      where: { appwriteId: user.appwriteId },
+      where: { id: user.id },
       include: {
         companyUsers: {
           where: { isActive: true },
@@ -48,10 +48,18 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('User not found in database');
     }
 
-    // Superadmin has access to everything
-    if (dbUser.companyUsers.some((cu: { role: string }) => cu.role === UserRole.SUPERADMIN)) {
-      request.user = { ...request.user, dbUser, isSuperadmin: true };
+    // Superadmin has access to everything (system-level role)
+    if (dbUser.systemRole === UserRole.SUPERADMIN) {
+      request.user = { ...request.user, dbUser, isSuperadmin: true, isAdmin: true };
       return true;
+    }
+
+    // Admin has access to admin-level features (system-level role)
+    if (dbUser.systemRole === UserRole.ADMIN) {
+      if (requiredRoles.includes(UserRole.ADMIN) || requiredRoles.includes(UserRole.SUPERADMIN)) {
+        request.user = { ...request.user, dbUser, isSuperadmin: false, isAdmin: true };
+        return true;
+      }
     }
 
     // Check if user has required role in any company

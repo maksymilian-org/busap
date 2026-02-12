@@ -22,7 +22,6 @@ help:
 	@echo ""
 	@echo "Individual services:"
 	@echo "  make up-db       - Start only database services (postgres, redis)"
-	@echo "  make up-appwrite - Start Appwrite services"
 	@echo "  make logs-api    - Follow API logs"
 	@echo "  make logs-web    - Follow Web logs"
 
@@ -32,9 +31,6 @@ up:
 
 up-db:
 	docker compose up -d postgres redis
-
-up-appwrite:
-	docker compose up -d appwrite appwrite-mariadb appwrite-redis appwrite-influxdb appwrite-telegraf
 
 down:
 	docker compose down

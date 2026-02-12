@@ -3,6 +3,7 @@ export const UserRole = {
   DRIVER: 'driver',
   MANAGER: 'manager',
   OWNER: 'owner',
+  ADMIN: 'admin',
   SUPERADMIN: 'superadmin',
 } as const;
 

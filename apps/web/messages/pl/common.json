@@ -1,0 +1,102 @@
+{
+  "navigation": {
+    "features": "Funkcje",
+    "pricing": "Cennik",
+    "business": "Dla firm",
+    "contact": "Kontakt",
+    "login": "Zaloguj",
+    "register": "Zarejestruj",
+    "logout": "Wyloguj",
+    "profile": "Profil",
+    "settings": "Ustawienia",
+    "adminPanel": "Panel admina",
+    "userPanel": "Panel użytkownika",
+    "goToApp": "Przejdź do aplikacji",
+    "myAccount": "Moje konto"
+  },
+  "actions": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "add": "Dodaj",
+    "create": "Utwórz",
+    "update": "Zaktualizuj",
+    "search": "Szukaj",
+    "filter": "Filtruj",
+    "clear": "Wyczyść",
+    "close": "Zamknij",
+    "confirm": "Potwierdź",
+    "back": "Wróć",
+    "next": "Dalej",
+    "previous": "Poprzedni",
+    "submit": "Wyślij",
+    "loading": "Ładowanie...",
+    "saving": "Zapisywanie...",
+    "sending": "Wysyłanie...",
+    "creating": "Tworzenie...",
+    "showMap": "Pokaż mapę",
+    "hideMap": "Ukryj mapę"
+  },
+  "status": {
+    "active": "Aktywny",
+    "inactive": "Nieaktywny",
+    "pending": "Oczekujący",
+    "completed": "Zakończony",
+    "cancelled": "Anulowany",
+    "scheduled": "Zaplanowany",
+    "inProgress": "W trakcie",
+    "error": "Błąd",
+    "recurring": "Cykliczny",
+    "single": "Jednorazowy"
+  },
+  "pagination": {
+    "showing": "Wyświetlanie {from}-{to} z {total}",
+    "previous": "Poprzednia",
+    "next": "Następna",
+    "page": "Strona {page} z {total}"
+  },
+  "form": {
+    "required": "To pole jest wymagane",
+    "email": "Email",
+    "password": "Hasło",
+    "confirmPassword": "Potwierdź hasło",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "phone": "Telefon",
+    "date": "Data"
+  },
+  "language": {
+    "label": "Język",
+    "pl": "Polski",
+    "en": "English"
+  },
+  "theme": {
+    "toggle": "Przełącz motyw",
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "Systemowy"
+  },
+  "footer": {
+    "product": "Produkt",
+    "company": "Firma",
+    "legal": "Prawne",
+    "features": "Funkcje",
+    "pricing": "Cennik",
+    "business": "Dla firm",
+    "mobileApp": "Aplikacja mobilna",
+    "about": "O nas",
+    "blog": "Blog",
+    "careers": "Kariera",
+    "contact": "Kontakt",
+    "privacy": "Polityka prywatności",
+    "terms": "Regulamin",
+    "gdpr": "RODO",
+    "description": "Nowoczesna platforma do zarządzania transportem autobusowym. Śledź autobusy, planuj podróże i zarządzaj flotą.",
+    "copyright": "© {year} Busap. Wszelkie prawa zastrzeżone."
+  },
+  "brand": {
+    "name": "Busap",
+    "tagline": "Platforma Transportu Autobusowego"
+  }
+}

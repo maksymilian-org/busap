@@ -41,7 +41,7 @@ The MVP should work locally and for pilot testing, designed for future scalabili
 - **Backend:** Node.js (Fastify or NestJS) in **TypeScript**
 - **Database:** PostgreSQL
 - **Cache / Realtime:** Redis (ETA / GPS caching)
-- **Auth & Realtime:** Appwrite self-hosted
+- **Auth:** bcrypt + JWT, **Realtime:** Socket.io + Redis pub/sub, **Storage:** Local filesystem (S3-ready)
 - **Containerization:** Docker + Docker Compose
 - **Repository:** GitHub
 - **CLI-first workflow:** Makefile or custom CLI commands
@@ -92,7 +92,7 @@ The MVP should work locally and for pilot testing, designed for future scalabili
 - Offline-first support
 - Role-based access and audit logs
 - Pricing engine: flat & segment-based
-- Realtime GPS updates via Appwrite
+- Realtime GPS updates via Socket.io WebSocket
 - Notifications for deviations from schedule
 - Multilingual: PL, EN, UA, DE, IT, FR, ES, BE
 - Map integration: OpenStreetMap + Leaflet
@@ -157,7 +157,7 @@ The MVP should work locally and for pilot testing, designed for future scalabili
 
 ## Notes
 - All business logic must reside in backend (Node.js) only
-- Appwrite is used only for auth, storage, and realtime notifications
+- Auth: bcrypt + JWT. Realtime: Socket.io over Redis pub/sub. Storage: local filesystem with abstract provider interface.
 - NativeWind for mobile, Tailwind for web
 - ETA engine modular and cacheable (Redis)
 - Offline support for drivers and passengers

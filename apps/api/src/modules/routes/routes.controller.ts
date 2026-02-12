@@ -59,7 +59,7 @@ export class RoutesController {
 
   @Post()
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Create a new route' })
   async create(@Body() data: CreateRouteInput) {
     return this.routesService.create(data);
@@ -67,7 +67,7 @@ export class RoutesController {
 
   @Post(':id/versions')
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Create a new route version' })
   async createVersion(
     @Param('id') id: string,
@@ -78,7 +78,7 @@ export class RoutesController {
 
   @Post(':id/exceptions')
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Create a route exception' })
   async createException(
     @Param('id') id: string,
@@ -89,7 +89,7 @@ export class RoutesController {
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Update route' })
   async update(@Param('id') id: string, @Body() data: UpdateRouteInput) {
     return this.routesService.update(id, data);
@@ -97,7 +97,7 @@ export class RoutesController {
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Delete route (soft delete)' })
   async delete(@Param('id') id: string) {
     return this.routesService.delete(id);

@@ -28,7 +28,7 @@ busap/
 ### 1. Start Infrastructure
 
 ```bash
-# Start PostgreSQL, Redis, and Appwrite
+# Start PostgreSQL and Redis
 docker-compose up -d
 
 # Check status
@@ -37,8 +37,7 @@ docker ps
 
 This starts:
 - **PostgreSQL** (port 5432) - main database
-- **Redis** (port 6379) - caching
-- **Appwrite** (port 80) - authentication service with MariaDB, Redis, InfluxDB
+- **Redis** (port 6379) - caching and realtime pub/sub
 
 ### 2. Install Dependencies
 
@@ -46,52 +45,26 @@ This starts:
 pnpm install
 ```
 
-### 3. Configure Appwrite
+### 3. Set Up Environment
 
-The project uses [Appwrite](https://appwrite.io/) for user authentication. Appwrite is included in docker-compose and starts automatically with the infrastructure.
-
-#### First-time Setup
-
-1. Open the Appwrite console at http://localhost
-2. Create an admin account (first user becomes the root admin)
-3. Create a new project:
-   - Click **Create Project**
-   - Name: `busap`
-   - Project ID: `busap` (or copy the generated ID)
-4. Generate an API key:
-   - Go to **Settings > API Keys**
-   - Click **Create API Key**
-   - Name: `busap-api`
-   - Select scopes: `users.read`, `users.write`
-   - Copy the generated key
-
-#### Configure Environment Variables
-
-Update the `.env` file with your Appwrite API key:
+Copy the `.env.example` file:
 
 ```bash
-APPWRITE_ENDPOINT=http://localhost/v1
-APPWRITE_PROJECT_ID=busap
-APPWRITE_API_KEY=your_generated_api_key
-```
-
-### 4. Set Up Environment
-
-Copy the `.env` file to the app folders:
-
-```bash
+cp .env.example .env
 cp .env apps/api/.env
 ```
 
-### 5. Prepare the Database
+Update `JWT_SECRET` in the `.env` file with a secure random string.
+
+### 4. Prepare the Database
 
 ```bash
 cd apps/api
 npx prisma generate
-npx prisma db push
+npx prisma migrate dev
 ```
 
-### 6. Run the Applications
+### 5. Run the Applications
 
 #### API (port 3001)
 ```bash
@@ -122,7 +95,7 @@ pnpm --filter @busap/web dev
 | maksymilian.org+driver@gmail.com | driver | Operate assigned trips |
 | maksymilian.org+passenger@gmail.com | passenger | Search and purchase tickets |
 
-**Note:** The accounts are created in the local database. Full authentication requires Appwrite configuration.
+**Note:** Register accounts via `POST /api/v1/auth/register` with email and password.
 
 ## API Documentation
 
@@ -134,7 +107,10 @@ After starting the API, Swagger docs are available at:
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/v1/auth/register` | POST | User registration |
-| `/api/v1/auth/sync` | POST | Sync with Appwrite |
+| `/api/v1/auth/login` | POST | Login with email/password |
+| `/api/v1/auth/refresh` | POST | Refresh access token |
+| `/api/v1/auth/logout` | POST | Logout and revoke tokens |
+| `/api/v1/auth/me` | GET | Get current user profile |
 | `/api/v1/companies` | GET/POST | List/create companies |
 | `/api/v1/routes` | GET/POST | List/create routes |
 | `/api/v1/trips` | GET/POST | List/create trips |
@@ -143,6 +119,16 @@ After starting the API, Swagger docs are available at:
 | `/api/v1/pricing` | GET/POST | Pricing |
 | `/api/v1/eta` | GET | Estimated time of arrival |
 | `/api/v1/gps/report` | POST | Report GPS position |
+| `/api/v1/storage/upload/*` | POST | Upload files |
+
+## WebSocket (Realtime)
+
+Connect to `/realtime` namespace with Socket.io. Pass JWT token in `auth.token` handshake parameter.
+
+Events:
+- `subscribe:trip` / `unsubscribe:trip` — subscribe to trip GPS updates
+- `subscribe:route` / `unsubscribe:route` — subscribe to route GPS updates
+- `position:update` — receive live bus position updates
 
 ## Role System
 
@@ -194,7 +180,9 @@ pnpm lint
 - **Mobile:** React Native, Expo SDK 54, expo-router
 - **Web:** Next.js 15, React 19, TailwindCSS
 - **Shared:** TypeScript, Zod
-- **Authentication:** Appwrite
+- **Authentication:** bcrypt + JWT (access + refresh tokens)
+- **Realtime:** Socket.io + Redis pub/sub
+- **Storage:** Local filesystem (S3-ready abstract interface)
 - **API Documentation:** Swagger/OpenAPI
 
 ## Environment Variables
@@ -204,9 +192,11 @@ pnpm lint
 | `DATABASE_URL` | PostgreSQL connection URL | `postgresql://busap:busap_secret@localhost:5432/busap` |
 | `REDIS_URL` | Redis connection URL | `redis://localhost:6379` |
 | `API_PORT` | API Port | `3001` |
-| `APPWRITE_ENDPOINT` | Appwrite endpoint | `http://localhost/v1` |
-| `APPWRITE_PROJECT_ID` | Appwrite project ID | `busap` |
-| `APPWRITE_API_KEY` | Appwrite API key | - |
+| `JWT_SECRET` | JWT signing secret | - |
+| `JWT_ACCESS_EXPIRES_IN` | Access token expiry | `15m` |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiry | `7d` |
+| `UPLOAD_DIR` | File upload directory | `./uploads` |
+| `MAX_FILE_SIZE` | Max upload size in bytes | `5242880` |
 
 ## License
 

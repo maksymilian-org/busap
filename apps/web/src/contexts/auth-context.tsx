@@ -1,21 +1,25 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { account } from '@/lib/appwrite';
-import { Models } from 'appwrite';
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from 'react';
+import type { User, UserCompanyMembership } from '@busap/shared';
+import { api } from '@/lib/api';
 
 interface AuthContextType {
-  user: Models.User<Models.Preferences> | null;
+  user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (email: string, password: string, firstName: string, lastName: string) => Promise<User>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  isOwnerOf: (companyId: string) => boolean;
+  isManagerOf: (companyId: string) => boolean;
+  getMyCompanies: () => UserCompanyMembership[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function checkUser() {
     try {
-      const currentUser = await account.get();
+      if (!api.hasTokens()) {
+        setUser(null);
+        return;
+      }
+      const currentUser = await api.getMe();
       setUser(currentUser);
     } catch {
       setUser(null);
@@ -33,24 +41,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function login(email: string, password: string) {
-    await account.createEmailPasswordSession(email, password);
-    const currentUser = await account.get();
-    setUser(currentUser);
+  async function login(email: string, password: string): Promise<User> {
+    const { user } = await api.login(email, password);
+    setUser(user as User);
+    return user as User;
   }
 
-  async function register(email: string, password: string, name: string) {
-    await account.create('unique()', email, password, name);
-    await login(email, password);
+  async function register(email: string, password: string, firstName: string, lastName: string): Promise<User> {
+    const { user } = await api.register(email, password, firstName, lastName);
+    setUser(user as User);
+    return user as User;
   }
 
   async function logout() {
-    await account.deleteSession('current');
+    await api.logout();
     setUser(null);
   }
 
+  async function refreshUser() {
+    const currentUser = await api.getMe();
+    setUser(currentUser);
+  }
+
+  const isOwnerOf = useMemo(() => {
+    return (companyId: string) =>
+      user?.companyMemberships?.some(
+        (m) => m.companyId === companyId && m.role === 'owner'
+      ) ?? false;
+  }, [user?.companyMemberships]);
+
+  const isManagerOf = useMemo(() => {
+    return (companyId: string) =>
+      user?.companyMemberships?.some(
+        (m) => m.companyId === companyId && (m.role === 'owner' || m.role === 'manager')
+      ) ?? false;
+  }, [user?.companyMemberships]);
+
+  const getMyCompanies = useMemo(() => {
+    return () =>
+      user?.companyMemberships?.filter(
+        (m) => m.role === 'owner' || m.role === 'manager'
+      ) ?? [];
+  }, [user?.companyMemberships]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        refreshUser,
+        isOwnerOf,
+        isManagerOf,
+        getMyCompanies,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

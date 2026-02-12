@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCompanyInput, UpdateCompanyInput } from '@busap/shared';
 import { Prisma } from '@prisma/client';
@@ -125,5 +125,166 @@ export class CompaniesService {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
+  }
+
+  // ==================== Company Members ====================
+
+  async getMembers(companyId: string) {
+    await this.findById(companyId);
+
+    const members = await this.prisma.companyUser.findMany({
+      where: { companyId, isActive: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            avatarUrl: true,
+            isActive: true,
+          },
+        },
+      },
+      orderBy: [
+        { role: 'asc' },
+        { createdAt: 'asc' },
+      ],
+    });
+
+    return members.map((m) => ({
+      id: m.id,
+      userId: m.userId,
+      role: m.role,
+      createdAt: m.createdAt,
+      user: m.user,
+    }));
+  }
+
+  async addMember(companyId: string, userId: string, role: string) {
+    await this.findById(companyId);
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    // Check if already a member
+    const existing = await this.prisma.companyUser.findUnique({
+      where: { userId_companyId: { userId, companyId } },
+    });
+
+    if (existing) {
+      if (existing.isActive) {
+        throw new ConflictException('User is already a member of this company');
+      }
+      // Reactivate membership
+      return this.prisma.companyUser.update({
+        where: { id: existing.id },
+        data: { role, isActive: true },
+        include: { user: { select: { id: true, email: true, firstName: true, lastName: true } } },
+      });
+    }
+
+    return this.prisma.companyUser.create({
+      data: { userId, companyId, role },
+      include: { user: { select: { id: true, email: true, firstName: true, lastName: true } } },
+    });
+  }
+
+  async updateMemberRole(companyId: string, userId: string, newRole: string) {
+    const member = await this.prisma.companyUser.findUnique({
+      where: { userId_companyId: { userId, companyId } },
+    });
+
+    if (!member || !member.isActive) {
+      throw new NotFoundException('Member not found');
+    }
+
+    // If changing from owner, ensure there's another owner
+    if (member.role === 'owner' && newRole !== 'owner') {
+      const ownerCount = await this.prisma.companyUser.count({
+        where: { companyId, role: 'owner', isActive: true },
+      });
+      if (ownerCount <= 1) {
+        throw new BadRequestException('Company must have at least one owner');
+      }
+    }
+
+    return this.prisma.companyUser.update({
+      where: { id: member.id },
+      data: { role: newRole },
+      include: { user: { select: { id: true, email: true, firstName: true, lastName: true } } },
+    });
+  }
+
+  async removeMember(companyId: string, userId: string) {
+    const member = await this.prisma.companyUser.findUnique({
+      where: { userId_companyId: { userId, companyId } },
+    });
+
+    if (!member || !member.isActive) {
+      throw new NotFoundException('Member not found');
+    }
+
+    // Cannot remove the last owner
+    if (member.role === 'owner') {
+      const ownerCount = await this.prisma.companyUser.count({
+        where: { companyId, role: 'owner', isActive: true },
+      });
+      if (ownerCount <= 1) {
+        throw new BadRequestException('Cannot remove the last owner');
+      }
+    }
+
+    await this.prisma.companyUser.update({
+      where: { id: member.id },
+      data: { isActive: false },
+    });
+
+    return { message: 'Member removed successfully' };
+  }
+
+  async getAvailableUsers(companyId: string, search?: string) {
+    // Get existing member IDs
+    const existingMembers = await this.prisma.companyUser.findMany({
+      where: { companyId, isActive: true },
+      select: { userId: true },
+    });
+    const existingUserIds = existingMembers.map((m) => m.userId);
+
+    const where: any = {
+      id: { notIn: existingUserIds },
+      isActive: true,
+    };
+
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const users = await this.prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        avatarUrl: true,
+      },
+      take: 20,
+      orderBy: { firstName: 'asc' },
+    });
+
+    return users;
+  }
+
+  async isCompanyOwner(companyId: string, userId: string): Promise<boolean> {
+    const membership = await this.prisma.companyUser.findUnique({
+      where: { userId_companyId: { userId, companyId } },
+    });
+    return membership?.isActive === true && membership?.role === 'owner';
   }
 }

@@ -1,17 +1,51 @@
 import type { UserRoleType } from '../constants';
 
+export interface UserCompanyMembership {
+  companyId: string;
+  role: UserRoleType;
+  company: {
+    id: string;
+    name: string;
+    slug: string;
+    logoUrl?: string;
+  };
+}
+
 export interface User {
   id: string;
-  appwriteId: string;
   email: string;
   firstName: string;
   lastName: string;
   phone?: string;
   avatarUrl?: string;
   preferredLanguage: string;
+  systemRole: string;
+  emailVerified: boolean;
+  emailVerifiedAt?: Date;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  companyMemberships?: UserCompanyMembership[];
+}
+
+export interface Invitation {
+  id: string;
+  email: string;
+  token: string;
+  role: string;
+  companyId?: string;
+  companyRole?: string;
+  invitedById: string;
+  expiresAt: Date;
+  acceptedAt?: Date;
+  createdAt: Date;
+}
+
+export interface CreateInvitationInput {
+  email: string;
+  role?: string;
+  companyId?: string;
+  companyRole?: string;
 }
 
 export interface Company {
@@ -43,7 +77,6 @@ export interface UserWithCompanies extends User {
 }
 
 export interface CreateUserInput {
-  appwriteId: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -75,4 +108,27 @@ export interface UpdateCompanyInput {
   contactPhone?: string;
   address?: string;
   isActive?: boolean;
+}
+
+// Auth types
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  tokens: AuthTokens;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface RegisterInput {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
 }

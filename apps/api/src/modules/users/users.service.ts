@@ -40,18 +40,6 @@ export class UsersService {
     return user;
   }
 
-  async findByAppwriteId(appwriteId: string) {
-    return this.prisma.user.findUnique({
-      where: { appwriteId },
-      include: {
-        companyUsers: {
-          where: { isActive: true },
-          include: { company: true },
-        },
-      },
-    });
-  }
-
   async update(id: string, data: UpdateUserInput) {
     const user = await this.findById(id);
 

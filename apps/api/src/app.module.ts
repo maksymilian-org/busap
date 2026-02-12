@@ -13,6 +13,13 @@ import { PricingModule } from './modules/pricing/pricing.module';
 import { EtaModule } from './modules/eta/eta.module';
 import { GpsModule } from './modules/gps/gps.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { RealtimeModule } from './modules/realtime/realtime.module';
+import { StorageModule } from './modules/storage/storage.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { SimulatorModule } from './modules/simulator/simulator.module';
+import { MailerModule } from './modules/mailer/mailer.module';
+import { CalendarsModule } from './modules/calendars/calendars.module';
+import { SchedulesModule } from './modules/schedules/schedules.module';
 
 @Module({
   imports: [
@@ -22,6 +29,7 @@ import { AuditModule } from './modules/audit/audit.module';
     }),
     PrismaModule,
     RedisModule,
+    MailerModule,
     AuthModule,
     UsersModule,
     CompaniesModule,
@@ -33,6 +41,12 @@ import { AuditModule } from './modules/audit/audit.module';
     EtaModule,
     GpsModule,
     AuditModule,
+    RealtimeModule,
+    StorageModule,
+    AdminModule,
+    SimulatorModule,
+    CalendarsModule,
+    SchedulesModule,
   ],
 })
 export class AppModule {}

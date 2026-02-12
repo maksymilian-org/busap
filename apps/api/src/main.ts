@@ -7,6 +7,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -16,13 +19,31 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  // CORS
+  // Register multipart for file uploads
+  await app.register(multipart, {
+    limits: {
+      fileSize: Number(configService.get('MAX_FILE_SIZE', 5242880)), // 5MB default
+    },
+  });
+
+  // Register static file serving for uploads
+  const uploadDir = configService.get('UPLOAD_DIR', './uploads');
+  await app.register(fastifyStatic, {
+    root: join(process.cwd(), uploadDir),
+    prefix: '/uploads/',
+    decorateReply: false,
+  });
+
+  // CORS - allow all origins in development, or specific origins in production
+  const isDev = configService.get('NODE_ENV', 'development') === 'development';
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:8081',
-      configService.get('CORS_ORIGIN', '*'),
-    ],
+    origin: isDev
+      ? true // Allow all origins in development (for LAN testing)
+      : [
+          'http://localhost:3000',
+          'http://localhost:8081',
+          configService.get('CORS_ORIGIN', ''),
+        ].filter(Boolean),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
@@ -58,14 +79,15 @@ async function bootstrap() {
     .addTag('pricing', 'Pricing engine')
     .addTag('eta', 'ETA calculations')
     .addTag('gps', 'GPS tracking')
+    .addTag('storage', 'File storage')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  // Start server
+  // Start server - listen on '::' to handle both IPv4 and IPv6
   const port = configService.get('API_PORT', 3001);
-  const host = configService.get('API_HOST', '0.0.0.0');
+  const host = configService.get('API_HOST', '::');
 
   await app.listen(port, host);
   console.log(`Application is running on: ${await app.getUrl()}`);

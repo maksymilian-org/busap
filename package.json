@@ -5,12 +5,19 @@
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "dev": "turbo run dev",
+    "dev:api": "pnpm --filter @busap/api dev",
+    "dev:web": "pnpm --filter @busap/web dev",
+    "dev:mobile": "pnpm --filter @busap/mobile dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "studio": "pnpm --filter @busap/api exec prisma studio",
+    "db:migrate": "pnpm --filter @busap/api exec prisma migrate dev",
+    "db:push": "pnpm --filter @busap/api exec prisma db push",
+    "db:seed": "pnpm --filter @busap/api exec prisma db seed"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",

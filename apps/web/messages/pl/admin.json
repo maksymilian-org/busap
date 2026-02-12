@@ -1,0 +1,669 @@
+{
+  "layout": {
+    "title": "Panel administracyjny",
+    "admin": "Admin",
+    "superAdmin": "Super Admin"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Użytkownicy",
+    "invitations": "Zaproszenia",
+    "companies": "Firmy",
+    "stops": "Przystanki",
+    "routes": "Trasy",
+    "vehicles": "Pojazdy",
+    "trips": "Kursy",
+    "schedules": "Harmonogramy",
+    "calendars": "Kalendarze",
+    "simulator": "Symulator",
+    "audit": "Logi audytu"
+  },
+  "dashboard": {
+    "title": "Panel administracyjny",
+    "subtitle": "Przegląd systemu i zarządzanie zasobami",
+    "stats": {
+      "users": "Użytkownicy",
+      "companies": "Firmy",
+      "routes": "Trasy",
+      "vehicles": "Pojazdy",
+      "trips": "Kursy",
+      "invitations": "Zaproszenia",
+      "active": "{count} aktywnych",
+      "defined": "zdefiniowanych",
+      "registered": "zarejestrowanych",
+      "inProgress": "{count} w trakcie",
+      "pending": "oczekujących"
+    },
+    "quickActions": "Szybkie akcje",
+    "manageUsers": "Zarządzaj użytkownikami",
+    "manageUsersDesc": "Dodaj, edytuj, usuń",
+    "sendInvitation": "Wyślij zaproszenie",
+    "sendInvitationDesc": "Zaproś nowych użytkowników",
+    "manageCompanies": "Zarządzaj firmami",
+    "manageCompaniesDesc": "Firmy transportowe",
+    "stopsOnMap": "Przystanki na mapie",
+    "stopsOnMapDesc": "Widok mapy OSM"
+  },
+  "users": {
+    "title": "Użytkownicy",
+    "subtitle": "Zarządzanie kontami użytkowników ({count})",
+    "addUser": "Dodaj użytkownika",
+    "searchPlaceholder": "Szukaj po imieniu, nazwisku lub emailu...",
+    "table": {
+      "user": "Użytkownik",
+      "email": "Email",
+      "systemRole": "Rola systemowa",
+      "companyRoles": "Role firmowe",
+      "status": "Status",
+      "registrationDate": "Data rejestracji",
+      "actions": "Akcje"
+    },
+    "roles": {
+      "superadmin": "Super Admin",
+      "admin": "Admin",
+      "passenger": "Użytkownik",
+      "driver": "Kierowca",
+      "manager": "Manager",
+      "owner": "Właściciel"
+    },
+    "status": {
+      "active": "Aktywny",
+      "inactive": "Nieaktywny"
+    },
+    "loading": "Ładowanie...",
+    "noUsers": "Brak użytkowników",
+    "confirmDeactivate": "Czy na pewno chcesz dezaktywować tego użytkownika?",
+    "deactivated": "Użytkownik dezaktywowany",
+    "createModal": {
+      "title": "Nowy użytkownik",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Email",
+      "password": "Hasło",
+      "phone": "Telefon",
+      "systemRole": "Rola systemowa",
+      "submit": "Utwórz użytkownika",
+      "submitting": "Tworzenie...",
+      "success": "Użytkownik utworzony"
+    },
+    "editModal": {
+      "title": "Edytuj użytkownika",
+      "accountActive": "Konto aktywne",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie...",
+      "success": "Użytkownik zaktualizowany"
+    }
+  },
+  "invitations": {
+    "title": "Zaproszenia",
+    "subtitle": "Zarządzanie zaproszeniami ({count})",
+    "sendInvitation": "Wyślij zaproszenie",
+    "searchPlaceholder": "Szukaj po emailu...",
+    "table": {
+      "email": "Email",
+      "role": "Rola",
+      "company": "Firma",
+      "invitedBy": "Zaprosił",
+      "expiresAt": "Wygasa",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "status": {
+      "pending": "Oczekuje",
+      "accepted": "Zaakceptowane",
+      "expired": "Wygasło"
+    },
+    "noInvitations": "Brak zaproszeń",
+    "confirmDelete": "Czy na pewno chcesz usunąć to zaproszenie?",
+    "deleted": "Zaproszenie usunięte",
+    "resent": "Zaproszenie wysłane ponownie",
+    "createModal": {
+      "title": "Nowe zaproszenie",
+      "email": "Email",
+      "role": "Rola systemowa",
+      "company": "Firma (opcjonalnie)",
+      "companyRole": "Rola w firmie",
+      "submit": "Wyślij zaproszenie",
+      "submitting": "Wysyłanie...",
+      "success": "Zaproszenie wysłane"
+    }
+  },
+  "companies": {
+    "title": "Firmy",
+    "subtitle": "Zarządzanie firmami transportowymi ({count})",
+    "addCompany": "Dodaj firmę",
+    "manageMembers": "Członkowie",
+    "searchPlaceholder": "Szukaj po nazwie...",
+    "table": {
+      "name": "Nazwa",
+      "slug": "Slug",
+      "nip": "NIP",
+      "vehicles": "Pojazdy",
+      "routes": "Trasy",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "noCompanies": "Brak firm",
+    "status": {
+      "active": "Aktywna",
+      "inactive": "Nieaktywna"
+    },
+    "createModal": {
+      "title": "Nowa firma",
+      "logo": "Logo firmy",
+      "name": "Nazwa firmy",
+      "contactEmail": "Email kontaktowy",
+      "contactPhone": "Telefon",
+      "description": "Opis",
+      "address": "Adres",
+      "isActive": "Firma aktywna",
+      "selectLogo": "Wybierz logo",
+      "uploading": "Przesyłanie...",
+      "uploadError": "Nie udało się przesłać logo",
+      "submit": "Utwórz firmę",
+      "submitting": "Tworzenie...",
+      "success": "Firma utworzona"
+    },
+    "editModal": {
+      "title": "Edytuj firmę",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie...",
+      "success": "Firma zaktualizowana"
+    },
+    "details": {
+      "title": "Szczegóły firmy",
+      "backToList": "Powrót do listy firm",
+      "info": "Informacje o firmie",
+      "members": "Członkowie ({count})",
+      "addMember": "Dodaj członka",
+      "noMembers": "Brak członków",
+      "searchUsers": "Szukaj użytkowników...",
+      "selectRole": "Wybierz rolę",
+      "confirmRemove": "Czy na pewno chcesz usunąć tego członka z firmy?",
+      "memberAdded": "Członek dodany do firmy",
+      "memberUpdated": "Rola członka zaktualizowana",
+      "memberRemoved": "Członek usunięty z firmy",
+      "changeRole": "Zmień rolę",
+      "removeMember": "Usuń z firmy",
+      "roles": {
+        "owner": "Właściciel",
+        "manager": "Manager",
+        "driver": "Kierowca",
+        "passenger": "Pasażer"
+      },
+      "addMemberModal": {
+        "title": "Dodaj członka do firmy",
+        "searchPlaceholder": "Szukaj po imieniu, nazwisku lub emailu...",
+        "noUsersFound": "Nie znaleziono użytkowników",
+        "selectUser": "Wybierz użytkownika",
+        "selectedUser": "Wybrany użytkownik",
+        "role": "Rola w firmie",
+        "submit": "Dodaj do firmy",
+        "submitting": "Dodawanie..."
+      },
+      "changeRoleModal": {
+        "title": "Zmień rolę",
+        "currentRole": "Obecna rola",
+        "newRole": "Nowa rola",
+        "submit": "Zmień rolę",
+        "submitting": "Zapisywanie..."
+      },
+      "vehicles": "Pojazdy ({count})",
+      "noVehicles": "Brak pojazdów przypisanych do tej firmy",
+      "vehicleTable": {
+        "registration": "Rejestracja",
+        "brandModel": "Marka / Model",
+        "capacity": "Pojemność",
+        "status": "Status"
+      },
+      "routes": "Trasy ({count})",
+      "noRoutes": "Brak tras dla tej firmy",
+      "routeTable": {
+        "name": "Nazwa",
+        "code": "Kod",
+        "type": "Typ",
+        "status": "Status"
+      },
+      "routeType": {
+        "linear": "Liniowa",
+        "loop": "Pętla"
+      },
+      "trips": "Kursy ({count})",
+      "noTrips": "Brak kursów dla tej firmy",
+      "tripTable": {
+        "route": "Trasa",
+        "vehicle": "Pojazd",
+        "driver": "Kierowca",
+        "departure": "Odjazd",
+        "status": "Status"
+      },
+      "showingTrips": "Pokazano {shown} z {total} kursów",
+      "stops": "Przystanki ({count})",
+      "noStops": "Brak przystanków używanych przez tę firmę",
+      "stopTable": {
+        "name": "Nazwa",
+        "code": "Kod",
+        "city": "Miasto",
+        "status": "Status"
+      },
+      "statusActive": "Aktywny",
+      "statusInactive": "Nieaktywny"
+    }
+  },
+  "stops": {
+    "title": "Przystanki",
+    "subtitle": "Zarządzanie przystankami ({count})",
+    "addStop": "Dodaj przystanek",
+    "searchPlaceholder": "Szukaj po nazwie lub mieście...",
+    "viewList": "Lista",
+    "viewMap": "Mapa",
+    "table": {
+      "name": "Nazwa",
+      "code": "Kod",
+      "city": "Miasto",
+      "coordinates": "Współrzędne",
+      "routes": "Trasy",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "noStops": "Brak przystanków",
+    "status": {
+      "active": "Aktywny",
+      "inactive": "Nieaktywny"
+    },
+    "createModal": {
+      "title": "Nowy przystanek",
+      "name": "Nazwa",
+      "code": "Kod",
+      "city": "Miasto",
+      "latitude": "Szerokość geo.",
+      "longitude": "Długość geo.",
+      "address": "Adres",
+      "submit": "Dodaj",
+      "submitting": "Zapisywanie...",
+      "success": "Przystanek utworzony"
+    },
+    "editModal": {
+      "title": "Edytuj przystanek",
+      "submit": "Zapisz",
+      "submitting": "Zapisywanie...",
+      "success": "Przystanek zaktualizowany"
+    }
+  },
+  "routes": {
+    "title": "Trasy",
+    "subtitle": "Zarządzanie trasami ({count})",
+    "addRoute": "Dodaj trasę",
+    "searchPlaceholder": "Szukaj po nazwie lub firmie...",
+    "table": {
+      "name": "Nazwa",
+      "code": "Kod",
+      "type": "Typ",
+      "description": "Opis",
+      "company": "Firma",
+      "stops": "Przystanki",
+      "trips": "Kursy",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "noRoutes": "Brak tras",
+    "status": {
+      "active": "Aktywna",
+      "inactive": "Nieaktywna"
+    },
+    "type": {
+      "linear": "Liniowa",
+      "loop": "Pętla"
+    },
+    "details": "Szczegóły",
+    "confirmDelete": "Czy na pewno chcesz usunąć tę trasę?",
+    "deleted": "Trasa usunięta",
+    "createModal": {
+      "title": "Nowa trasa",
+      "company": "Firma",
+      "selectCompany": "-- Wybierz firmę --",
+      "name": "Nazwa trasy",
+      "code": "Kod",
+      "type": "Typ trasy",
+      "description": "Opis",
+      "isActive": "Trasa aktywna",
+      "submit": "Utwórz trasę",
+      "submitting": "Tworzenie...",
+      "success": "Trasa utworzona"
+    },
+    "editModal": {
+      "title": "Edytuj trasę",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie...",
+      "success": "Trasa zaktualizowana"
+    }
+  },
+  "vehicles": {
+    "title": "Pojazdy",
+    "subtitle": "Zarządzanie pojazdami ({count})",
+    "addVehicle": "Dodaj pojazd",
+    "searchPlaceholder": "Szukaj po numerze rejestracyjnym lub firmie...",
+    "table": {
+      "photo": "Zdjęcie",
+      "registration": "Nr rejestracyjny",
+      "brandModel": "Marka / Model",
+      "brand": "Marka",
+      "model": "Model",
+      "company": "Firma",
+      "capacity": "Pojemność",
+      "seats": "Miejsca",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "noVehicles": "Brak pojazdów",
+    "seatsCount": "{count} miejsc",
+    "status": {
+      "active": "Aktywny",
+      "inactive": "Nieaktywny",
+      "maintenance": "Serwis",
+      "out_of_service": "Wyłączony"
+    },
+    "confirmDelete": "Czy na pewno chcesz usunąć ten pojazd?",
+    "deleted": "Pojazd usunięty",
+    "createModal": {
+      "title": "Nowy pojazd",
+      "company": "Firma",
+      "selectCompany": "-- Wybierz firmę --",
+      "submit": "Dodaj pojazd",
+      "submitting": "Dodawanie...",
+      "success": "Pojazd dodany"
+    },
+    "editModal": {
+      "title": "Edytuj pojazd",
+      "photo": "Zdjęcie pojazdu",
+      "selectPhoto": "Wybierz zdjęcie",
+      "uploading": "Przesyłanie...",
+      "uploadSuccess": "Zdjęcie przesłane",
+      "uploadError": "Nie udało się przesłać zdjęcia",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie...",
+      "success": "Pojazd zaktualizowany"
+    }
+  },
+  "trips": {
+    "title": "Kursy",
+    "subtitle": "Przegląd kursów ({count})",
+    "addTrip": "Dodaj kurs",
+    "searchPlaceholder": "Szukaj...",
+    "filterAll": "Wszystkie",
+    "table": {
+      "route": "Trasa",
+      "vehicle": "Pojazd",
+      "driver": "Kierowca",
+      "departure": "Odjazd plan.",
+      "arrival": "Przyjazd plan.",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "noTrips": "Brak kursów",
+    "status": {
+      "scheduled": "Zaplanowany",
+      "in_progress": "W trakcie",
+      "completed": "Zakończony",
+      "cancelled": "Anulowany",
+      "delayed": "Opóźniony"
+    },
+    "cancelTrip": "Anuluj kurs",
+    "confirmCancel": "Czy na pewno chcesz anulować ten kurs?",
+    "cancelled": "Kurs anulowany",
+    "createModal": {
+      "title": "Nowy kurs",
+      "route": "Trasa",
+      "selectRoute": "-- Wybierz trasę --",
+      "vehicle": "Pojazd",
+      "selectVehicle": "-- Wybierz pojazd --",
+      "driver": "Kierowca",
+      "selectDriver": "-- Wybierz kierowcę --",
+      "departureTime": "Planowany odjazd",
+      "arrivalTime": "Planowany przyjazd",
+      "notes": "Notatki",
+      "submit": "Utwórz kurs",
+      "submitting": "Tworzenie...",
+      "success": "Kurs utworzony"
+    },
+    "editModal": {
+      "title": "Edytuj kurs",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie...",
+      "success": "Kurs zaktualizowany"
+    }
+  },
+  "simulator": {
+    "title": "Symulator pojazdu",
+    "subtitle": "Symulacja ruchu autobusu do testowania śledzenia GPS",
+    "newSimulation": "Nowa symulacja",
+    "trip": "Kurs",
+    "selectTrip": "-- Wybierz kurs --",
+    "noRoute": "Brak trasy",
+    "noVehicle": "Brak pojazdu",
+    "speedMultiplier": "Mnożnik prędkości: {value}x",
+    "speedRealtime": "1x (realtime)",
+    "updateInterval": "Interwał aktualizacji: {value}s",
+    "startSimulation": "Rozpocznij symulację",
+    "starting": "Uruchamianie...",
+    "activeSimulations": "Aktywne symulacje ({count})",
+    "noActiveSimulations": "Brak aktywnych symulacji",
+    "speed": "Prędkość",
+    "heading": "Kierunek",
+    "segment": "Segment {current}/{total}",
+    "elapsed": "Czas",
+    "pause": "Pauza",
+    "resume": "Wznów",
+    "stop": "Stop",
+    "status": {
+      "running": "Działa",
+      "paused": "Wstrzymana",
+      "completed": "Zakończona",
+      "stopped": "Zatrzymana"
+    }
+  },
+  "audit": {
+    "title": "Logi audytu",
+    "subtitle": "Historia zmian w systemie",
+    "filterAll": "Wszystkie",
+    "table": {
+      "date": "Data",
+      "timestamp": "Czas",
+      "user": "Użytkownik",
+      "action": "Akcja",
+      "type": "Typ",
+      "entityId": "ID encji",
+      "ip": "IP",
+      "resource": "Zasób",
+      "details": "Szczegóły"
+    },
+    "noLogs": "Brak logów"
+  },
+  "schedules": {
+    "title": "Harmonogramy",
+    "subtitle": "Zarządzanie harmonogramami kursów ({count})",
+    "addSchedule": "Dodaj harmonogram",
+    "searchPlaceholder": "Szukaj po nazwie...",
+    "table": {
+      "name": "Nazwa",
+      "route": "Trasa",
+      "type": "Typ",
+      "departure": "Odjazd",
+      "arrival": "Przyjazd",
+      "validFrom": "Ważny od",
+      "validTo": "Ważny do",
+      "status": "Status",
+      "trips": "Kursy",
+      "exceptions": "Wyjątki",
+      "actions": "Akcje"
+    },
+    "noSchedules": "Brak harmonogramów",
+    "status": {
+      "active": "Aktywny",
+      "inactive": "Nieaktywny"
+    },
+    "type": {
+      "single": "Jednorazowy",
+      "recurring": "Cykliczny"
+    },
+    "createModal": {
+      "title": "Nowy harmonogram",
+      "name": "Nazwa harmonogramu",
+      "description": "Opis",
+      "route": "Trasa",
+      "vehicle": "Pojazd (opcjonalnie)",
+      "driver": "Kierowca (opcjonalnie)",
+      "departureTime": "Godzina odjazdu",
+      "arrivalTime": "Godzina przyjazdu",
+      "scheduleType": "Typ harmonogramu",
+      "rrule": "Reguła powtarzania (RRULE)",
+      "validFrom": "Ważny od",
+      "validTo": "Ważny do (opcjonalnie)",
+      "calendarModifiers": "Modyfikatory kalendarza",
+      "submit": "Utwórz harmonogram",
+      "submitting": "Tworzenie...",
+      "success": "Harmonogram utworzony"
+    },
+    "editModal": {
+      "title": "Edytuj harmonogram",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie...",
+      "success": "Harmonogram zaktualizowany"
+    },
+    "details": {
+      "title": "Szczegóły harmonogramu",
+      "backToList": "Powrót do listy harmonogramów",
+      "info": "Informacje o harmonogramie",
+      "preview": "Podgląd kursów",
+      "previewDays": "Dni do podglądu",
+      "generateTrips": "Generuj kursy",
+      "generating": "Generowanie...",
+      "generated": "Wygenerowano {count} kursów",
+      "exceptions": "Wyjątki ({count})",
+      "addException": "Dodaj wyjątek",
+      "noExceptions": "Brak wyjątków"
+    },
+    "exceptions": {
+      "title": "Wyjątek od harmonogramu",
+      "date": "Data",
+      "type": "Typ wyjątku",
+      "typeSkip": "Pomiń (brak kursu)",
+      "typeModify": "Modyfikuj",
+      "newDepartureTime": "Nowa godzina odjazdu",
+      "newArrivalTime": "Nowa godzina przyjazdu",
+      "newVehicle": "Inny pojazd",
+      "newDriver": "Inny kierowca",
+      "reason": "Powód",
+      "submit": "Dodaj wyjątek",
+      "submitting": "Dodawanie...",
+      "success": "Wyjątek dodany",
+      "deleted": "Wyjątek usunięty",
+      "confirmDelete": "Czy na pewno chcesz usunąć ten wyjątek?"
+    },
+    "rruleBuilder": {
+      "frequency": "Częstotliwość",
+      "daily": "Codziennie",
+      "weekly": "Co tydzień",
+      "monthly": "Co miesiąc",
+      "interval": "Interwał",
+      "every": "Co",
+      "days": "dni",
+      "weeks": "tygodnie",
+      "months": "miesiące",
+      "weekdays": "Dni tygodnia",
+      "monday": "Poniedziałek",
+      "tuesday": "Wtorek",
+      "wednesday": "Środa",
+      "thursday": "Czwartek",
+      "friday": "Piątek",
+      "saturday": "Sobota",
+      "sunday": "Niedziela"
+    },
+    "calendarModifier": {
+      "exclude": "Wyklucz dni z kalendarza",
+      "includeOnly": "Tylko dni z kalendarza",
+      "excludeDates": "Wyklucz konkretne daty",
+      "selectCalendar": "Wybierz kalendarz",
+      "addModifier": "Dodaj modyfikator",
+      "noModifiers": "Brak modyfikatorów"
+    }
+  },
+  "calendars": {
+    "title": "Kalendarze",
+    "subtitle": "Zarządzanie kalendarzami świąt i dni specjalnych ({count})",
+    "addCalendar": "Dodaj kalendarz",
+    "searchPlaceholder": "Szukaj po nazwie...",
+    "table": {
+      "name": "Nazwa",
+      "code": "Kod",
+      "country": "Kraj",
+      "region": "Region",
+      "type": "Typ",
+      "year": "Rok",
+      "entries": "Wpisy",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "noCalendars": "Brak kalendarzy",
+    "status": {
+      "active": "Aktywny",
+      "inactive": "Nieaktywny"
+    },
+    "type": {
+      "holidays": "Święta",
+      "school_days": "Dni szkolne",
+      "custom": "Niestandardowy"
+    },
+    "createModal": {
+      "title": "Nowy kalendarz",
+      "code": "Kod kalendarza",
+      "name": "Nazwa",
+      "description": "Opis",
+      "country": "Kraj (ISO 3166-1 alpha-2)",
+      "region": "Region/województwo",
+      "type": "Typ kalendarza",
+      "year": "Rok (puste = cykliczny)",
+      "submit": "Utwórz kalendarz",
+      "submitting": "Tworzenie...",
+      "success": "Kalendarz utworzony"
+    },
+    "editModal": {
+      "title": "Edytuj kalendarz",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie...",
+      "success": "Kalendarz zaktualizowany"
+    },
+    "details": {
+      "title": "Szczegóły kalendarza",
+      "backToList": "Powrót do listy kalendarzy",
+      "info": "Informacje o kalendarzu",
+      "entries": "Wpisy ({count})",
+      "addEntry": "Dodaj wpis",
+      "noEntries": "Brak wpisów",
+      "previewYear": "Podgląd roku",
+      "previewDates": "Daty w roku {year}"
+    },
+    "entry": {
+      "title": "Wpis kalendarza",
+      "name": "Nazwa",
+      "dateType": "Typ daty",
+      "dateTypeFixed": "Stała data",
+      "dateTypeEaster": "Względem Wielkanocy",
+      "dateTypeNthWeekday": "N-ty dzień tygodnia",
+      "fixedDate": "Data (MM-DD lub YYYY-MM-DD)",
+      "easterOffset": "Przesunięcie od Wielkanocy (dni)",
+      "nthWeekday": "N-ty dzień tygodnia",
+      "nthMonth": "Miesiąc",
+      "nthWeekdayDay": "Dzień tygodnia",
+      "nthNumber": "Który",
+      "startDate": "Data początkowa (dla zakresów)",
+      "endDate": "Data końcowa (dla zakresów)",
+      "isRecurring": "Powtarza się co roku",
+      "submit": "Dodaj wpis",
+      "submitting": "Dodawanie...",
+      "success": "Wpis dodany",
+      "deleted": "Wpis usunięty",
+      "confirmDelete": "Czy na pewno chcesz usunąć ten wpis?"
+    }
+  }
+}

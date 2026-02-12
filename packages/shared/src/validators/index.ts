@@ -9,9 +9,25 @@ import {
   SUPPORTED_LANGUAGES,
 } from '../constants';
 
+// Auth validators
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
+export const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(128),
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+});
+
+export const refreshTokenSchema = z.object({
+  refreshToken: z.string().min(1),
+});
+
 // User validators
 export const createUserSchema = z.object({
-  appwriteId: z.string().min(1),
   email: z.string().email(),
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(100),
@@ -255,6 +271,7 @@ export const userRoleSchema = z.enum([
   UserRole.DRIVER,
   UserRole.MANAGER,
   UserRole.OWNER,
+  UserRole.ADMIN,
   UserRole.SUPERADMIN,
 ]);
 
@@ -262,6 +279,32 @@ export const assignRoleSchema = z.object({
   userId: z.string().uuid(),
   companyId: z.string().uuid(),
   role: userRoleSchema,
+});
+
+// Invitation validators
+export const createInvitationSchema = z.object({
+  email: z.string().email(),
+  role: z.enum([UserRole.PASSENGER, UserRole.DRIVER, UserRole.MANAGER, UserRole.OWNER, UserRole.ADMIN]).optional(),
+  companyId: z.string().uuid().optional(),
+  companyRole: z.enum([UserRole.PASSENGER, UserRole.DRIVER, UserRole.MANAGER, UserRole.OWNER]).optional(),
+});
+
+export const acceptInvitationSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(8).max(128),
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+});
+
+// Admin user creation
+export const adminCreateUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(128),
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+  phone: z.string().optional(),
+  systemRole: z.enum([UserRole.PASSENGER, UserRole.ADMIN]).optional(),
+  preferredLanguage: z.enum(SUPPORTED_LANGUAGES).optional(),
 });
 
 // Pagination
