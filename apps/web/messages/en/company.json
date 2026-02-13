@@ -397,6 +397,13 @@
       "latitude": "Latitude",
       "longitude": "Longitude",
       "address": "Address",
+      "county": "County",
+      "region": "Region",
+      "postalCode": "Postal code",
+      "countryCode": "Country code",
+      "formattedAddress": "Full address",
+      "geocodeButton": "Get address from map",
+      "geocoding": "Getting address...",
       "submit": "Add stop",
       "submitting": "Adding...",
       "success": "Stop added"

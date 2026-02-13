@@ -397,6 +397,13 @@
       "latitude": "Szerokość geograficzna",
       "longitude": "Długość geograficzna",
       "address": "Adres",
+      "county": "Powiat",
+      "region": "Województwo",
+      "postalCode": "Kod pocztowy",
+      "countryCode": "Kod kraju",
+      "formattedAddress": "Pełny adres",
+      "geocodeButton": "Pobierz adres z mapy",
+      "geocoding": "Pobieranie adresu...",
       "submit": "Dodaj przystanek",
       "submitting": "Dodawanie...",
       "success": "Przystanek dodany"

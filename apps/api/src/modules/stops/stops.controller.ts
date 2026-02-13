@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { StopsService } from './stops.service';
+import { GeocodingService } from '../geocoding/geocoding.service';
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -18,7 +19,10 @@ import { UserRole, CreateStopInput, UpdateStopInput } from '@busap/shared';
 @ApiTags('stops')
 @Controller('stops')
 export class StopsController {
-  constructor(private readonly stopsService: StopsService) {}
+  constructor(
+    private readonly stopsService: StopsService,
+    private readonly geocodingService: GeocodingService,
+  ) {}
 
   @Get()
   @Public()
@@ -52,6 +56,17 @@ export class StopsController {
       limit,
       offset,
     });
+  }
+
+  @Get('geocode/reverse')
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Reverse geocode coordinates' })
+  async reverseGeocode(
+    @Query('latitude') latitude: number,
+    @Query('longitude') longitude: number,
+  ) {
+    return this.geocodingService.reverseGeocode(Number(latitude), Number(longitude));
   }
 
   @Get('nearby')

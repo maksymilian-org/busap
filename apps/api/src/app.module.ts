@@ -20,6 +20,7 @@ import { SimulatorModule } from './modules/simulator/simulator.module';
 import { MailerModule } from './modules/mailer/mailer.module';
 import { CalendarsModule } from './modules/calendars/calendars.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
+import { GeocodingModule } from './modules/geocoding/geocoding.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { SchedulesModule } from './modules/schedules/schedules.module';
     SimulatorModule,
     CalendarsModule,
     SchedulesModule,
+    GeocodingModule,
   ],
 })
 export class AppModule {}

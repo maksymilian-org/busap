@@ -2,10 +2,14 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateStopInput, UpdateStopInput, SearchStopsInput } from '@busap/shared';
 import { Prisma } from '@prisma/client';
+import { GeocodingService } from '../geocoding/geocoding.service';
 
 @Injectable()
 export class StopsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private geocodingService: GeocodingService,
+  ) {}
 
   async findAll(companyId?: string, favoritesOnly = true) {
     if (favoritesOnly && companyId) {
@@ -98,6 +102,25 @@ export class StopsService {
   }
 
   async create(data: CreateStopInput, userId?: string) {
+    // Auto-geocode if coordinates provided and no formattedAddress
+    if (data.latitude && data.longitude && !data.formattedAddress) {
+      const geo = await this.geocodingService.reverseGeocode(data.latitude, data.longitude);
+      if (geo) {
+        // User-provided values take precedence
+        data = {
+          ...data,
+          city: data.city || geo.city,
+          country: data.country || geo.country,
+          county: data.county || geo.county,
+          region: data.region || geo.region,
+          postalCode: data.postalCode || geo.postalCode,
+          countryCode: data.countryCode || geo.countryCode,
+          address: data.address || geo.address,
+          formattedAddress: geo.formattedAddress,
+        };
+      }
+    }
+
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const stop = await tx.stop.create({
         data: {
@@ -128,7 +151,29 @@ export class StopsService {
   }
 
   async update(id: string, data: UpdateStopInput) {
-    await this.findById(id);
+    const existing = await this.findById(id);
+
+    // Re-geocode if coordinates changed and no explicit formattedAddress provided
+    const latChanged = data.latitude !== undefined && data.latitude !== existing.latitude;
+    const lngChanged = data.longitude !== undefined && data.longitude !== existing.longitude;
+    if ((latChanged || lngChanged) && !data.formattedAddress) {
+      const newLat = data.latitude ?? existing.latitude;
+      const newLng = data.longitude ?? existing.longitude;
+      const geo = await this.geocodingService.reverseGeocode(newLat, newLng);
+      if (geo) {
+        data = {
+          ...data,
+          city: data.city || geo.city,
+          country: data.country || geo.country,
+          county: data.county || geo.county,
+          region: data.region || geo.region,
+          postalCode: data.postalCode || geo.postalCode,
+          countryCode: data.countryCode || geo.countryCode,
+          address: data.address || geo.address,
+          formattedAddress: geo.formattedAddress,
+        };
+      }
+    }
 
     return this.prisma.stop.update({
       where: { id },

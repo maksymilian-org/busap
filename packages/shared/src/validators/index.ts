@@ -71,6 +71,11 @@ export const createStopSchema = z.object({
   address: z.string().max(500).optional(),
   city: z.string().max(100).optional(),
   country: z.string().max(100).optional(),
+  county: z.string().max(200).optional(),
+  region: z.string().max(200).optional(),
+  postalCode: z.string().max(20).optional(),
+  countryCode: z.string().max(2).optional(),
+  formattedAddress: z.string().max(500).optional(),
   companyId: z.string().uuid().optional(),
 });
 
@@ -82,6 +87,11 @@ export const updateStopSchema = z.object({
   address: z.string().max(500).optional(),
   city: z.string().max(100).optional(),
   country: z.string().max(100).optional(),
+  county: z.string().max(200).optional(),
+  region: z.string().max(200).optional(),
+  postalCode: z.string().max(20).optional(),
+  countryCode: z.string().max(2).optional(),
+  formattedAddress: z.string().max(500).optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -99,6 +109,7 @@ export const searchStopsSchema = z.object({
 export const createRouteSchema = z.object({
   companyId: z.string().uuid(),
   name: z.string().min(1).max(200),
+  nameOverridden: z.boolean().optional(),
   code: z.string().max(50).optional(),
   description: z.string().max(1000).optional(),
   comment: z.string().max(500).optional(),
@@ -107,6 +118,7 @@ export const createRouteSchema = z.object({
 
 export const updateRouteSchema = z.object({
   name: z.string().min(1).max(200).optional(),
+  nameOverridden: z.boolean().optional(),
   code: z.string().max(50).optional(),
   description: z.string().max(1000).optional(),
   comment: z.string().max(500).optional(),

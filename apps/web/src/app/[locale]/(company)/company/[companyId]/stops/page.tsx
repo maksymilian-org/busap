@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
-import { MapPin, Plus, Search, Edit, X, List, Map } from 'lucide-react';
+import { MapPin, Plus, Search, Edit, X, List, Map, Loader2 } from 'lucide-react';
 import { BusapMap, StopMarker } from '@/components/map';
 
 interface StopData {
@@ -21,6 +21,11 @@ interface StopData {
   address?: string;
   city?: string;
   country?: string;
+  county?: string;
+  region?: string;
+  postalCode?: string;
+  countryCode?: string;
+  formattedAddress?: string;
   isActive: boolean;
 }
 
@@ -37,6 +42,7 @@ export default function CompanyStopsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingStop, setEditingStop] = useState<StopData | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [initialCoords, setInitialCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   const loadStops = useCallback(async () => {
     setLoading(true);
@@ -122,6 +128,7 @@ export default function CompanyStopsPage() {
               center={[52.0, 19.5]}
               zoom={6}
               onClick={(lat, lng) => {
+                setInitialCoords({ lat, lng });
                 setShowCreateModal(true);
               }}
             >
@@ -219,13 +226,16 @@ export default function CompanyStopsPage() {
           t={t}
           tCommon={tCommon}
           stop={editingStop || undefined}
+          initialCoords={initialCoords}
           onClose={() => {
             setShowCreateModal(false);
             setEditingStop(null);
+            setInitialCoords(null);
           }}
           onSaved={() => {
             setShowCreateModal(false);
             setEditingStop(null);
+            setInitialCoords(null);
             loadStops();
           }}
         />
@@ -239,6 +249,7 @@ function StopFormModal({
   t,
   tCommon,
   stop,
+  initialCoords,
   onClose,
   onSaved,
 }: {
@@ -246,23 +257,68 @@ function StopFormModal({
   t: any;
   tCommon: any;
   stop?: StopData;
+  initialCoords?: { lat: number; lng: number } | null;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const [form, setForm] = useState({
     name: stop?.name || '',
     code: stop?.code || '',
-    latitude: stop?.latitude || 52.2297,
-    longitude: stop?.longitude || 21.0122,
+    latitude: stop?.latitude || initialCoords?.lat || 52.2297,
+    longitude: stop?.longitude || initialCoords?.lng || 21.0122,
     address: stop?.address || '',
     city: stop?.city || '',
     country: stop?.country || 'PL',
+    county: stop?.county || '',
+    region: stop?.region || '',
+    postalCode: stop?.postalCode || '',
+    countryCode: stop?.countryCode || '',
+    formattedAddress: stop?.formattedAddress || '',
     isActive: stop?.isActive ?? true,
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
 
   const isEdit = !!stop;
+
+  const handleGeocode = useCallback(async (lat?: number, lng?: number) => {
+    const targetLat = lat ?? form.latitude;
+    const targetLng = lng ?? form.longitude;
+    if (!targetLat || !targetLng) return;
+
+    setGeocoding(true);
+    try {
+      const result = await api.fetch<any>(
+        `/stops/geocode/reverse?latitude=${targetLat}&longitude=${targetLng}`
+      );
+      if (result) {
+        setForm((prev) => ({
+          ...prev,
+          city: prev.city || result.city || '',
+          country: prev.country || result.country || '',
+          county: result.county || '',
+          region: result.region || '',
+          postalCode: result.postalCode || '',
+          countryCode: result.countryCode || '',
+          address: prev.address || result.address || '',
+          formattedAddress: result.formattedAddress || '',
+        }));
+      }
+    } catch {
+      // Geocoding failure is not critical
+    } finally {
+      setGeocoding(false);
+    }
+  }, [form.latitude, form.longitude]);
+
+  // Auto-geocode when opened with initialCoords (map click)
+  useEffect(() => {
+    if (initialCoords && !isEdit) {
+      handleGeocode(initialCoords.lat, initialCoords.lng);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -294,7 +350,7 @@ function StopFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-lg rounded-xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">
             {isEdit ? t('editModal.title') : t('createModal.title')}
@@ -362,6 +418,31 @@ function StopFormModal({
             </div>
           </div>
 
+          {/* Geocode button */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={geocoding}
+            onClick={() => handleGeocode()}
+            className="w-full"
+          >
+            {geocoding ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                {t('createModal.geocoding')}
+              </>
+            ) : (
+              <>{t('createModal.geocodeButton')}</>
+            )}
+          </Button>
+
+          {form.formattedAddress && (
+            <p className="text-xs text-muted-foreground bg-muted px-3 py-2 rounded-lg">
+              {form.formattedAddress}
+            </p>
+          )}
+
           <div>
             <label className="text-sm font-medium">{t('createModal.address')}</label>
             <input
@@ -370,6 +451,50 @@ function StopFormModal({
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">{t('createModal.county')}</label>
+              <input
+                type="text"
+                value={form.county}
+                onChange={(e) => setForm({ ...form, county: e.target.value })}
+                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">{t('createModal.region')}</label>
+              <input
+                type="text"
+                value={form.region}
+                onChange={(e) => setForm({ ...form, region: e.target.value })}
+                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">{t('createModal.postalCode')}</label>
+              <input
+                type="text"
+                value={form.postalCode}
+                onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
+                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">{t('createModal.countryCode')}</label>
+              <input
+                type="text"
+                value={form.countryCode}
+                onChange={(e) => setForm({ ...form, countryCode: e.target.value })}
+                maxLength={2}
+                placeholder="PL"
+                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}

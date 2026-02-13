@@ -134,8 +134,8 @@ export class RoutesController {
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Update route' })
-  async update(@Param('id') id: string, @Body() data: UpdateRouteInput) {
-    return this.routesService.update(id, data);
+  async update(@Param('id') id: string, @Body() data: UpdateRouteInput, @CurrentUser() user: any) {
+    return this.routesService.update(id, data, user?.dbUser);
   }
 
   @Delete(':id')

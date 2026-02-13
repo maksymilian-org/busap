@@ -7,6 +7,11 @@ export interface Stop {
   address?: string;
   city?: string;
   country?: string;
+  county?: string;
+  region?: string;
+  postalCode?: string;
+  countryCode?: string;
+  formattedAddress?: string;
   companyId?: string; // null = global stop
   createdById?: string;
   isActive: boolean;
@@ -26,6 +31,11 @@ export interface CreateStopInput {
   address?: string;
   city?: string;
   country?: string;
+  county?: string;
+  region?: string;
+  postalCode?: string;
+  countryCode?: string;
+  formattedAddress?: string;
   companyId?: string;
 }
 
@@ -37,6 +47,11 @@ export interface UpdateStopInput {
   address?: string;
   city?: string;
   country?: string;
+  county?: string;
+  region?: string;
+  postalCode?: string;
+  countryCode?: string;
+  formattedAddress?: string;
   isActive?: boolean;
 }
 

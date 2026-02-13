@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   CreateRouteInput,
@@ -11,6 +11,33 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class RoutesService {
   constructor(private prisma: PrismaService) {}
+
+  /**
+   * Generate route name from stop cities.
+   * Format: "City1 - CityN" or "City1 - CityN (via City2, City3)"
+   */
+  private generateRouteName(stops: Array<{ stop?: { name: string; city?: string | null } | null }>): string {
+    // Extract unique city names in sequence order, fall back to stop name
+    const cities: string[] = [];
+    for (const s of stops) {
+      const cityName = s.stop?.city || s.stop?.name || '';
+      if (cityName && cities[cities.length - 1] !== cityName) {
+        cities.push(cityName);
+      }
+    }
+
+    if (cities.length === 0) return '';
+    if (cities.length === 1) return cities[0];
+
+    const first = cities[0];
+    const last = cities[cities.length - 1];
+    const via = cities.slice(1, -1);
+
+    if (via.length === 0) {
+      return `${first} - ${last}`;
+    }
+    return `${first} - ${last} (via ${via.join(', ')})`;
+  }
 
   async findAll(companyId?: string, favoritesOnly = true) {
     if (favoritesOnly && companyId) {
@@ -123,8 +150,17 @@ export class RoutesService {
     });
   }
 
-  async update(id: string, data: UpdateRouteInput) {
+  async update(id: string, data: UpdateRouteInput, dbUser?: any) {
     await this.findById(id);
+
+    // Only admin/superadmin can manually change route name
+    if (data.name !== undefined && dbUser) {
+      const isAdmin = dbUser.systemRole === 'admin' || dbUser.systemRole === 'superadmin';
+      if (!isAdmin) {
+        throw new ForbiddenException('Only admins can manually change route name');
+      }
+      data.nameOverridden = true;
+    }
 
     return this.prisma.route.update({
       where: { id },
@@ -242,9 +278,19 @@ export class RoutesService {
       });
 
       // Update route's current version
+      const updateData: any = { currentVersionId: newVersion.id };
+
+      // Auto-generate route name if not manually overridden
+      if (!route.nameOverridden) {
+        const generatedName = this.generateRouteName(newVersion.stops);
+        if (generatedName) {
+          updateData.name = generatedName;
+        }
+      }
+
       await tx.route.update({
         where: { id: data.routeId },
-        data: { currentVersionId: newVersion.id },
+        data: updateData,
       });
 
       return newVersion;
@@ -310,26 +356,25 @@ export class RoutesService {
     const original = await this.findById(routeId);
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // Create new route
+      // Generate name from stops or fall back to copy suffix
+      const generatedName = original.currentVersion?.stops?.length
+        ? this.generateRouteName(original.currentVersion.stops)
+        : '';
+      const routeName = generatedName || `${original.name} (kopia)`;
+
+      // Create new route with nameOverridden=false
       const newRoute = await tx.route.create({
         data: {
           companyId: original.companyId,
-          name: `${original.name} (kopia)`,
+          name: routeName,
+          nameOverridden: false,
           code: original.code ? `${original.code}-copy` : null,
           description: original.description,
+          comment: (original as any).comment || null,
           type: original.type,
           ...(userId && { createdById: userId }),
         } as any,
       });
-
-      // Copy comment if present (field available after migration)
-      if ((original as any).comment) {
-        await tx.$executeRawUnsafe(
-          'UPDATE routes SET comment = $1 WHERE id = $2',
-          (original as any).comment,
-          newRoute.id,
-        );
-      }
 
       // Copy current version stops if they exist
       if (original.currentVersion?.stops?.length) {
@@ -383,12 +428,8 @@ export class RoutesService {
     }
 
     const stops = original.currentVersion.stops;
-    const firstStop = stops[stops.length - 1]; // reversed: last becomes first
-    const lastStop = stops[0]; // reversed: first becomes last
-
-    const firstName = firstStop.stop?.name || 'A';
-    const lastName = lastStop.stop?.name || 'B';
-    const reversedName = `${firstName} → ${lastName}`;
+    const reversedStopsForName = [...stops].reverse();
+    const reversedName = this.generateRouteName(reversedStopsForName) || `${stops[stops.length - 1]?.stop?.name || 'A'} - ${stops[0]?.stop?.name || 'B'}`;
 
     const totalDistance = stops[stops.length - 1]?.distanceFromStart ?? 0;
     const totalDuration = stops[stops.length - 1]?.durationFromStart ?? 0;
@@ -398,21 +439,14 @@ export class RoutesService {
         data: {
           companyId: original.companyId,
           name: reversedName,
+          nameOverridden: false,
           code: original.code ? `${original.code}-rev` : null,
           description: original.description,
+          comment: (original as any).comment || null,
           type: original.type,
           ...(userId && { createdById: userId }),
         } as any,
       });
-
-      // Copy comment if present (field available after migration)
-      if ((original as any).comment) {
-        await tx.$executeRawUnsafe(
-          'UPDATE routes SET comment = $1 WHERE id = $2',
-          (original as any).comment,
-          newRoute.id,
-        );
-      }
 
       const reversedStops = [...stops].reverse();
 

@@ -651,20 +651,23 @@ function ScheduleFormModal({
         .filter((m) => m.calendarId)
         .map((m) => ({ type: m.type, calendarId: m.calendarId }));
 
+      // Derive departure/arrival from first/last stop times
+      const firstStop = stopTimes[0];
+      const lastStop = stopTimes[stopTimes.length - 1];
+      const derivedDeparture = firstStop?.departureTime || firstStop?.arrivalTime || departureTime || '00:00';
+      const derivedArrival = lastStop?.arrivalTime || lastStop?.departureTime || arrivalTime || '00:00';
+
       const payload: any = {
         name,
         description: description || undefined,
-        routeId,
-        companyId,
         vehicleId: vehicleId || undefined,
         driverId: driverId || undefined,
-        departureTime,
-        arrivalTime,
-        scheduleType,
+        departureTime: derivedDeparture,
+        arrivalTime: derivedArrival,
         rrule: scheduleType === 'recurring' ? buildRRule() : undefined,
         validFrom: new Date(validFrom).toISOString(),
         validTo: validTo ? new Date(validTo).toISOString() : undefined,
-        calendarModifiers: modifiersPayload.length > 0 ? modifiersPayload : undefined,
+        calendarModifiers: modifiersPayload,
         stopTimes: stopTimesPayload.length > 0 ? stopTimesPayload : undefined,
         isActive,
       };
@@ -673,6 +676,9 @@ function ScheduleFormModal({
         await api.put(`/schedules/${schedule!.id}`, payload);
         toast({ variant: 'success', title: t('schedules.editModal.success') });
       } else {
+        payload.routeId = routeId;
+        payload.companyId = companyId;
+        payload.scheduleType = scheduleType;
         await api.post('/schedules', payload);
         toast({ variant: 'success', title: t('schedules.createModal.success') });
       }
@@ -733,30 +739,6 @@ function ScheduleFormModal({
               value={route?.name || routeId}
               className="mt-1 w-full rounded-lg border bg-muted px-3 py-2 text-sm cursor-not-allowed"
             />
-          </div>
-
-          {/* Departure / Arrival time */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">{t('schedules.createModal.departureTime')}</label>
-              <input
-                type="time"
-                required
-                value={departureTime}
-                onChange={(e) => setDepartureTime(e.target.value)}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">{t('schedules.createModal.arrivalTime')}</label>
-              <input
-                type="time"
-                required
-                value={arrivalTime}
-                onChange={(e) => setArrivalTime(e.target.value)}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
           </div>
 
           {/* Vehicle / Driver */}

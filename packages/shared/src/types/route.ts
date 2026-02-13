@@ -5,6 +5,7 @@ export interface Route {
   id: string;
   companyId: string;
   name: string;
+  nameOverridden: boolean;
   code?: string;
   description?: string;
   comment?: string;
@@ -63,6 +64,7 @@ export interface RouteWithDetails extends Route {
 export interface CreateRouteInput {
   companyId: string;
   name: string;
+  nameOverridden?: boolean;
   code?: string;
   description?: string;
   comment?: string;
@@ -71,6 +73,7 @@ export interface CreateRouteInput {
 
 export interface UpdateRouteInput {
   name?: string;
+  nameOverridden?: boolean;
   code?: string;
   description?: string;
   comment?: string;

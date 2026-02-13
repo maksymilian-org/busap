@@ -98,12 +98,28 @@ export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBu
   // Saving state
   const [saving, setSaving] = useState(false);
 
-  // Auto-name generation
+  // Auto-name generation using city names
   const generatedName = useMemo(() => {
-    if (stops.length >= 2) {
-      return `${stops[0].name} \u2192 ${stops[stops.length - 1].name}`;
+    if (stops.length < 2) return '';
+
+    // Extract unique city names in sequence order, fall back to stop name
+    const cities: string[] = [];
+    for (const s of stops) {
+      const cityName = s.city || s.name;
+      if (cityName && cities[cities.length - 1] !== cityName) {
+        cities.push(cityName);
+      }
     }
-    return '';
+
+    if (cities.length === 0) return '';
+    if (cities.length === 1) return cities[0];
+
+    const first = cities[0];
+    const last = cities[cities.length - 1];
+    const via = cities.slice(1, -1);
+
+    if (via.length === 0) return `${first} - ${last}`;
+    return `${first} - ${last} (via ${via.join(', ')})`;
   }, [stops]);
 
   // Keep name in sync when autoName is on
@@ -175,6 +191,7 @@ export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBu
         const route = await api.post('/routes', {
           companyId,
           name: routeName,
+          nameOverridden: !autoName,
           code: code || undefined,
           description: undefined,
           comment: comment || undefined,
@@ -185,6 +202,7 @@ export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBu
         routeId = existingRoute!.id;
         await api.put(`/routes/${routeId}`, {
           name: routeName,
+          nameOverridden: !autoName,
           code: code || undefined,
           comment: comment || undefined,
           type: routeType,

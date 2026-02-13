@@ -146,7 +146,12 @@ model Stop {
   longitude   Float
   address     String?
   city        String?
-  country     String?
+  country          String?
+  county           String?  @map("county")
+  region           String?  @map("region")
+  postalCode       String?  @map("postal_code")
+  countryCode      String?  @map("country_code")
+  formattedAddress String?  @map("formatted_address")
   companyId   String?  @map("company_id")
   createdById String?  @map("created_by_id")
   isActive    Boolean  @default(true) @map("is_active")
@@ -169,6 +174,7 @@ model Route {
   id               String   @id @default(uuid())
   companyId        String   @map("company_id")
   name             String
+  nameOverridden   Boolean  @default(false) @map("name_overridden")
   code             String?
   description      String?
   comment          String?  @map("comment")

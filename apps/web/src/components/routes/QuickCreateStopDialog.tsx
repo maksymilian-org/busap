@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,29 @@ export default function QuickCreateStopDialog({
   const [lat, setLat] = useState(initialLat?.toFixed(6) || '');
   const [lng, setLng] = useState(initialLng?.toFixed(6) || '');
   const [submitting, setSubmitting] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
+
+  // Auto-geocode when opened with coordinates
+  useEffect(() => {
+    if (initialLat && initialLng) {
+      setGeocoding(true);
+      api.fetch<any>(`/stops/geocode/reverse?latitude=${initialLat}&longitude=${initialLng}`)
+        .then((result) => {
+          if (result) {
+            if (!name && result.city) {
+              const addrPart = result.address ? `, ${result.address}` : '';
+              setName(`${result.city}${addrPart}`);
+            }
+            if (!city && result.city) {
+              setCity(result.city);
+            }
+          }
+        })
+        .catch(() => {})
+        .finally(() => setGeocoding(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +94,12 @@ export default function QuickCreateStopDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
+          {geocoding && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span>Geocoding...</span>
+            </div>
+          )}
           <div>
             <label className="text-sm font-medium">{labels.stopName}</label>
             <input

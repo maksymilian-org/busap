@@ -165,18 +165,19 @@ export class SchedulesService {
         },
       });
 
-      // Create stop times if provided
+      // Create stop times if provided (save if at least one time is given)
       if (data.stopTimes && data.stopTimes.length > 0) {
-        await tx.scheduleStopTime.createMany({
-          data: data.stopTimes
-            .filter((st) => st.arrivalTime && st.departureTime)
-            .map((st) => ({
+        const validStopTimes = data.stopTimes.filter((st) => st.arrivalTime || st.departureTime);
+        if (validStopTimes.length > 0) {
+          await tx.scheduleStopTime.createMany({
+            data: validStopTimes.map((st) => ({
               scheduleId: created.id,
               routeStopId: st.routeStopId,
-              arrivalTime: st.arrivalTime!,
-              departureTime: st.departureTime!,
+              arrivalTime: st.arrivalTime || st.departureTime!,
+              departureTime: st.departureTime || st.arrivalTime!,
             })),
-        });
+          });
+        }
       }
 
       return created;
@@ -286,17 +287,16 @@ export class SchedulesService {
           where: { scheduleId: id },
         });
 
-        // Create new stop times
-        if (data.stopTimes.length > 0) {
+        // Create new stop times (save if at least one time is provided)
+        const validStopTimes = data.stopTimes.filter((st) => st.arrivalTime || st.departureTime);
+        if (validStopTimes.length > 0) {
           await tx.scheduleStopTime.createMany({
-            data: data.stopTimes
-              .filter((st) => st.arrivalTime && st.departureTime)
-              .map((st) => ({
-                scheduleId: id,
-                routeStopId: st.routeStopId,
-                arrivalTime: st.arrivalTime!,
-                departureTime: st.departureTime!,
-              })),
+            data: validStopTimes.map((st) => ({
+              scheduleId: id,
+              routeStopId: st.routeStopId,
+              arrivalTime: st.arrivalTime || st.departureTime!,
+              departureTime: st.departureTime || st.arrivalTime!,
+            })),
           });
         }
       }
