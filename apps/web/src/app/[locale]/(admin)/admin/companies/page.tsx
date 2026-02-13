@@ -13,9 +13,10 @@ import {
   Edit,
   X,
   Upload,
-  Users,
+  ExternalLink,
 } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
+import { fuzzyFilter } from '@/lib/fuzzy-search';
 
 interface CompanyData {
   id: string;
@@ -37,7 +38,6 @@ export default function AdminCompaniesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<CompanyData | null>(null);
 
   const loadCompanies = useCallback(async () => {
     setLoading(true);
@@ -55,12 +55,12 @@ export default function AdminCompaniesPage() {
     loadCompanies();
   }, [loadCompanies]);
 
-  const filteredCompanies = companies.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.contactEmail.toLowerCase().includes(search.toLowerCase()) ||
-      c.slug.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCompanies = fuzzyFilter(companies, search, [
+    (c) => c.name,
+    (c) => c.contactEmail,
+    (c) => c.slug,
+    (c) => c.address,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -148,25 +148,16 @@ export default function AdminCompaniesPage() {
                   {company.address && <p>{company.address}</p>}
                 </div>
 
-                <div className="mt-4 flex gap-2">
+                <div className="mt-4">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
-                    onClick={() => setEditingCompany(company)}
-                  >
-                    <Edit className="h-3.5 w-3.5 mr-1" />
-                    {tCommon('actions.edit')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
+                    className="w-full"
                     asChild
                   >
                     <Link href={`/admin/companies/${company.id}`}>
-                      <Users className="h-3.5 w-3.5 mr-1" />
-                      {t('manageMembers')}
+                      <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                      {tCommon('actions.details')}
                     </Link>
                   </Button>
                 </div>
@@ -188,18 +179,6 @@ export default function AdminCompaniesPage() {
         />
       )}
 
-      {editingCompany && (
-        <CompanyFormModal
-          t={t}
-          tCommon={tCommon}
-          company={editingCompany}
-          onClose={() => setEditingCompany(null)}
-          onSaved={() => {
-            setEditingCompany(null);
-            loadCompanies();
-          }}
-        />
-      )}
     </div>
   );
 }

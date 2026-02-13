@@ -12,6 +12,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { StopsService } from './stops.service';
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole, CreateStopInput, UpdateStopInput } from '@busap/shared';
 
 @ApiTags('stops')
@@ -22,8 +23,12 @@ export class StopsController {
   @Get()
   @Public()
   @ApiOperation({ summary: 'Get all stops' })
-  async findAll(@Query('companyId') companyId?: string) {
-    return this.stopsService.findAll(companyId);
+  async findAll(
+    @Query('companyId') companyId?: string,
+    @Query('favorites') favorites?: string,
+  ) {
+    const favoritesOnly = favorites !== 'false';
+    return this.stopsService.findAll(companyId, favoritesOnly);
   }
 
   @Get('search')
@@ -71,8 +76,30 @@ export class StopsController {
   @ApiBearerAuth()
   @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Create a new stop' })
-  async create(@Body() data: CreateStopInput) {
-    return this.stopsService.create(data);
+  async create(@Body() data: CreateStopInput, @CurrentUser() user: any) {
+    return this.stopsService.create(data, user?.dbUser?.id);
+  }
+
+  @Post('favorites')
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Add stop to company favorites' })
+  async addFavorite(
+    @Body() body: { companyId: string; stopId: string },
+    @CurrentUser() user: any,
+  ) {
+    return this.stopsService.addFavorite(body.companyId, body.stopId, user.dbUser.id);
+  }
+
+  @Delete('favorites/:stopId')
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Remove stop from company favorites' })
+  async removeFavorite(
+    @Param('stopId') stopId: string,
+    @Query('companyId') companyId: string,
+  ) {
+    return this.stopsService.removeFavorite(companyId, stopId);
   }
 
   @Put(':id')

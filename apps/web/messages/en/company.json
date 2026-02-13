@@ -6,6 +6,7 @@
     "routes": "Routes",
     "stops": "Stops",
     "members": "Team",
+    "schedules": "Schedules",
     "calendars": "Calendars",
     "myCompanies": "My Companies"
   },
@@ -208,7 +209,37 @@
       "submit": "Save changes",
       "submitting": "Saving...",
       "success": "Route updated"
-    }
+    },
+    "builder": {
+      "title": "Route Builder",
+      "titleEdit": "Edit Route",
+      "titleNew": "New Route",
+      "backToRoutes": "Back to routes",
+      "routeName": "Route name",
+      "autoName": "Auto-generate",
+      "routeCode": "Code",
+      "routeType": "Route type",
+      "comment": "Comment",
+      "commentPlaceholder": "e.g. temporary due to DK19 road works (until 31.07.2027)",
+      "searchStops": "Search stops...",
+      "addedStops": "Route stops",
+      "noStops": "No stops. Search and add stops or click on the map.",
+      "mainStop": "Main stop",
+      "removeStop": "Remove stop",
+      "quickCreateStop": "Quick add stop",
+      "clickMapToAdd": "Click on the map to add a new stop",
+      "stopName": "Stop name",
+      "stopCity": "City",
+      "save": "Save route",
+      "saving": "Saving...",
+      "saved": "Route saved",
+      "minStopsRequired": "Route must have at least 2 stops"
+    },
+    "duplicated": "Route duplicated",
+    "reversed": "Return route created",
+    "duplicate": "Duplicate route",
+    "reverse": "Create return route",
+    "via": "via"
   },
   "members": {
     "title": "Team",

@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from '@/i18n/navigation';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
-import { Route as RouteIcon, Plus, X, Edit, Trash2, Calendar, Copy, ChevronDown, ChevronRight, Eye, Clock } from 'lucide-react';
+import { Route as RouteIcon, Plus, X, Edit, Trash2, Calendar, Copy, ChevronDown, ChevronRight, Eye, Clock, ArrowLeftRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,7 @@ interface RouteData {
   name: string;
   code: string | null;
   description: string | null;
+  comment?: string | null;
   type: string;
   isActive: boolean;
   currentVersion?: {
@@ -23,6 +24,7 @@ interface RouteData {
     stops: Array<{
       id: string;
       sequenceNumber: number;
+      isMain?: boolean;
       stop: { id: string; name: string };
     }>;
   };
@@ -65,8 +67,6 @@ export default function CompanyRoutesPage() {
 
   const [routes, setRoutes] = useState<RouteData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingRoute, setEditingRoute] = useState<RouteData | null>(null);
   const [expandedRoute, setExpandedRoute] = useState<string | null>(null);
   const [routeSchedules, setRouteSchedules] = useState<Record<string, ScheduleData[]>>({});
   const [showScheduleModal, setShowScheduleModal] = useState<string | null>(null); // routeId
@@ -131,6 +131,26 @@ export default function CompanyRoutesPage() {
     }
   };
 
+  const handleDuplicateRoute = async (routeId: string) => {
+    try {
+      await api.post(`/routes/${routeId}/duplicate`);
+      toast({ variant: 'success', title: t('routes.duplicated') });
+      fetchRoutes();
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: tCommon('status.error'), description: err.message });
+    }
+  };
+
+  const handleReverseRoute = async (routeId: string) => {
+    try {
+      await api.post(`/routes/${routeId}/reverse`);
+      toast({ variant: 'success', title: t('routes.reversed') });
+      fetchRoutes();
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: tCommon('status.error'), description: err.message });
+    }
+  };
+
   useEffect(() => {
     if (!isManagerOf(companyId)) {
       router.push('/company');
@@ -150,7 +170,7 @@ export default function CompanyRoutesPage() {
           <h1 className="text-2xl font-bold">{t('routes.title')}</h1>
           <p className="text-muted-foreground">{t('routes.description')}</p>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
+        <Button onClick={() => router.push(`/company/${companyId}/routes/new`)}>
           <Plus className="mr-2 h-4 w-4" />
           {t('routes.addRoute')}
         </Button>
@@ -166,7 +186,7 @@ export default function CompanyRoutesPage() {
         <div className="rounded-lg border bg-card p-8 text-center">
           <RouteIcon className="mx-auto h-12 w-12 text-muted-foreground" />
           <p className="mt-4 text-muted-foreground">{t('routes.noRoutes')}</p>
-          <Button className="mt-4" onClick={() => setShowAddModal(true)}>
+          <Button className="mt-4" onClick={() => router.push(`/company/${companyId}/routes/new`)}>
             <Plus className="mr-2 h-4 w-4" />
             {t('routes.addRoute')}
           </Button>
@@ -193,6 +213,20 @@ export default function CompanyRoutesPage() {
                       {route.description && (
                         <p className="text-sm text-muted-foreground">{route.description}</p>
                       )}
+                      {route.comment && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400">{route.comment}</p>
+                      )}
+                      {route.currentVersion?.stops && (() => {
+                        const mainStops = route.currentVersion.stops
+                          .filter((s) => s.isMain)
+                          .sort((a, b) => a.sequenceNumber - b.sequenceNumber)
+                          .map((s) => s.stop.name);
+                        return mainStops.length > 0 ? (
+                          <p className="text-xs text-muted-foreground">
+                            {t('routes.via')}: {mainStops.join(', ')}
+                          </p>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -219,10 +253,26 @@ export default function CompanyRoutesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setEditingRoute(route)}
+                        onClick={() => router.push(`/company/${companyId}/routes/${route.id}/edit`)}
                         title={tCommon('actions.edit')}
                       >
                         <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDuplicateRoute(route.id)}
+                        title={t('routes.duplicate')}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleReverseRoute(route.id)}
+                        title={t('routes.reverse')}
+                      >
+                        <ArrowLeftRight className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -325,24 +375,6 @@ export default function CompanyRoutesPage() {
         </div>
       )}
 
-      {(showAddModal || editingRoute) && (
-        <RouteFormModal
-          companyId={companyId}
-          route={editingRoute || undefined}
-          t={t}
-          tCommon={tCommon}
-          onClose={() => {
-            setShowAddModal(false);
-            setEditingRoute(null);
-          }}
-          onSaved={() => {
-            setShowAddModal(false);
-            setEditingRoute(null);
-            fetchRoutes();
-          }}
-        />
-      )}
-
       {(showScheduleModal || editingSchedule) && (
         <ScheduleFormModal
           companyId={companyId}
@@ -363,137 +395,6 @@ export default function CompanyRoutesPage() {
           }}
         />
       )}
-    </div>
-  );
-}
-
-function RouteFormModal({
-  companyId,
-  route,
-  t,
-  tCommon,
-  onClose,
-  onSaved,
-}: {
-  companyId: string;
-  route?: RouteData;
-  t: any;
-  tCommon: any;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const [form, setForm] = useState({
-    name: route?.name || '',
-    code: route?.code || '',
-    description: route?.description || '',
-    type: route?.type || 'linear',
-  });
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const isEdit = !!route;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSubmitting(true);
-
-    try {
-      if (isEdit) {
-        await api.put(`/routes/${route.id}`, {
-          ...form,
-          companyId,
-        });
-        toast({ variant: 'success', title: t('routes.editModal.success') });
-      } else {
-        await api.post('/routes', {
-          ...form,
-          companyId,
-          isActive: true,
-        });
-        toast({ variant: 'success', title: t('routes.createModal.success') });
-      }
-      onSaved();
-    } catch (err: any) {
-      setError(err.message);
-      toast({ variant: 'destructive', title: tCommon('status.error'), description: err.message });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">
-            {isEdit ? t('routes.editModal.title') : t('routes.createModal.title')}
-          </h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">{t('routes.createModal.name')}</label>
-            <input
-              type="text"
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">{t('routes.createModal.code')}</label>
-            <input
-              type="text"
-              value={form.code}
-              onChange={(e) => setForm({ ...form, code: e.target.value })}
-              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="L1, A2..."
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">{t('routes.createModal.description')}</label>
-            <textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              rows={3}
-              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">{t('routes.createModal.type')}</label>
-            <select
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value })}
-              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="linear">{t('routes.createModal.typeLinear')}</option>
-              <option value="loop">{t('routes.createModal.typeLoop')}</option>
-            </select>
-          </div>
-
-          {error && <p className="text-sm text-destructive">{error}</p>}
-
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {tCommon('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting
-                ? (isEdit ? t('routes.editModal.submitting') : t('routes.createModal.submitting'))
-                : (isEdit ? t('routes.editModal.submit') : t('routes.createModal.submit'))
-              }
-            </Button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }
@@ -595,7 +496,7 @@ function ScheduleFormModal({
       .map((m: any) => ({ type: m.type, calendarId: m.calendarId }));
   };
   const [calendarModifiers, setCalendarModifiers] = useState<CalendarModifierEntry[]>(
-    parseExistingModifiers(schedule?.calendarModifiers)
+    parseExistingModifiers(schedule?.calendarModifiers || [])
   );
 
   // Stop times
@@ -612,13 +513,19 @@ function ScheduleFormModal({
   // Load options
   useEffect(() => {
     const load = async () => {
-      try {
-        const [vehiclesData, membersData, calendarsData] = await Promise.all([
-          api.get<any>(`/vehicles?companyId=${companyId}&limit=100`),
-          api.get<any>(`/companies/${companyId}/users`),
-          api.get<any>(`/companies/${companyId}/calendars`),
-        ]);
+      const [vehiclesResult, membersResult, calendarsResult] = await Promise.allSettled([
+        api.get<any>(`/vehicles?companyId=${companyId}`),
+        api.get<any>(`/companies/${companyId}/members`),
+        api.get<any>(`/companies/${companyId}/calendars`),
+      ]);
+
+      if (vehiclesResult.status === 'fulfilled') {
+        const vehiclesData = vehiclesResult.value;
         setVehicles(Array.isArray(vehiclesData) ? vehiclesData : vehiclesData?.data || []);
+      }
+
+      if (membersResult.status === 'fulfilled') {
+        const membersData = membersResult.value;
         const members = Array.isArray(membersData) ? membersData : membersData?.data || [];
         setDrivers(
           members
@@ -629,8 +536,11 @@ function ScheduleFormModal({
               lastName: m.user?.lastName || '',
             }))
         );
-        setCalendars(Array.isArray(calendarsData) ? calendarsData : []);
-      } catch {}
+      }
+
+      if (calendarsResult.status === 'fulfilled') {
+        setCalendars(Array.isArray(calendarsResult.value) ? calendarsResult.value : []);
+      }
     };
     load();
   }, [companyId]);

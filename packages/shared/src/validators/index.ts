@@ -101,6 +101,7 @@ export const createRouteSchema = z.object({
   name: z.string().min(1).max(200),
   code: z.string().max(50).optional(),
   description: z.string().max(1000).optional(),
+  comment: z.string().max(500).optional(),
   type: z.enum([RouteType.LINEAR, RouteType.LOOP]),
 });
 
@@ -108,6 +109,7 @@ export const updateRouteSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   code: z.string().max(50).optional(),
   description: z.string().max(1000).optional(),
+  comment: z.string().max(500).optional(),
   type: z.enum([RouteType.LINEAR, RouteType.LOOP]).optional(),
   isActive: z.boolean().optional(),
 });
@@ -119,6 +121,7 @@ export const createRouteStopSchema = z.object({
   durationFromStart: z.number().nonnegative(),
   isPickup: z.boolean().optional().default(true),
   isDropoff: z.boolean().optional().default(true),
+  isMain: z.boolean().optional().default(false),
 });
 
 export const createRouteVersionSchema = z.object({
@@ -136,6 +139,27 @@ export const createRouteExceptionSchema = z.object({
   alternativeRouteId: z.string().uuid().optional(),
   validFrom: z.coerce.date(),
   validTo: z.coerce.date().optional(),
+});
+
+// Favorite validators
+export const addFavoriteStopSchema = z.object({
+  companyId: z.string().uuid(),
+  stopId: z.string().uuid(),
+});
+
+export const removeFavoriteStopSchema = z.object({
+  companyId: z.string().uuid(),
+  stopId: z.string().uuid(),
+});
+
+export const addFavoriteRouteSchema = z.object({
+  companyId: z.string().uuid(),
+  routeId: z.string().uuid(),
+});
+
+export const removeFavoriteRouteSchema = z.object({
+  companyId: z.string().uuid(),
+  routeId: z.string().uuid(),
 });
 
 // Vehicle validators

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Truck, Search, Edit, X, Upload, Plus, Trash2 } from 'lucide-react';
+import { fuzzyFilter } from '@/lib/fuzzy-search';
 
 interface VehicleData {
   id: string;
@@ -65,13 +66,12 @@ export default function AdminVehiclesPage() {
     }
   };
 
-  const filtered = vehicles.filter(
-    (v) =>
-      v.registrationNumber.toLowerCase().includes(search.toLowerCase()) ||
-      (v.brand && v.brand.toLowerCase().includes(search.toLowerCase())) ||
-      (v.model && v.model.toLowerCase().includes(search.toLowerCase())) ||
-      (v.company?.name && v.company.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = fuzzyFilter(vehicles, search, [
+    (v) => v.registrationNumber,
+    (v) => v.brand,
+    (v) => v.model,
+    (v) => v.company?.name,
+  ]);
 
   return (
     <div className="space-y-6">

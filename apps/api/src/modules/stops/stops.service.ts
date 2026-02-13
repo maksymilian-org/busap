@@ -1,12 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateStopInput, UpdateStopInput, SearchStopsInput } from '@busap/shared';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class StopsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(companyId?: string) {
+  async findAll(companyId?: string, favoritesOnly = true) {
+    if (favoritesOnly && companyId) {
+      // Return only favorite stops for this company
+      const favorites = await this.prisma.companyFavoriteStop.findMany({
+        where: { companyId },
+        include: {
+          stop: true,
+        },
+      });
+      return favorites
+        .map((f) => f.stop)
+        .filter((s) => s.isActive)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
     return this.prisma.stop.findMany({
       where: {
         isActive: true,
@@ -82,9 +97,33 @@ export class StopsService {
     return stops;
   }
 
-  async create(data: CreateStopInput) {
-    return this.prisma.stop.create({
-      data,
+  async create(data: CreateStopInput, userId?: string) {
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const stop = await tx.stop.create({
+        data: {
+          ...data,
+          ...(userId && { createdById: userId }),
+        },
+      });
+
+      // Auto-add to company favorites if the user belongs to a company
+      if (userId) {
+        const companyUser = await tx.companyUser.findFirst({
+          where: { userId, isActive: true },
+        });
+
+        if (companyUser) {
+          await tx.companyFavoriteStop.create({
+            data: {
+              companyId: companyUser.companyId,
+              stopId: stop.id,
+              addedById: userId,
+            },
+          });
+        }
+      }
+
+      return stop;
     });
   }
 
@@ -103,6 +142,50 @@ export class StopsService {
     return this.prisma.stop.update({
       where: { id },
       data: { isActive: false },
+    });
+  }
+
+  async addFavorite(companyId: string, stopId: string, userId: string) {
+    await this.findById(stopId);
+
+    try {
+      return await this.prisma.companyFavoriteStop.create({
+        data: {
+          companyId,
+          stopId,
+          addedById: userId,
+        },
+        include: { stop: true },
+      });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Stop is already a favorite for this company');
+      }
+      throw error;
+    }
+  }
+
+  async removeFavorite(companyId: string, stopId: string) {
+    const favorite = await this.prisma.companyFavoriteStop.findUnique({
+      where: {
+        companyId_stopId: { companyId, stopId },
+      },
+    });
+
+    if (!favorite) {
+      throw new NotFoundException('Favorite not found');
+    }
+
+    return this.prisma.companyFavoriteStop.delete({
+      where: { id: favorite.id },
+    });
+  }
+
+  async getFavorites(companyId: string) {
+    return this.prisma.companyFavoriteStop.findMany({
+      where: { companyId },
+      include: { stop: true },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

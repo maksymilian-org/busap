@@ -36,7 +36,8 @@
     "sending": "Wysyłanie...",
     "creating": "Tworzenie...",
     "showMap": "Pokaż mapę",
-    "hideMap": "Ukryj mapę"
+    "hideMap": "Ukryj mapę",
+    "details": "Szczegóły"
   },
   "status": {
     "active": "Aktywny",

@@ -8,6 +8,7 @@ export interface Stop {
   city?: string;
   country?: string;
   companyId?: string; // null = global stop
+  createdById?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

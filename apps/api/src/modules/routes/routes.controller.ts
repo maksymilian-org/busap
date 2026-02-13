@@ -12,6 +12,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RoutesService } from './routes.service';
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import {
   UserRole,
   CreateRouteInput,
@@ -28,8 +29,12 @@ export class RoutesController {
   @Get()
   @Public()
   @ApiOperation({ summary: 'Get all routes' })
-  async findAll(@Query('companyId') companyId?: string) {
-    return this.routesService.findAll(companyId);
+  async findAll(
+    @Query('companyId') companyId?: string,
+    @Query('favorites') favorites?: string,
+  ) {
+    const favoritesOnly = favorites !== 'false';
+    return this.routesService.findAll(companyId, favoritesOnly);
   }
 
   @Get('search')
@@ -61,8 +66,30 @@ export class RoutesController {
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Create a new route' })
-  async create(@Body() data: CreateRouteInput) {
-    return this.routesService.create(data);
+  async create(@Body() data: CreateRouteInput, @CurrentUser() user: any) {
+    return this.routesService.create(data, user?.dbUser?.id);
+  }
+
+  @Post('favorites')
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Add route to company favorites' })
+  async addFavorite(
+    @Body() body: { companyId: string; routeId: string },
+    @CurrentUser() user: any,
+  ) {
+    return this.routesService.addFavorite(body.companyId, body.routeId, user.dbUser.id);
+  }
+
+  @Delete('favorites/:routeId')
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Remove route from company favorites' })
+  async removeFavorite(
+    @Param('routeId') routeId: string,
+    @Query('companyId') companyId: string,
+  ) {
+    return this.routesService.removeFavorite(companyId, routeId);
   }
 
   @Post(':id/versions')
@@ -85,6 +112,22 @@ export class RoutesController {
     @Body() data: Omit<CreateRouteExceptionInput, 'routeId'>,
   ) {
     return this.routesService.createException({ ...data, routeId: id });
+  }
+
+  @Post(':id/duplicate')
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Duplicate a route' })
+  async duplicate(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.routesService.duplicate(id, user?.dbUser?.id);
+  }
+
+  @Post(':id/reverse')
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Create reverse route' })
+  async reverse(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.routesService.reverse(id, user?.dbUser?.id);
   }
 
   @Put(':id')

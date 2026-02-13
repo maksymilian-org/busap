@@ -7,9 +7,11 @@ export interface Route {
   name: string;
   code?: string;
   description?: string;
+  comment?: string;
   type: RouteTypeType;
   isActive: boolean;
   currentVersionId?: string;
+  createdById?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +35,7 @@ export interface RouteStop {
   durationFromStart: number; // in minutes
   isPickup: boolean;
   isDropoff: boolean;
+  isMain: boolean;
   stop?: Stop;
 }
 
@@ -62,6 +65,7 @@ export interface CreateRouteInput {
   name: string;
   code?: string;
   description?: string;
+  comment?: string;
   type: RouteTypeType;
 }
 
@@ -69,6 +73,7 @@ export interface UpdateRouteInput {
   name?: string;
   code?: string;
   description?: string;
+  comment?: string;
   type?: RouteTypeType;
   isActive?: boolean;
 }
@@ -87,6 +92,7 @@ export interface CreateRouteStopInput {
   durationFromStart: number;
   isPickup?: boolean;
   isDropoff?: boolean;
+  isMain?: boolean;
 }
 
 export interface CreateRouteExceptionInput {

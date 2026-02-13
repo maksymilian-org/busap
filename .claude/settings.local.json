@@ -107,7 +107,9 @@
       "Bash(pnpm run typecheck:*)",
       "Bash(pnpm --filter @busap/web typecheck:*)",
       "Bash(pnpm --filter @busap/api exec prisma migrate dev:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm list:*)"
     ]
   }
 }

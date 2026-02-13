@@ -42,15 +42,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string): Promise<User> {
-    const { user } = await api.login(email, password);
-    setUser(user as User);
-    return user as User;
+    await api.login(email, password);
+    // Fetch full user with companyMemberships
+    const fullUser = await api.getMe();
+    setUser(fullUser);
+    return fullUser;
   }
 
   async function register(email: string, password: string, firstName: string, lastName: string): Promise<User> {
-    const { user } = await api.register(email, password, firstName, lastName);
-    setUser(user as User);
-    return user as User;
+    await api.register(email, password, firstName, lastName);
+    // Fetch full user with companyMemberships
+    const fullUser = await api.getMe();
+    setUser(fullUser);
+    return fullUser;
   }
 
   async function logout() {

@@ -6,6 +6,7 @@
     "routes": "Trasy",
     "stops": "Przystanki",
     "members": "Zespół",
+    "schedules": "Harmonogramy",
     "calendars": "Kalendarze",
     "myCompanies": "Moje firmy"
   },
@@ -208,7 +209,37 @@
       "submit": "Zapisz zmiany",
       "submitting": "Zapisywanie...",
       "success": "Trasa zaktualizowana"
-    }
+    },
+    "builder": {
+      "title": "Kreator trasy",
+      "titleEdit": "Edycja trasy",
+      "titleNew": "Nowa trasa",
+      "backToRoutes": "Powrót do tras",
+      "routeName": "Nazwa trasy",
+      "autoName": "Generuj automatycznie",
+      "routeCode": "Kod",
+      "routeType": "Typ trasy",
+      "comment": "Komentarz",
+      "commentPlaceholder": "np. tymczasowa przez remont DK19 (do 31.07.2027)",
+      "searchStops": "Szukaj przystanków...",
+      "addedStops": "Przystanki na trasie",
+      "noStops": "Brak przystanków. Wyszukaj i dodaj przystanki lub kliknij na mapie.",
+      "mainStop": "Przystanek główny",
+      "removeStop": "Usuń przystanek",
+      "quickCreateStop": "Szybkie dodanie przystanku",
+      "clickMapToAdd": "Kliknij na mapie, aby dodać nowy przystanek",
+      "stopName": "Nazwa przystanku",
+      "stopCity": "Miasto",
+      "save": "Zapisz trasę",
+      "saving": "Zapisywanie...",
+      "saved": "Trasa zapisana",
+      "minStopsRequired": "Trasa musi mieć co najmniej 2 przystanki"
+    },
+    "duplicated": "Trasa zduplikowana",
+    "reversed": "Trasa powrotna utworzona",
+    "duplicate": "Duplikuj trasę",
+    "reverse": "Utwórz trasę powrotną",
+    "via": "przez"
   },
   "members": {
     "title": "Zespół",

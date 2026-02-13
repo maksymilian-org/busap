@@ -6,3 +6,4 @@ export * from './trip';
 export * from './pricing';
 export * from './eta';
 export * from './audit';
+export * from './favorite';

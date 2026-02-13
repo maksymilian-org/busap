@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Route, Search, Plus, Edit, Trash2, X } from 'lucide-react';
+import { fuzzyFilter } from '@/lib/fuzzy-search';
 
 interface RouteData {
   id: string;
@@ -63,12 +64,12 @@ export default function AdminRoutesPage() {
     }
   };
 
-  const filtered = routes.filter(
-    (r) =>
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      (r.code && r.code.toLowerCase().includes(search.toLowerCase())) ||
-      (r.company?.name && r.company.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = fuzzyFilter(routes, search, [
+    (r) => r.name,
+    (r) => r.code,
+    (r) => r.company?.name,
+    (r) => r.description,
+  ]);
 
   return (
     <div className="space-y-6">
