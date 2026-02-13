@@ -143,8 +143,8 @@ export class SchedulesService {
       await this.validateStopTimes(data.routeId, data.stopTimes);
     }
 
-    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const schedule = await tx.tripSchedule.create({
+    const schedule = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const created = await tx.tripSchedule.create({
         data: {
           companyId: data.companyId,
           routeId: data.routeId,
@@ -171,7 +171,7 @@ export class SchedulesService {
           data: data.stopTimes
             .filter((st) => st.arrivalTime && st.departureTime)
             .map((st) => ({
-              scheduleId: schedule.id,
+              scheduleId: created.id,
               routeStopId: st.routeStopId,
               arrivalTime: st.arrivalTime!,
               departureTime: st.departureTime!,
@@ -179,8 +179,10 @@ export class SchedulesService {
         });
       }
 
-      return this.findById(schedule.id);
+      return created;
     });
+
+    return this.findById(schedule.id);
   }
 
   private async validateStopTimes(routeId: string, stopTimes: ScheduleStopTimeDto[]) {
@@ -271,7 +273,7 @@ export class SchedulesService {
     if (data.calendarModifiers) updateData.calendarModifiers = JSON.parse(JSON.stringify(data.calendarModifiers));
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
 
-    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.tripSchedule.update({
         where: { id },
         data: updateData,
@@ -298,9 +300,9 @@ export class SchedulesService {
           });
         }
       }
-
-      return this.findById(id);
     });
+
+    return this.findById(id);
   }
 
   async delete(id: string) {
@@ -325,8 +327,8 @@ export class SchedulesService {
   async duplicate(id: string) {
     const schedule = await this.findById(id);
 
-    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const newSchedule = await tx.tripSchedule.create({
+    const newSchedule = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const created = await tx.tripSchedule.create({
         data: {
           companyId: schedule.companyId,
           routeId: schedule.routeId,
@@ -349,7 +351,7 @@ export class SchedulesService {
       if (schedule.stopTimes && schedule.stopTimes.length > 0) {
         await tx.scheduleStopTime.createMany({
           data: schedule.stopTimes.map((st: { routeStopId: string; arrivalTime: string; departureTime: string }) => ({
-            scheduleId: newSchedule.id,
+            scheduleId: created.id,
             routeStopId: st.routeStopId,
             arrivalTime: st.arrivalTime,
             departureTime: st.departureTime,
@@ -357,8 +359,10 @@ export class SchedulesService {
         });
       }
 
-      return this.findById(newSchedule.id);
+      return created;
     });
+
+    return this.findById(newSchedule.id);
   }
 
   // Exception management
