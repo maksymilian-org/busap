@@ -365,6 +365,8 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
             <label className="text-sm font-medium">{t('addedStops')}</label>
             <p className="text-xs text-muted-foreground mb-2">
               {t('clickMapToAdd')}
+              {' · '}
+              {t('clickExistingStopToAdd')}
             </p>
             <DraggableStopList
               stops={stops}
@@ -384,6 +386,9 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
             stops={stops}
             positions={mapPositions}
             onClick={handleMapClick}
+            companyId={companyId}
+            addedStopIds={addedStopIds}
+            onExistingStopClick={handleAddStop}
           />
         </div>
       </div>

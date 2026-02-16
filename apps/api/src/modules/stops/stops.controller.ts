@@ -35,6 +35,27 @@ export class StopsController {
     return this.stopsService.findAll(companyId, favoritesOnly);
   }
 
+  @Get('bbox')
+  @Public()
+  @ApiOperation({ summary: 'Get stops within bounding box' })
+  async findByBBox(
+    @Query('minLat') minLat: string,
+    @Query('maxLat') maxLat: string,
+    @Query('minLng') minLng: string,
+    @Query('maxLng') maxLng: string,
+    @Query('companyId') companyId?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.stopsService.findByBBox(
+      Number(minLat),
+      Number(maxLat),
+      Number(minLng),
+      Number(maxLng),
+      companyId,
+      limit ? Number(limit) : undefined,
+    );
+  }
+
   @Get('search')
   @Public()
   @ApiOperation({ summary: 'Search stops' })

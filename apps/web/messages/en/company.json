@@ -233,7 +233,8 @@
       "save": "Save route",
       "saving": "Saving...",
       "saved": "Route saved",
-      "minStopsRequired": "Route must have at least 2 stops"
+      "minStopsRequired": "Route must have at least 2 stops",
+      "clickExistingStopToAdd": "Click a gray stop on the map to add it to the route"
     },
     "duplicated": "Route duplicated",
     "reversed": "Return route created",

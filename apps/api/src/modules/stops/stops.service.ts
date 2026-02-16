@@ -234,6 +234,28 @@ export class StopsService {
     });
   }
 
+  async findByBBox(
+    minLat: number,
+    maxLat: number,
+    minLng: number,
+    maxLng: number,
+    companyId?: string,
+    limit = 100,
+  ) {
+    return this.prisma.stop.findMany({
+      where: {
+        isActive: true,
+        latitude: { gte: minLat, lte: maxLat },
+        longitude: { gte: minLng, lte: maxLng },
+        ...(companyId && {
+          OR: [{ companyId: null }, { companyId }],
+        }),
+      },
+      take: limit,
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async getNearbyStops(latitude: number, longitude: number, radiusMeters = 5000) {
     const stops = await this.prisma.stop.findMany({
       where: { isActive: true },
