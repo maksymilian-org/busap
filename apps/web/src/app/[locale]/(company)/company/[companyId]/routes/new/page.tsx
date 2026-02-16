@@ -9,7 +9,8 @@ import RouteBuilder from '@/components/routes/RouteBuilder';
 export default function NewRoutePage() {
   const params = useParams();
   const companyId = params.companyId as string;
-  const { isManagerOf } = useAuth();
+  const { user, isManagerOf } = useAuth();
+  const canEditName = user?.systemRole === 'admin' || user?.systemRole === 'superadmin';
   const router = useRouter();
 
   useEffect(() => {
@@ -22,5 +23,5 @@ export default function NewRoutePage() {
     return null;
   }
 
-  return <RouteBuilder companyId={companyId} mode="create" />;
+  return <RouteBuilder companyId={companyId} mode="create" canEditName={canEditName} />;
 }

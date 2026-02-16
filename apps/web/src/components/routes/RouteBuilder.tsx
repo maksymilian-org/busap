@@ -56,11 +56,13 @@ interface RouteBuilderProps {
   companyId: string;
   existingRoute?: RouteWithDetails;
   mode: 'create' | 'edit';
+  /** When false (e.g. owner/manager), name field is read-only and name is not sent on update */
+  canEditName?: boolean;
 }
 
 let stopCounter = 0;
 
-export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBuilderProps) {
+export default function RouteBuilder({ companyId, existingRoute, mode, canEditName = true }: RouteBuilderProps) {
   const t = useTranslations('company.routes.builder');
   const tCommon = useTranslations('common');
   const router = useRouter();
@@ -71,6 +73,7 @@ export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBu
   const [routeType, setRouteType] = useState(existingRoute?.type || 'linear');
   const [comment, setComment] = useState(existingRoute?.comment || '');
   const [autoName, setAutoName] = useState(!existingRoute);
+  const nameReadOnly = !canEditName;
 
   // Stops state
   const [stops, setStops] = useState<BuilderStop[]>(() => {
@@ -122,8 +125,10 @@ export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBu
     return `${first} - ${last} (via ${via.join(', ')})`;
   }, [stops]);
 
-  // Keep name in sync when autoName is on
-  const effectiveName = autoName ? generatedName : name;
+  // Keep name in sync when autoName is on; when name read-only use existing or generated
+  const effectiveName = nameReadOnly
+    ? (mode === 'edit' ? (existingRoute?.name ?? '') : generatedName)
+    : (autoName ? generatedName : name);
 
   // Added stop IDs for deduplication
   const addedStopIds = useMemo(() => new Set(stops.map((s) => s.stopId)), [stops]);
@@ -191,7 +196,7 @@ export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBu
         const route = await api.post('/routes', {
           companyId,
           name: routeName,
-          nameOverridden: !autoName,
+          nameOverridden: nameReadOnly ? false : !autoName,
           code: code || undefined,
           description: undefined,
           comment: comment || undefined,
@@ -200,13 +205,16 @@ export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBu
         routeId = route.id;
       } else {
         routeId = existingRoute!.id;
-        await api.put(`/routes/${routeId}`, {
-          name: routeName,
-          nameOverridden: !autoName,
+        const updatePayload: Record<string, unknown> = {
           code: code || undefined,
           comment: comment || undefined,
           type: routeType,
-        });
+        };
+        if (!nameReadOnly) {
+          updatePayload.name = routeName;
+          updatePayload.nameOverridden = !autoName;
+        }
+        await api.put(`/routes/${routeId}`, updatePayload);
       }
 
       // Create version with stops
@@ -272,24 +280,26 @@ export default function RouteBuilder({ companyId, existingRoute, mode }: RouteBu
           <div>
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium">{t('routeName')}</label>
-              <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={autoName}
-                  onChange={(e) => {
-                    setAutoName(e.target.checked);
-                    if (e.target.checked) setName(generatedName);
-                  }}
-                  className="rounded border"
-                />
-                {t('autoName')}
-              </label>
+              {!nameReadOnly && (
+                <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={autoName}
+                    onChange={(e) => {
+                      setAutoName(e.target.checked);
+                      if (e.target.checked) setName(generatedName);
+                    }}
+                    className="rounded border"
+                  />
+                  {t('autoName')}
+                </label>
+              )}
             </div>
             <input
               type="text"
-              value={autoName ? generatedName : name}
+              value={nameReadOnly ? effectiveName : (autoName ? generatedName : name)}
               onChange={(e) => setName(e.target.value)}
-              disabled={autoName}
+              disabled={nameReadOnly || autoName}
               className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-muted disabled:cursor-not-allowed"
             />
           </div>

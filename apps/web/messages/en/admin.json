@@ -288,7 +288,9 @@
       "submit": "Save",
       "submitting": "Saving...",
       "success": "Stop updated"
-    }
+    },
+    "confirmDelete": "Are you sure you want to delete this stop?",
+    "deleted": "Stop deleted"
   },
   "routes": {
     "title": "Routes",

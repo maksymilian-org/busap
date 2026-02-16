@@ -127,7 +127,7 @@ export class StopsController {
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.OWNER)
   @ApiOperation({ summary: 'Delete stop (soft delete)' })
   async delete(@Param('id') id: string) {
     return this.stopsService.delete(id);

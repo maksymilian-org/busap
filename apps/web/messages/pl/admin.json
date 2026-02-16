@@ -288,7 +288,9 @@
       "submit": "Zapisz",
       "submitting": "Zapisywanie...",
       "success": "Przystanek zaktualizowany"
-    }
+    },
+    "confirmDelete": "Czy na pewno chcesz usunąć ten przystanek?",
+    "deleted": "Przystanek usunięty"
   },
   "routes": {
     "title": "Trasy",

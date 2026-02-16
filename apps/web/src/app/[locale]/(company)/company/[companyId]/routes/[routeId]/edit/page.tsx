@@ -11,7 +11,8 @@ export default function EditRoutePage() {
   const params = useParams();
   const companyId = params.companyId as string;
   const routeId = params.routeId as string;
-  const { isManagerOf } = useAuth();
+  const { user, isManagerOf } = useAuth();
+  const canEditName = user?.systemRole === 'admin' || user?.systemRole === 'superadmin';
   const router = useRouter();
   const [route, setRoute] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -51,5 +52,5 @@ export default function EditRoutePage() {
     return null;
   }
 
-  return <RouteBuilder companyId={companyId} existingRoute={route} mode="edit" />;
+  return <RouteBuilder companyId={companyId} existingRoute={route} mode="edit" canEditName={canEditName} />;
 }
