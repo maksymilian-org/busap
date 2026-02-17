@@ -1,0 +1,28 @@
+{
+  "company": {
+    "routes": "Trasy",
+    "departures": "Najbliższe odjazdy",
+    "news": "Aktualności",
+    "allNews": "Wszystkie aktualności",
+    "noRoutes": "Brak aktywnych tras",
+    "noDepartures": "Brak najbliższych odjazdów",
+    "noNews": "Brak aktualności",
+    "contact": "Kontakt",
+    "phone": "Telefon",
+    "email": "Email",
+    "address": "Adres",
+    "departureIn": "za {minutes} min",
+    "departureInHours": "za {hours}h {minutes}min",
+    "departureTomorrow": "jutro {time}",
+    "departureAt": "{day} {time}",
+    "departureNow": "teraz",
+    "stops": "Przystanki",
+    "route": "Trasa",
+    "readMore": "Czytaj więcej",
+    "publishedAt": "Opublikowano {date}",
+    "backToCompany": "Powrót do strony firmy",
+    "addToFavorites": "Dodaj do ulubionych",
+    "removeFromFavorites": "Usuń z ulubionych",
+    "showAll": "Pokaż wszystkie"
+  }
+}

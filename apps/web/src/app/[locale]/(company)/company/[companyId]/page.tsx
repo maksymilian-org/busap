@@ -8,7 +8,7 @@ import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
-import { Clock, Truck, Route, Users, Plus, ArrowRight, Building2, Mail, Phone, MapPin, Edit, X, Upload } from 'lucide-react';
+import { Clock, Truck, Route, Users, Plus, ArrowRight, Building2, Mail, Phone, MapPin, Edit, X, Upload, Globe, ExternalLink, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -27,7 +27,12 @@ interface CompanyData {
   description?: string;
   contactEmail: string;
   contactPhone?: string;
+  contactPhone2?: string;
+  contactPhone3?: string;
   address?: string;
+  website?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
   isActive: boolean;
 }
 
@@ -68,18 +73,12 @@ export default function CompanyDashboardPage() {
 
     async function fetchData() {
       try {
-        // Fetch company and stats from API
-        const [vehicles, routes, trips] = await Promise.all([
-          api.get(`/vehicles?companyId=${companyId}&limit=1`).catch(() => ({ total: 0 })),
-          api.get(`/routes?companyId=${companyId}&limit=1`).catch(() => ({ total: 0 })),
-          api.get(`/trips?companyId=${companyId}&limit=1`).catch(() => ({ total: 0 })),
-        ]);
-
+        const result = await api.get<{ company: any; stats: { vehicleCount: number; routeCount: number; memberCount: number; activeTrips: number } }>(`/companies/${companyId}/stats`);
         setStats({
-          totalTrips: trips.total || 0,
-          totalVehicles: vehicles.total || 0,
-          totalRoutes: routes.total || 0,
-          totalMembers: 0, // TODO: fetch members count
+          totalTrips: result.stats.activeTrips,
+          totalVehicles: result.stats.vehicleCount,
+          totalRoutes: result.stats.routeCount,
+          totalMembers: result.stats.memberCount,
         });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -217,6 +216,11 @@ export default function CompanyDashboardPage() {
         </CardContent>
       </Card>
 
+      {/* Public Page Link */}
+      {company?.slug && (
+        <PublicPageCard t={t} slug={company.slug} />
+      )}
+
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (
@@ -277,6 +281,44 @@ export default function CompanyDashboardPage() {
   );
 }
 
+function PublicPageCard({ t, slug }: { t: any; slug: string }) {
+  const [copied, setCopied] = useState(false);
+  const publicUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/c/${slug}`
+    : `/c/${slug}`;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(publicUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Card>
+      <CardContent className="flex items-center gap-4 p-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+          <Globe className="h-5 w-5 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium">{t('dashboard.publicPage')}</p>
+          <p className="text-xs text-muted-foreground truncate">{publicUrl}</p>
+        </div>
+        <div className="flex gap-1">
+          <Button variant="outline" size="sm" onClick={handleCopy}>
+            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            <span className="ml-1">{copied ? t('dashboard.urlCopied') : t('dashboard.copyUrl')}</span>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href={publicUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function EditCompanyModal({
   t,
   tCommon,
@@ -292,11 +334,17 @@ function EditCompanyModal({
 }) {
   const [form, setForm] = useState({
     name: company.name,
+    slug: company.slug,
     contactEmail: company.contactEmail,
     contactPhone: company.contactPhone || '',
+    contactPhone2: company.contactPhone2 || '',
+    contactPhone3: company.contactPhone3 || '',
     description: company.description || '',
     address: company.address || '',
     logoUrl: company.logoUrl || '',
+    website: company.website || '',
+    facebookUrl: company.facebookUrl || '',
+    instagramUrl: company.instagramUrl || '',
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -434,6 +482,70 @@ function EditCompanyModal({
               type="text"
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">{t('dashboard.editModal.slug')}</label>
+            <input
+              type="text"
+              value={form.slug}
+              onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <p className="text-xs text-muted-foreground mt-1">{t('dashboard.editModal.slugHint')}</p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">{t('dashboard.editModal.contactPhone2')}</label>
+            <input
+              type="text"
+              value={form.contactPhone2}
+              onChange={(e) => setForm({ ...form, contactPhone2: e.target.value })}
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">{t('dashboard.editModal.contactPhone3')}</label>
+            <input
+              type="text"
+              value={form.contactPhone3}
+              onChange={(e) => setForm({ ...form, contactPhone3: e.target.value })}
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">{t('dashboard.editModal.website')}</label>
+            <input
+              type="url"
+              value={form.website}
+              onChange={(e) => setForm({ ...form, website: e.target.value })}
+              placeholder="https://"
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Facebook</label>
+            <input
+              type="url"
+              value={form.facebookUrl}
+              onChange={(e) => setForm({ ...form, facebookUrl: e.target.value })}
+              placeholder="https://facebook.com/..."
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Instagram</label>
+            <input
+              type="url"
+              value={form.instagramUrl}
+              onChange={(e) => setForm({ ...form, instagramUrl: e.target.value })}
+              placeholder="https://instagram.com/..."
               className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>

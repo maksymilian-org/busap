@@ -18,6 +18,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const errors = (await import(`../../messages/${locale}/errors.json`)).default;
   const company = (await import(`../../messages/${locale}/company.json`)).default;
   const settings = (await import(`../../messages/${locale}/settings.json`)).default;
+  const publicMessages = (await import(`../../messages/${locale}/public.json`)).default;
 
   return {
     locale,
@@ -30,6 +31,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       errors,
       company,
       settings,
+      public: publicMessages,
     },
   };
 });

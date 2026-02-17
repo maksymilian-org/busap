@@ -21,6 +21,8 @@ import { MailerModule } from './modules/mailer/mailer.module';
 import { CalendarsModule } from './modules/calendars/calendars.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
 import { GeocodingModule } from './modules/geocoding/geocoding.module';
+import { NewsModule } from './modules/news/news.module';
+import { UserFavoritesModule } from './modules/user-favorites/user-favorites.module';
 
 @Module({
   imports: [
@@ -49,6 +51,8 @@ import { GeocodingModule } from './modules/geocoding/geocoding.module';
     CalendarsModule,
     SchedulesModule,
     GeocodingModule,
+    NewsModule,
+    UserFavoritesModule,
   ],
 })
 export class AppModule {}

@@ -56,7 +56,12 @@ export interface Company {
   description?: string;
   contactEmail: string;
   contactPhone?: string;
+  contactPhone2?: string;
+  contactPhone3?: string;
   address?: string;
+  website?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -102,11 +107,17 @@ export interface CreateCompanyInput {
 
 export interface UpdateCompanyInput {
   name?: string;
+  slug?: string;
   logoUrl?: string;
   description?: string;
   contactEmail?: string;
   contactPhone?: string;
+  contactPhone2?: string;
+  contactPhone3?: string;
   address?: string;
+  website?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
   isActive?: boolean;
 }
 

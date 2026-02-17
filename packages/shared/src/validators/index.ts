@@ -54,11 +54,17 @@ export const createCompanySchema = z.object({
 
 export const updateCompanySchema = z.object({
   name: z.string().min(1).max(200).optional(),
+  slug: z.string().min(2).max(100).regex(/^[a-z0-9-]+$/).optional(),
   logoUrl: z.string().url().optional(),
   description: z.string().max(1000).optional(),
   contactEmail: z.string().email().optional(),
   contactPhone: z.string().optional(),
+  contactPhone2: z.string().optional().or(z.literal('')),
+  contactPhone3: z.string().optional().or(z.literal('')),
   address: z.string().max(500).optional(),
+  website: z.string().url().max(500).optional().or(z.literal('')),
+  facebookUrl: z.string().url().max(500).optional().or(z.literal('')),
+  instagramUrl: z.string().url().max(500).optional().or(z.literal('')),
   isActive: z.boolean().optional(),
 });
 
@@ -172,6 +178,21 @@ export const addFavoriteRouteSchema = z.object({
 export const removeFavoriteRouteSchema = z.object({
   companyId: z.string().uuid(),
   routeId: z.string().uuid(),
+});
+
+// Company News validators
+export const createCompanyNewsSchema = z.object({
+  title: z.string().min(1).max(300),
+  content: z.string().min(1),
+  excerpt: z.string().max(500).optional(),
+  imageUrl: z.string().url().optional(),
+});
+
+export const updateCompanyNewsSchema = z.object({
+  title: z.string().min(1).max(300).optional(),
+  content: z.string().min(1).optional(),
+  excerpt: z.string().max(500).optional(),
+  imageUrl: z.string().url().nullable().optional(),
 });
 
 // Vehicle validators

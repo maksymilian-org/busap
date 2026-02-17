@@ -1,0 +1,28 @@
+{
+  "company": {
+    "routes": "Routes",
+    "departures": "Nearest Departures",
+    "news": "News",
+    "allNews": "All News",
+    "noRoutes": "No active routes",
+    "noDepartures": "No upcoming departures",
+    "noNews": "No news",
+    "contact": "Contact",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "departureIn": "in {minutes} min",
+    "departureInHours": "in {hours}h {minutes}min",
+    "departureTomorrow": "tomorrow {time}",
+    "departureAt": "{day} {time}",
+    "departureNow": "now",
+    "stops": "Stops",
+    "route": "Route",
+    "readMore": "Read more",
+    "publishedAt": "Published {date}",
+    "backToCompany": "Back to company page",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "showAll": "Show all"
+  }
+}

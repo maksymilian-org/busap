@@ -12,6 +12,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { CompaniesService } from './companies.service';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole, CreateCompanyInput, UpdateCompanyInput } from '@busap/shared';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -118,6 +119,41 @@ export class CompaniesController {
   ) {
     await this.checkCompanyAccess(id, user);
     return this.companiesService.getAvailableUsers(id, search);
+  }
+
+  // ==================== Public Endpoints ====================
+
+  @Get('slug/:slug')
+  @Public()
+  @ApiOperation({ summary: 'Get company by slug (public)' })
+  async findBySlug(@Param('slug') slug: string) {
+    return this.companiesService.findBySlugPublic(slug);
+  }
+
+  @Get('slug/:slug/routes')
+  @Public()
+  @ApiOperation({ summary: 'Get company routes with stops (public)' })
+  async getPublicRoutes(@Param('slug') slug: string) {
+    return this.companiesService.getPublicRoutes(slug);
+  }
+
+  @Get('slug/:slug/departures')
+  @Public()
+  @ApiOperation({ summary: 'Get nearest departures (public)' })
+  @ApiQuery({ name: 'hours', required: false })
+  async getPublicDepartures(
+    @Param('slug') slug: string,
+    @Query('hours') hours?: string,
+  ) {
+    const windowHours = hours ? parseInt(hours, 10) : 24;
+    return this.companiesService.getPublicDepartures(slug, windowHours);
+  }
+
+  @Get('slug/:slug/news')
+  @Public()
+  @ApiOperation({ summary: 'Get published news (public)' })
+  async getPublicNews(@Param('slug') slug: string) {
+    return this.companiesService.getPublicNews(slug);
   }
 
   private async checkCompanyAccess(companyId: string, user: any) {

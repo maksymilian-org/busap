@@ -2,6 +2,16 @@ import { Injectable, NotFoundException, ConflictException, BadRequestException }
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCompanyInput, UpdateCompanyInput } from '@busap/shared';
 import { Prisma } from '@prisma/client';
+import {
+  expandRRule,
+  getSingleDate,
+  filterDatesByModifiers,
+  CalendarModifier,
+} from '../schedules/utils/rrule.util';
+import {
+  generateTripsFromSchedule,
+} from '../schedules/utils/trip-generator.util';
+import { formatDate } from '../calendars/utils/easter.util';
 
 @Injectable()
 export class CompaniesService {
@@ -75,9 +85,25 @@ export class CompaniesService {
   async update(id: string, data: UpdateCompanyInput) {
     await this.findById(id);
 
+    // Validate slug uniqueness if changed
+    if (data.slug) {
+      const existing = await this.prisma.company.findUnique({
+        where: { slug: data.slug },
+      });
+      if (existing && existing.id !== id) {
+        throw new ConflictException('Slug is already taken');
+      }
+    }
+
+    // Convert empty strings to null for optional URL fields
+    const cleanedData = { ...data } as any;
+    for (const field of ['website', 'facebookUrl', 'instagramUrl', 'contactPhone2', 'contactPhone3']) {
+      if (cleanedData[field] === '') cleanedData[field] = null;
+    }
+
     return this.prisma.company.update({
       where: { id },
-      data,
+      data: cleanedData,
     });
   }
 
@@ -93,7 +119,7 @@ export class CompaniesService {
   async getStats(id: string) {
     const company = await this.findById(id);
 
-    const [vehicleCount, routeCount, driverCount, activeTrips] =
+    const [vehicleCount, routeCount, driverCount, memberCount, activeTrips] =
       await Promise.all([
         this.prisma.vehicle.count({
           where: { companyId: id, isActive: true },
@@ -103,6 +129,9 @@ export class CompaniesService {
         }),
         this.prisma.companyUser.count({
           where: { companyId: id, role: 'driver', isActive: true },
+        }),
+        this.prisma.companyUser.count({
+          where: { companyId: id, isActive: true },
         }),
         this.prisma.trip.count({
           where: { companyId: id, status: 'in_progress' },
@@ -115,6 +144,7 @@ export class CompaniesService {
         vehicleCount,
         routeCount,
         driverCount,
+        memberCount,
         activeTrips,
       },
     };
@@ -286,5 +316,231 @@ export class CompaniesService {
       where: { userId_companyId: { userId, companyId } },
     });
     return membership?.isActive === true && membership?.role === 'owner';
+  }
+
+  // ==================== Public Endpoints ====================
+
+  async findBySlugPublic(slug: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        logoUrl: true,
+        description: true,
+        contactEmail: true,
+        contactPhone: true,
+        contactPhone2: true,
+        contactPhone3: true,
+        address: true,
+        website: true,
+        facebookUrl: true,
+        instagramUrl: true,
+      },
+    });
+
+    if (!company || !(await this.isActiveCompany(slug))) {
+      throw new NotFoundException(`Company not found`);
+    }
+
+    return company;
+  }
+
+  async getPublicRoutes(slug: string) {
+    const company = await this.getActiveCompanyBySlug(slug);
+
+    return this.prisma.route.findMany({
+      where: { companyId: company.id, isActive: true },
+      include: {
+        currentVersion: {
+          include: {
+            stops: {
+              include: { stop: true },
+              orderBy: { sequenceNumber: 'asc' },
+            },
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async getPublicDepartures(slug: string, windowHours: number = 24) {
+    const company = await this.getActiveCompanyBySlug(slug);
+
+    const now = new Date();
+    const windowEnd = new Date(now.getTime() + windowHours * 60 * 60 * 1000);
+
+    // Get active schedules for this company
+    const schedules = await this.prisma.tripSchedule.findMany({
+      where: {
+        companyId: company.id,
+        isActive: true,
+        validFrom: { lte: windowEnd },
+        OR: [
+          { validTo: null },
+          { validTo: { gte: now } },
+        ],
+      },
+      include: {
+        route: {
+          include: {
+            currentVersion: {
+              include: {
+                stops: {
+                  include: { stop: true },
+                  orderBy: { sequenceNumber: 'asc' },
+                },
+              },
+            },
+          },
+        },
+        vehicle: true,
+        exceptions: true,
+        stopTimes: {
+          include: {
+            routeStop: { include: { stop: true } },
+          },
+          orderBy: { routeStop: { sequenceNumber: 'asc' } },
+        },
+      },
+    });
+
+    const departures: any[] = [];
+
+    for (const schedule of schedules) {
+      // Expand dates
+      let dates: Date[];
+      if (schedule.scheduleType === 'single') {
+        dates = getSingleDate(schedule.validFrom);
+      } else if (schedule.rrule) {
+        const modifiers = (schedule.calendarModifiers as unknown as CalendarModifier[]) || [];
+        dates = expandRRule(
+          schedule.rrule,
+          schedule.validFrom,
+          schedule.validTo,
+          [],
+        );
+        // Filter by calendar modifiers if present
+        if (modifiers.length > 0) {
+          // For simplicity, skip calendar resolution in public endpoint
+          // Just use exclude_dates type
+          dates = filterDatesByModifiers(dates, new Map(), modifiers);
+        }
+      } else {
+        continue;
+      }
+
+      // Filter to window
+      const windowDates = dates.filter((d) => {
+        const dateStr = formatDate(d);
+        const todayStr = formatDate(now);
+        const endStr = formatDate(windowEnd);
+        return dateStr >= todayStr && dateStr <= endStr;
+      });
+
+      // Generate trips
+      const exceptions = schedule.exceptions.map((ex) => ({
+        date: ex.date,
+        type: ex.type as 'skip' | 'modify',
+        newDepartureTime: ex.newDepartureTime,
+        newArrivalTime: ex.newArrivalTime,
+        newVehicleId: ex.newVehicleId,
+        newDriverId: ex.newDriverId,
+        reason: ex.reason,
+      }));
+
+      const trips = generateTripsFromSchedule(
+        windowDates,
+        schedule.departureTime,
+        schedule.arrivalTime,
+        schedule.vehicleId,
+        schedule.driverId,
+        exceptions,
+      );
+
+      for (const trip of trips) {
+        // Parse departure time for sorting
+        const [hours, minutes] = trip.departureTime.split(':').map(Number);
+        const departureDate = new Date(trip.date);
+        departureDate.setHours(hours, minutes, 0, 0);
+
+        // Skip if in the past
+        if (departureDate < now) continue;
+
+        departures.push({
+          date: trip.date,
+          departureTime: trip.departureTime,
+          arrivalTime: trip.arrivalTime,
+          departureAt: departureDate.toISOString(),
+          route: {
+            id: schedule.route.id,
+            name: schedule.route.name,
+            code: schedule.route.code,
+          },
+          stops: schedule.route.currentVersion?.stops.map((rs) => ({
+            id: rs.stop.id,
+            name: rs.stop.name,
+            city: rs.stop.city,
+            sequenceNumber: rs.sequenceNumber,
+          })) || [],
+          stopTimes: schedule.stopTimes.map((st) => ({
+            stopName: st.routeStop.stop.name,
+            arrivalTime: st.arrivalTime,
+            departureTime: st.departureTime,
+          })),
+          scheduleName: schedule.name,
+        });
+      }
+    }
+
+    // Sort by departure time
+    departures.sort((a, b) => new Date(a.departureAt).getTime() - new Date(b.departureAt).getTime());
+
+    return departures;
+  }
+
+  async getPublicNews(slug: string) {
+    const company = await this.getActiveCompanyBySlug(slug);
+
+    return this.prisma.companyNews.findMany({
+      where: {
+        companyId: company.id,
+        isActive: true,
+        publishedAt: { not: null },
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        excerpt: true,
+        imageUrl: true,
+        publishedAt: true,
+        createdAt: true,
+      },
+      orderBy: { publishedAt: 'desc' },
+      take: 20,
+    });
+  }
+
+  private async isActiveCompany(slug: string): Promise<boolean> {
+    const company = await this.prisma.company.findUnique({
+      where: { slug },
+      select: { isActive: true },
+    });
+    return company?.isActive === true;
+  }
+
+  private async getActiveCompanyBySlug(slug: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { slug },
+    });
+
+    if (!company || !company.isActive) {
+      throw new NotFoundException('Company not found');
+    }
+
+    return company;
   }
 }

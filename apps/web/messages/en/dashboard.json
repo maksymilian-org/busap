@@ -5,9 +5,11 @@
     "managerPanel": "Manager Panel"
   },
   "passengerNav": {
+    "dashboard": "Dashboard",
     "search": "Search",
     "map": "Map",
-    "history": "History"
+    "favorites": "Favorites",
+    "news": "News"
   },
   "driverNav": {
     "myCourses": "My Courses",
@@ -22,6 +24,21 @@
     "vehicles": "Vehicles",
     "users": "Users",
     "reports": "Reports"
+  },
+  "quickLinks": {
+    "search": "Search",
+    "map": "Map",
+    "favorites": "Favorites",
+    "news": "News"
+  },
+  "home": {
+    "welcome": "Hi, {name}!",
+    "subtitle": "What are we planning today?",
+    "latestNews": "Latest News",
+    "favoriteCompanies": "Favorite Companies",
+    "viewAll": "View all",
+    "emptyState": "No activity",
+    "emptyStateHint": "Add companies to favorites to see their news and departures"
   },
   "passenger": {
     "title": "Search Connection",
@@ -94,5 +111,28 @@
   "manager": {
     "title": "Manager Panel",
     "subtitle": "Manage operations"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "subtitle": "Your favorite companies, routes and stops",
+    "companies": "Companies",
+    "routes": "Routes",
+    "stops": "Stops",
+    "noCompanies": "No favorite companies",
+    "noRoutes": "No favorite routes",
+    "noStops": "No favorite stops",
+    "noCompaniesHint": "Add companies to favorites on their public pages",
+    "noRoutesHint": "Add routes to favorites on company pages",
+    "noStopsHint": "Add stops to favorites on company pages",
+    "viewCompany": "View company page",
+    "removed": "Removed from favorites",
+    "remove": "Remove from favorites",
+    "searchPlaceholder": "Search favorites..."
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "News from favorite companies",
+    "noNews": "No news",
+    "noNewsHint": "Add companies to favorites to see their news"
   }
 }

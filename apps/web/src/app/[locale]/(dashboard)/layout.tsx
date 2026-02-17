@@ -9,6 +9,8 @@ import {
   Search,
   Map,
   Clock,
+  Heart,
+  Newspaper,
   User,
   Settings,
   LogOut,
@@ -44,9 +46,11 @@ export default function DashboardLayout({
   const tCompany = useTranslations('company');
 
   const passengerNav = [
-    { name: t('passengerNav.search'), href: '/passenger', icon: Search },
+    { name: t('passengerNav.dashboard'), href: '/passenger', icon: LayoutDashboard },
+    { name: t('passengerNav.search'), href: '/passenger/search', icon: Search },
     { name: t('passengerNav.map'), href: '/passenger/map', icon: Map },
-    { name: t('passengerNav.history'), href: '/passenger/history', icon: Clock },
+    { name: t('passengerNav.favorites'), href: '/passenger/favorites', icon: Heart },
+    { name: t('passengerNav.news'), href: '/passenger/news', icon: Newspaper },
   ];
 
   const driverNav = [

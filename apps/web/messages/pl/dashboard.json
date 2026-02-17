@@ -5,9 +5,11 @@
     "managerPanel": "Panel managera"
   },
   "passengerNav": {
+    "dashboard": "Dashboard",
     "search": "Szukaj",
     "map": "Mapa",
-    "history": "Historia"
+    "favorites": "Ulubione",
+    "news": "Aktualności"
   },
   "driverNav": {
     "myCourses": "Moje kursy",
@@ -22,6 +24,21 @@
     "vehicles": "Pojazdy",
     "users": "Użytkownicy",
     "reports": "Raporty"
+  },
+  "quickLinks": {
+    "search": "Szukaj",
+    "map": "Mapa",
+    "favorites": "Ulubione",
+    "news": "Aktualności"
+  },
+  "home": {
+    "welcome": "Cześć, {name}!",
+    "subtitle": "Co planujemy na dzisiaj?",
+    "latestNews": "Ostatnie aktualności",
+    "favoriteCompanies": "Ulubione firmy",
+    "viewAll": "Zobacz wszystkie",
+    "emptyState": "Brak aktywności",
+    "emptyStateHint": "Dodaj firmy do ulubionych, aby widzieć ich aktualności i odjazdy"
   },
   "passenger": {
     "title": "Szukaj połączenia",
@@ -94,5 +111,28 @@
   "manager": {
     "title": "Panel managera",
     "subtitle": "Zarządzaj operacjami"
+  },
+  "favorites": {
+    "title": "Ulubione",
+    "subtitle": "Twoje ulubione firmy, trasy i przystanki",
+    "companies": "Firmy",
+    "routes": "Trasy",
+    "stops": "Przystanki",
+    "noCompanies": "Brak ulubionych firm",
+    "noRoutes": "Brak ulubionych tras",
+    "noStops": "Brak ulubionych przystanków",
+    "noCompaniesHint": "Dodaj firmy do ulubionych na ich stronach publicznych",
+    "noRoutesHint": "Dodaj trasy do ulubionych na stronach firm",
+    "noStopsHint": "Dodaj przystanki do ulubionych na stronach firm",
+    "viewCompany": "Zobacz stronę firmy",
+    "removed": "Usunięto z ulubionych",
+    "remove": "Usuń z ulubionych",
+    "searchPlaceholder": "Szukaj w ulubionych..."
+  },
+  "news": {
+    "title": "Aktualności",
+    "subtitle": "Aktualności z ulubionych firm",
+    "noNews": "Brak aktualności",
+    "noNewsHint": "Dodaj firmy do ulubionych, aby widzieć ich aktualności"
   }
 }

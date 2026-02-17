@@ -109,7 +109,9 @@
       "Bash(pnpm --filter @busap/api exec prisma migrate dev:*)",
       "mcp__ide__getDiagnostics",
       "Bash(pnpm build:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "Bash(git diff:*)",
+      "Bash(pnpm --filter web add:*)"
     ]
   }
 }

@@ -43,7 +43,7 @@ class ApiClient {
   async fetch<T>(path: string, options: RequestInit = {}): Promise<T> {
     const token = this.getAccessToken();
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
       ...((options.headers as Record<string, string>) || {}),
     };
 
@@ -67,6 +67,25 @@ class ApiClient {
         });
       }
     }
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: response.statusText }));
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async fetchPublic<T>(path: string, options: RequestInit = {}): Promise<T> {
+    const headers: Record<string, string> = {
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...((options.headers as Record<string, string>) || {}),
+    };
+
+    const response = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers,
+    });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: response.statusText }));

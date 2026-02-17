@@ -8,6 +8,7 @@
     "members": "Zespół",
     "schedules": "Harmonogramy",
     "calendars": "Kalendarze",
+    "news": "Aktualności",
     "myCompanies": "Moje firmy"
   },
   "roles": {
@@ -30,6 +31,9 @@
       "totalRoutes": "Trasy",
       "totalMembers": "Pracownicy"
     },
+    "publicPage": "Strona publiczna",
+    "copyUrl": "Kopiuj",
+    "urlCopied": "Skopiowano!",
     "quickActions": "Szybkie akcje",
     "recentActivity": "Ostatnia aktywność",
     "editModal": {
@@ -44,6 +48,11 @@
       "contactPhone": "Telefon",
       "description": "Opis",
       "address": "Adres",
+      "slug": "Adres URL (slug)",
+      "slugHint": "Tylko małe litery, cyfry i myślniki",
+      "contactPhone2": "Telefon 2 (opcjonalnie)",
+      "contactPhone3": "Telefon 3 (opcjonalnie)",
+      "website": "Strona internetowa",
       "submit": "Zapisz zmiany",
       "submitting": "Zapisywanie...",
       "success": "Firma zaktualizowana"
@@ -369,6 +378,38 @@
       "submit": "Dodaj wpis",
       "submitting": "Dodawanie...",
       "success": "Wpis dodany"
+    }
+  },
+  "news": {
+    "title": "Aktualności",
+    "description": "Zarządzaj aktualnościami firmy",
+    "addNews": "Dodaj aktualność",
+    "noNews": "Brak aktualności",
+    "draft": "Szkic",
+    "published": "Opublikowany",
+    "publish": "Opublikuj",
+    "unpublish": "Cofnij publikację",
+    "published_success": "Aktualność opublikowana",
+    "unpublished_success": "Publikacja cofnięta",
+    "confirmDelete": "Czy na pewno chcesz usunąć tę aktualność?",
+    "deleted": "Aktualność usunięta",
+    "createModal": {
+      "title": "Nowa aktualność",
+      "newsTitle": "Tytuł",
+      "content": "Treść",
+      "excerpt": "Skrót (opcjonalnie)",
+      "image": "Zdjęcie (opcjonalnie)",
+      "selectImage": "Wybierz zdjęcie",
+      "uploading": "Przesyłanie...",
+      "submit": "Utwórz",
+      "submitting": "Tworzenie...",
+      "success": "Aktualność utworzona"
+    },
+    "editModal": {
+      "title": "Edytuj aktualność",
+      "submit": "Zapisz zmiany",
+      "submitting": "Zapisywanie...",
+      "success": "Aktualność zaktualizowana"
     }
   },
   "stops": {

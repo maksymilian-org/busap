@@ -8,6 +8,7 @@
     "members": "Team",
     "schedules": "Schedules",
     "calendars": "Calendars",
+    "news": "News",
     "myCompanies": "My Companies"
   },
   "roles": {
@@ -30,6 +31,9 @@
       "totalRoutes": "Routes",
       "totalMembers": "Members"
     },
+    "publicPage": "Public Page",
+    "copyUrl": "Copy",
+    "urlCopied": "Copied!",
     "quickActions": "Quick Actions",
     "recentActivity": "Recent Activity",
     "editModal": {
@@ -44,6 +48,11 @@
       "contactPhone": "Phone",
       "description": "Description",
       "address": "Address",
+      "slug": "URL address (slug)",
+      "slugHint": "Only lowercase letters, numbers and hyphens",
+      "contactPhone2": "Phone 2 (optional)",
+      "contactPhone3": "Phone 3 (optional)",
+      "website": "Website",
       "submit": "Save changes",
       "submitting": "Saving...",
       "success": "Company updated"
@@ -369,6 +378,38 @@
       "submit": "Add entry",
       "submitting": "Adding...",
       "success": "Entry added"
+    }
+  },
+  "news": {
+    "title": "News",
+    "description": "Manage company news",
+    "addNews": "Add News",
+    "noNews": "No news",
+    "draft": "Draft",
+    "published": "Published",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "published_success": "News published",
+    "unpublished_success": "News unpublished",
+    "confirmDelete": "Are you sure you want to delete this news?",
+    "deleted": "News deleted",
+    "createModal": {
+      "title": "New News",
+      "newsTitle": "Title",
+      "content": "Content",
+      "excerpt": "Excerpt (optional)",
+      "image": "Image (optional)",
+      "selectImage": "Select image",
+      "uploading": "Uploading...",
+      "submit": "Create",
+      "submitting": "Creating...",
+      "success": "News created"
+    },
+    "editModal": {
+      "title": "Edit News",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "News updated"
     }
   },
   "stops": {

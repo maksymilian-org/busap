@@ -12,6 +12,7 @@ import {
   CalendarClock,
   Users,
   CalendarDays,
+  Newspaper,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -86,6 +87,11 @@ export default function CompanyLayout({
           name: t('nav.calendars'),
           href: `/company/${currentCompanyId}/calendars`,
           icon: CalendarDays,
+        },
+        {
+          name: t('nav.news'),
+          href: `/company/${currentCompanyId}/news`,
+          icon: Newspaper,
         },
       ]
     : [];

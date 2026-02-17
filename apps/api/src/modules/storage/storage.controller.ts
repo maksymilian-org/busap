@@ -45,6 +45,12 @@ export class StorageController {
     return this.handleUpload(req, 'logo');
   }
 
+  @Post('upload/news-image')
+  @ApiOperation({ summary: 'Upload news image' })
+  async uploadNewsImage(@Req() req: FastifyRequest) {
+    return this.handleUpload(req, 'news');
+  }
+
   @Delete(':path')
   @ApiOperation({ summary: 'Delete a file' })
   async deleteFile(@Param('path') filePath: string) {
