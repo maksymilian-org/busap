@@ -38,6 +38,7 @@ docker ps
 This starts:
 - **PostgreSQL** (port 5432) - main database
 - **Redis** (port 6379) - caching and realtime pub/sub
+- **OpenRouteService** (port 8082) - local routing engine (see [Route Geometry / ORS](#route-geometry--openrouteservice))
 
 ### 2. Install Dependencies
 
@@ -140,6 +141,68 @@ Events:
 4. **driver** - Operate assigned trips, report GPS
 5. **passenger** - Search routes, purchase tickets (public access)
 
+## Route Geometry / OpenRouteService
+
+Routes use [OpenRouteService](https://openrouteservice.org) (ORS) to generate road-based geometry instead of straight lines between stops. ORS can run locally via Docker or use the public API.
+
+### Option A: Local ORS (recommended for production)
+
+1. Download OSM data for your region (e.g. Poland):
+
+```bash
+mkdir -p docker/ors/files
+curl -L -o docker/ors/files/poland-latest.osm.pbf \
+  https://download.geofabrik.de/europe/poland-latest.osm.pbf
+```
+
+2. Start ORS with docker-compose (included in `docker-compose up -d`). First startup builds routing graphs — takes ~5–15 min for Poland.
+
+3. Set env vars in `apps/api/.env`:
+
+```
+ORS_BASE_URL=http://localhost:8082/ors
+ORS_FALLBACK_URL=https://api.openrouteservice.org
+ORS_API_KEY=<your-public-api-key>
+ORS_PROFILE=driving-hgv
+```
+
+Local ORS does not require an API key. The fallback URL + key are used if local ORS is unreachable.
+
+4. Verify:
+
+```bash
+curl http://localhost:8082/ors/v2/health
+```
+
+### Option B: Public API only
+
+1. Get a free API key at [openrouteservice.org/dev/#/signup](https://openrouteservice.org/dev/#/signup) (2000 req/day).
+
+2. Set env vars in `apps/api/.env`:
+
+```
+ORS_BASE_URL=https://api.openrouteservice.org
+ORS_FALLBACK_URL=
+ORS_API_KEY=<your-api-key>
+ORS_PROFILE=driving-hgv
+```
+
+### Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ORS_BASE_URL` | Primary ORS endpoint | `https://api.openrouteservice.org` |
+| `ORS_FALLBACK_URL` | Fallback ORS endpoint (used when primary fails) | _(empty)_ |
+| `ORS_API_KEY` | API key (required for public API, not needed for local) | _(empty)_ |
+| `ORS_PROFILE` | Routing profile (`driving-hgv`, `driving-car`, etc.) | `driving-hgv` |
+
+### How it works
+
+- When creating/editing a route in the Route Builder, the frontend calls `POST /routes/preview-geometry` to get road-based geometry in real-time.
+- Users can drag the route line on the map to add waypoints and adjust the path.
+- On save, geometry, distances, and durations are stored with the route version.
+- If ORS is unavailable, routes are saved without geometry and displayed as straight lines (fallback).
+
 ## Development
 
 ### Adding Database Migrations
@@ -197,6 +260,10 @@ pnpm lint
 | `JWT_REFRESH_EXPIRES_IN` | Refresh token expiry | `7d` |
 | `UPLOAD_DIR` | File upload directory | `./uploads` |
 | `MAX_FILE_SIZE` | Max upload size in bytes | `5242880` |
+| `ORS_BASE_URL` | Primary ORS endpoint | `https://api.openrouteservice.org` |
+| `ORS_FALLBACK_URL` | Fallback ORS endpoint | - |
+| `ORS_API_KEY` | ORS API key (for public API) | - |
+| `ORS_PROFILE` | ORS routing profile | `driving-hgv` |
 
 ## License
 

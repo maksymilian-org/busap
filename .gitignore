@@ -51,3 +51,6 @@ uploads/
 tmp/
 temp/
 nul
+
+# Docker
+docker/ors/files/

@@ -48,6 +48,29 @@ services:
       timeout: 5s
       retries: 5
 
+  # OpenRouteService (local routing engine)
+  ors:
+    image: openrouteservice/openrouteservice:v9.7.0
+    container_name: busap-ors
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./docker/ors/files:/home/ors/files
+      - ./docker/ors/ors-config.yml:/home/ors/config/ors-config.yml
+      - ors_graphs:/home/ors/graphs
+      - ors_elevation:/home/ors/elevation_cache
+    environment:
+      - XMS=512m
+      - XMX=4g
+      - REBUILD_GRAPHS=false
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8082/ors/v2/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
   # NestJS API (for development with hot reload)
   api:
     build:
@@ -86,12 +109,18 @@ services:
       - SMTP_SECURE=false
       - MAIL_FROM=Busap <noreply@busap.pl>
       - FRONTEND_URL=http://localhost:3000
+      - ORS_BASE_URL=http://ors:8082/ors
+      - ORS_FALLBACK_URL=${ORS_FALLBACK_URL:-https://api.openrouteservice.org}
+      - ORS_API_KEY=${ORS_API_KEY:-}
+      - ORS_PROFILE=${ORS_PROFILE:-driving-hgv}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
       mailpit:
+        condition: service_healthy
+      ors:
         condition: service_healthy
     command: pnpm --filter @busap/api dev
 
@@ -120,3 +149,5 @@ volumes:
   postgres_data:
   redis_data:
   api_uploads:
+  ors_graphs:
+  ors_elevation:

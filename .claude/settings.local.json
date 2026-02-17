@@ -112,7 +112,12 @@
       "Bash(pnpm list:*)",
       "Bash(git diff:*)",
       "Bash(pnpm --filter web add:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:giscience.github.io)",
+      "Bash(docker stop:*)",
+      "Bash(docker run:*)"
     ]
   }
 }
