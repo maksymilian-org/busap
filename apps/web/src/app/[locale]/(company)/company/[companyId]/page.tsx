@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from '@/i18n/navigation';
@@ -283,9 +283,10 @@ export default function CompanyDashboardPage() {
 
 function PublicPageCard({ t, slug }: { t: any; slug: string }) {
   const [copied, setCopied] = useState(false);
+  const locale = useLocale();
   const publicUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/c/${slug}`
-    : `/c/${slug}`;
+    ? `${window.location.origin}/${locale}/c/${slug}`
+    : `/${locale}/c/${slug}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(publicUrl);

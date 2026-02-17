@@ -19,6 +19,7 @@ import {
   UpdateRouteInput,
   CreateRouteVersionInput,
   CreateRouteExceptionInput,
+  RoutePreviewInput,
 } from '@busap/shared';
 
 @ApiTags('routes')
@@ -35,6 +36,14 @@ export class RoutesController {
   ) {
     const favoritesOnly = favorites !== 'false';
     return this.routesService.findAll(companyId, favoritesOnly);
+  }
+
+  @Post('preview-geometry')
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Preview route geometry from stops and waypoints' })
+  async previewGeometry(@Body() data: RoutePreviewInput) {
+    return this.routesService.previewGeometry(data);
   }
 
   @Get('search')

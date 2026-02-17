@@ -243,7 +243,8 @@
       "saving": "Zapisywanie...",
       "saved": "Trasa zapisana",
       "minStopsRequired": "Trasa musi mieć co najmniej 2 przystanki",
-      "clickExistingStopToAdd": "Kliknij szary przystanek na mapie, aby go dodać do trasy"
+      "clickExistingStopToAdd": "Kliknij szary przystanek na mapie, aby go dodać do trasy",
+      "waypointHint": "Przeciągnij linię trasy, aby dostosować przebieg. Kliknij punkt pośredni, aby go usunąć."
     },
     "duplicated": "Trasa zduplikowana",
     "reversed": "Trasa powrotna utworzona",

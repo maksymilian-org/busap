@@ -219,6 +219,10 @@ model RouteVersion {
   validFrom     DateTime  @map("valid_from")
   validTo       DateTime? @map("valid_to")
   isActive      Boolean   @default(true) @map("is_active")
+  geometry      Json?     @db.JsonB
+  totalDistance  Float?    @map("total_distance")
+  totalDuration Int?      @map("total_duration")
+  waypoints     Json      @default("{}") @db.JsonB
   createdAt     DateTime  @default(now()) @map("created_at")
 
   route        Route       @relation("RouteVersions", fields: [routeId], references: [id], onDelete: Cascade)

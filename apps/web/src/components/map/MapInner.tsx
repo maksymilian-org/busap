@@ -23,9 +23,25 @@ interface MapInnerProps {
   onClick?: (lat: number, lng: number) => void;
 }
 
+/**
+ * Flag to suppress the next map click (set by GeoJsonRouteLayer click handler).
+ * This prevents the map click from firing when user clicks on the route line.
+ */
+let suppressNextMapClick = false;
+
+export function suppressMapClick() {
+  suppressNextMapClick = true;
+  // Auto-reset after a delay in case the map click never fires
+  setTimeout(() => { suppressNextMapClick = false; }, 300);
+}
+
 function ClickHandler({ onClick }: { onClick?: (lat: number, lng: number) => void }) {
   useMapEvents({
     click: (e) => {
+      if (suppressNextMapClick) {
+        suppressNextMapClick = false;
+        return;
+      }
       if (onClick) {
         onClick(e.latlng.lat, e.latlng.lng);
       }

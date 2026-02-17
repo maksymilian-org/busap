@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import StopSelector from './StopSelector';
 import DraggableStopList, { type BuilderStop } from './DraggableStopList';
 import QuickCreateStopDialog from './QuickCreateStopDialog';
+import type { GeoJsonLineString } from '@busap/shared';
 
 // Dynamic import for map to avoid SSR issues
 const MapSection = dynamic(() => import('./RouteBuilderMap'), {
@@ -31,6 +32,10 @@ interface RouteWithDetails {
   type: string;
   currentVersion?: {
     id: string;
+    geometry?: GeoJsonLineString | null;
+    totalDistance?: number | null;
+    totalDuration?: number | null;
+    waypoints?: Record<string, [number, number][]>;
     stops: Array<{
       id: string;
       stopId: string;
@@ -94,6 +99,15 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
     return [];
   });
 
+  // Route geometry state
+  const [routeGeometry, setRouteGeometry] = useState<GeoJsonLineString | null>(
+    existingRoute?.currentVersion?.geometry || null,
+  );
+  const [waypoints, setWaypoints] = useState<Record<string, [number, number][]>>(
+    existingRoute?.currentVersion?.waypoints || {},
+  );
+  const [geometryLoading, setGeometryLoading] = useState(false);
+
   // Quick create dialog
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const [quickCreateCoords, setQuickCreateCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -101,11 +115,14 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
   // Saving state
   const [saving, setSaving] = useState(false);
 
+  // Debounce ref for geometry preview
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevPreviewKeyRef = useRef<string>('');
+
   // Auto-name generation using city names
   const generatedName = useMemo(() => {
     if (stops.length < 2) return '';
 
-    // Extract unique city names in sequence order, fall back to stop name
     const cities: string[] = [];
     for (const s of stops) {
       const cityName = s.city || s.name;
@@ -139,6 +156,92 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
     [stops]
   );
 
+  // Fetch geometry preview when stops or waypoints change
+  useEffect(() => {
+    if (stops.length < 2) {
+      setRouteGeometry(null);
+      return;
+    }
+
+    const previewKey = JSON.stringify({
+      stops: stops.map((s) => [s.latitude, s.longitude]),
+      waypoints,
+    });
+
+    // Skip if nothing changed
+    if (previewKey === prevPreviewKeyRef.current) return;
+
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+    }
+
+    previewTimeoutRef.current = setTimeout(async () => {
+      prevPreviewKeyRef.current = previewKey;
+      setGeometryLoading(true);
+      try {
+        const result = await api.post('/routes/preview-geometry', {
+          stops: stops.map((s) => ({ latitude: s.latitude, longitude: s.longitude })),
+          waypoints,
+        });
+        if (result?.geometry) {
+          setRouteGeometry(result.geometry);
+        }
+      } catch {
+        // Non-fatal — fall back to straight lines
+        setRouteGeometry(null);
+      } finally {
+        setGeometryLoading(false);
+      }
+    }, 600);
+
+    return () => {
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+    };
+  }, [stops, waypoints]);
+
+  const handleWaypointAdd = useCallback(
+    (segIdx: number, lat: number, lng: number) => {
+      setWaypoints((prev) => {
+        const key = String(segIdx);
+        const existing = prev[key] || [];
+        return { ...prev, [key]: [...existing, [lat, lng]] };
+      });
+    },
+    [],
+  );
+
+  const handleWaypointMove = useCallback(
+    (segIdx: number, wpIdx: number, lat: number, lng: number) => {
+      setWaypoints((prev) => {
+        const key = String(segIdx);
+        const existing = [...(prev[key] || [])];
+        existing[wpIdx] = [lat, lng];
+        return { ...prev, [key]: existing };
+      });
+    },
+    [],
+  );
+
+  const handleWaypointRemove = useCallback(
+    (segIdx: number, wpIdx: number) => {
+      setWaypoints((prev) => {
+        const key = String(segIdx);
+        const existing = [...(prev[key] || [])];
+        existing.splice(wpIdx, 1);
+        const next = { ...prev };
+        if (existing.length === 0) {
+          delete next[key];
+        } else {
+          next[key] = existing;
+        }
+        return next;
+      });
+    },
+    [],
+  );
+
   const handleAddStop = useCallback((stop: { id: string; name: string; city?: string; code?: string; latitude: number; longitude: number }) => {
     setStops((prev) => [
       ...prev,
@@ -157,6 +260,8 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
 
   const handleReorder = useCallback((newStops: BuilderStop[]) => {
     setStops(newStops);
+    // Reset waypoints — segment indices change after reorder
+    setWaypoints({});
   }, []);
 
   const handleToggleMain = useCallback((index: number) => {
@@ -167,6 +272,8 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
 
   const handleRemove = useCallback((index: number) => {
     setStops((prev) => prev.filter((_, i) => i !== index));
+    // Reset waypoints — segment indices change after removal
+    setWaypoints({});
   }, []);
 
   const handleMapClick = useCallback((lat: number, lng: number) => {
@@ -217,7 +324,7 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
         await api.put(`/routes/${routeId}`, updatePayload);
       }
 
-      // Create version with stops
+      // Create version with stops and waypoints
       await api.post(`/routes/${routeId}/versions`, {
         validFrom: new Date().toISOString(),
         stops: stops.map((s, index) => ({
@@ -229,6 +336,7 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
           isDropoff: true,
           isMain: s.isMain,
         })),
+        waypoints: Object.keys(waypoints).length > 0 ? waypoints : undefined,
       });
 
       toast({ variant: 'success', title: t('saved') });
@@ -368,6 +476,11 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
               {' · '}
               {t('clickExistingStopToAdd')}
             </p>
+            {stops.length >= 2 && (
+              <p className="text-xs text-muted-foreground mb-2">
+                {t('waypointHint')}
+              </p>
+            )}
             <DraggableStopList
               stops={stops}
               onReorder={handleReorder}
@@ -389,6 +502,12 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
             companyId={companyId}
             addedStopIds={addedStopIds}
             onExistingStopClick={handleAddStop}
+            routeGeometry={routeGeometry}
+            waypoints={waypoints}
+            onWaypointAdd={handleWaypointAdd}
+            onWaypointMove={handleWaypointMove}
+            onWaypointRemove={handleWaypointRemove}
+            geometryLoading={geometryLoading}
           />
         </div>
       </div>

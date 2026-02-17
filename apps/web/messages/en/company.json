@@ -243,7 +243,8 @@
       "saving": "Saving...",
       "saved": "Route saved",
       "minStopsRequired": "Route must have at least 2 stops",
-      "clickExistingStopToAdd": "Click a gray stop on the map to add it to the route"
+      "clickExistingStopToAdd": "Click a gray stop on the map to add it to the route",
+      "waypointHint": "Drag the route line to adjust the path. Click a waypoint to remove it."
     },
     "duplicated": "Route duplicated",
     "reversed": "Return route created",

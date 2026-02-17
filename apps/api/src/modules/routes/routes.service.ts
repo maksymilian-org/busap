@@ -1,16 +1,24 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   CreateRouteInput,
   UpdateRouteInput,
   CreateRouteVersionInput,
   CreateRouteExceptionInput,
+  RoutePreviewInput,
+  RoutePreviewResult,
 } from '@busap/shared';
 import { Prisma } from '@prisma/client';
+import { OrsService } from '../ors/ors.service';
 
 @Injectable()
 export class RoutesService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(RoutesService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private orsService: OrsService,
+  ) {}
 
   /**
    * Generate route name from stop cities.
@@ -224,6 +232,10 @@ export class RoutesService {
     });
   }
 
+  async previewGeometry(input: RoutePreviewInput): Promise<RoutePreviewResult | null> {
+    return this.orsService.computeRouteGeometry(input.stops, input.waypoints || {});
+  }
+
   async createVersion(data: CreateRouteVersionInput) {
     const route = await this.findById(data.routeId);
 
@@ -239,6 +251,51 @@ export class RoutesService {
     if (data.stops.length < 2) {
       throw new BadRequestException('Route must have at least 2 stops');
     }
+
+    // Fetch stop coordinates for ORS
+    const sortedStops = [...data.stops].sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+    const stopIds = sortedStops.map((s) => s.stopId);
+    const dbStops = await this.prisma.stop.findMany({
+      where: { id: { in: stopIds } },
+      select: { id: true, latitude: true, longitude: true },
+    });
+    const stopMap = new Map(dbStops.map((s) => [s.id, s]));
+    const stopCoords = sortedStops
+      .map((s) => stopMap.get(s.stopId))
+      .filter((s): s is { id: string; latitude: number; longitude: number } => !!s);
+
+    // Compute route geometry via ORS (non-fatal on failure)
+    let orsResult: RoutePreviewResult | null = null;
+    try {
+      orsResult = await this.orsService.computeRouteGeometry(
+        stopCoords,
+        data.waypoints || {},
+      );
+    } catch (error) {
+      this.logger.warn('ORS geometry computation failed, saving version without geometry', error);
+    }
+
+    // Enrich stop distances/durations from ORS data
+    const enrichedStops = sortedStops.map((stop, index) => {
+      let distanceFromStart = stop.distanceFromStart;
+      let durationFromStart = stop.durationFromStart;
+
+      if (orsResult && index > 0) {
+        // Cumulative sum of segment distances/durations up to this stop
+        distanceFromStart = orsResult.segmentDistances.slice(0, index).reduce((a, b) => a + b, 0);
+        durationFromStart = Math.round(orsResult.segmentDurations.slice(0, index).reduce((a, b) => a + b, 0) / 60); // seconds → minutes
+      }
+
+      return {
+        stopId: stop.stopId,
+        sequenceNumber: stop.sequenceNumber,
+        distanceFromStart,
+        durationFromStart,
+        isPickup: stop.isPickup ?? true,
+        isDropoff: stop.isDropoff ?? true,
+        isMain: stop.isMain ?? false,
+      };
+    });
 
     // Create version with stops
     const version = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -257,16 +314,14 @@ export class RoutesService {
           versionNumber,
           validFrom: data.validFrom,
           validTo: data.validTo,
+          ...(orsResult && {
+            geometry: orsResult.geometry as any,
+            totalDistance: orsResult.totalDistance,
+            totalDuration: orsResult.totalDuration,
+          }),
+          waypoints: data.waypoints || {},
           stops: {
-            create: data.stops.map((stop) => ({
-              stopId: stop.stopId,
-              sequenceNumber: stop.sequenceNumber,
-              distanceFromStart: stop.distanceFromStart,
-              durationFromStart: stop.durationFromStart,
-              isPickup: stop.isPickup ?? true,
-              isDropoff: stop.isDropoff ?? true,
-              isMain: stop.isMain ?? false,
-            })),
+            create: enrichedStops,
           },
         },
         include: {
@@ -378,11 +433,16 @@ export class RoutesService {
 
       // Copy current version stops if they exist
       if (original.currentVersion?.stops?.length) {
+        const cv = original.currentVersion as any;
         const version = await tx.routeVersion.create({
           data: {
             routeId: newRoute.id,
             versionNumber: 1,
             validFrom: new Date(),
+            geometry: cv.geometry || undefined,
+            totalDistance: cv.totalDistance || undefined,
+            totalDuration: cv.totalDuration || undefined,
+            waypoints: cv.waypoints || {},
             stops: {
               create: original.currentVersion.stops.map((s: any) => ({
                 stopId: s.stopId,
@@ -431,8 +491,19 @@ export class RoutesService {
     const reversedStopsForName = [...stops].reverse();
     const reversedName = this.generateRouteName(reversedStopsForName) || `${stops[stops.length - 1]?.stop?.name || 'A'} - ${stops[0]?.stop?.name || 'B'}`;
 
-    const totalDistance = stops[stops.length - 1]?.distanceFromStart ?? 0;
-    const totalDuration = stops[stops.length - 1]?.durationFromStart ?? 0;
+    const reversedStops = [...stops].reverse();
+
+    // Compute ORS geometry for reversed route (no waypoints — they don't apply in reverse)
+    const reversedCoords = reversedStops.map((s: any) => ({
+      latitude: s.stop?.latitude ?? 0,
+      longitude: s.stop?.longitude ?? 0,
+    }));
+    let orsResult: RoutePreviewResult | null = null;
+    try {
+      orsResult = await this.orsService.computeRouteGeometry(reversedCoords, {});
+    } catch (error) {
+      this.logger.warn('ORS geometry computation failed for reverse route', error);
+    }
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const newRoute = await tx.route.create({
@@ -448,23 +519,35 @@ export class RoutesService {
         } as any,
       });
 
-      const reversedStops = [...stops].reverse();
-
       const version = await tx.routeVersion.create({
         data: {
           routeId: newRoute.id,
           versionNumber: 1,
           validFrom: new Date(),
+          ...(orsResult && {
+            geometry: orsResult.geometry as any,
+            totalDistance: orsResult.totalDistance,
+            totalDuration: orsResult.totalDuration,
+          }),
+          waypoints: {},
           stops: {
-            create: reversedStops.map((s: any, index: number) => ({
-              stopId: s.stopId,
-              sequenceNumber: index,
-              distanceFromStart: totalDistance > 0 ? totalDistance - s.distanceFromStart : 0,
-              durationFromStart: totalDuration > 0 ? totalDuration - s.durationFromStart : 0,
-              isPickup: s.isPickup,
-              isDropoff: s.isDropoff,
-              isMain: s.isMain ?? false,
-            })),
+            create: reversedStops.map((s: any, index: number) => {
+              let distanceFromStart = 0;
+              let durationFromStart = 0;
+              if (orsResult && index > 0) {
+                distanceFromStart = orsResult.segmentDistances.slice(0, index).reduce((a, b) => a + b, 0);
+                durationFromStart = Math.round(orsResult.segmentDurations.slice(0, index).reduce((a, b) => a + b, 0) / 60);
+              }
+              return {
+                stopId: s.stopId,
+                sequenceNumber: index,
+                distanceFromStart,
+                durationFromStart,
+                isPickup: s.isPickup,
+                isDropoff: s.isDropoff,
+                isMain: s.isMain ?? false,
+              };
+            }),
           },
         },
       });

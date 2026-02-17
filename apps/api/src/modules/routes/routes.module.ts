@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { RoutesController } from './routes.controller';
 import { RoutesService } from './routes.service';
+import { OrsModule } from '../ors/ors.module';
 
 @Module({
+  imports: [OrsModule],
   controllers: [RoutesController],
   providers: [RoutesService],
   exports: [RoutesService],

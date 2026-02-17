@@ -111,7 +111,8 @@
       "Bash(pnpm build:*)",
       "Bash(pnpm list:*)",
       "Bash(git diff:*)",
-      "Bash(pnpm --filter web add:*)"
+      "Bash(pnpm --filter web add:*)",
+      "Bash(grep:*)"
     ]
   }
 }

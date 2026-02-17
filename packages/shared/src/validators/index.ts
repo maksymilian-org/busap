@@ -147,6 +147,15 @@ export const createRouteVersionSchema = z.object({
   validFrom: z.coerce.date(),
   validTo: z.coerce.date().optional(),
   stops: z.array(createRouteStopSchema).min(2),
+  waypoints: z.record(z.string(), z.array(z.tuple([z.number(), z.number()]))).optional(),
+});
+
+export const routePreviewSchema = z.object({
+  stops: z.array(z.object({
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
+  })).min(2),
+  waypoints: z.record(z.string(), z.array(z.tuple([z.number(), z.number()]))).optional(),
 });
 
 export const createRouteExceptionSchema = z.object({

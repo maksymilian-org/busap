@@ -1,6 +1,11 @@
 import type { RouteTypeType, ExceptionTypeType } from '../constants';
 import type { Stop } from './stop';
 
+export interface GeoJsonLineString {
+  type: 'LineString';
+  coordinates: [number, number][];
+}
+
 export interface Route {
   id: string;
   companyId: string;
@@ -24,6 +29,10 @@ export interface RouteVersion {
   validFrom: Date;
   validTo?: Date;
   isActive: boolean;
+  geometry?: GeoJsonLineString | null;
+  totalDistance?: number | null;
+  totalDuration?: number | null;
+  waypoints?: Record<string, [number, number][]>;
   createdAt: Date;
 }
 
@@ -86,6 +95,7 @@ export interface CreateRouteVersionInput {
   validFrom: Date;
   validTo?: Date;
   stops: CreateRouteStopInput[];
+  waypoints?: Record<string, [number, number][]>;
 }
 
 export interface CreateRouteStopInput {
@@ -106,4 +116,17 @@ export interface CreateRouteExceptionInput {
   alternativeRouteId?: string;
   validFrom: Date;
   validTo?: Date;
+}
+
+export interface RoutePreviewInput {
+  stops: Array<{ latitude: number; longitude: number }>;
+  waypoints?: Record<string, [number, number][]>;
+}
+
+export interface RoutePreviewResult {
+  geometry: GeoJsonLineString;
+  totalDistance: number;
+  totalDuration: number;
+  segmentDistances: number[];
+  segmentDurations: number[];
 }
