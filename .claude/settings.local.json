@@ -117,7 +117,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:giscience.github.io)",
       "Bash(docker stop:*)",
-      "Bash(docker run:*)"
+      "Bash(docker run:*)",
+      "Bash(git -C '/c/Users/mfurtak/Projects/maksymilian.org/busap' status --short)"
     ]
   }
 }

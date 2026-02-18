@@ -48,50 +48,56 @@ export class RoutesService {
   }
 
   async findAll(companyId?: string, favoritesOnly = true) {
+    const createdBySelect = {
+      select: { id: true, firstName: true, lastName: true },
+    };
+    const routeInclude = {
+      company: true,
+      createdBy: createdBySelect,
+      currentVersion: {
+        include: {
+          stops: {
+            include: { stop: true },
+            orderBy: { sequenceNumber: 'asc' as const },
+          },
+        },
+      },
+    };
+
     if (favoritesOnly && companyId) {
       // Return only favorite routes for this company
       const favorites = await this.prisma.companyFavoriteRoute.findMany({
         where: { companyId },
-        include: {
-          route: {
-            include: {
-              company: true,
-              currentVersion: {
-                include: {
-                  stops: {
-                    include: { stop: true },
-                    orderBy: { sequenceNumber: 'asc' },
-                  },
-                },
-              },
-            },
-          },
-        },
+        include: { route: { include: routeInclude } },
       });
       return favorites
-        .map((f) => f.route)
+        .map((f) => ({ ...f.route, isFavorite: true }))
         .filter((r) => r.isActive)
         .sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    return this.prisma.route.findMany({
+    const routes = await this.prisma.route.findMany({
       where: {
         isActive: true,
         ...(companyId && { companyId }),
       },
-      include: {
-        company: true,
-        currentVersion: {
-          include: {
-            stops: {
-              include: { stop: true },
-              orderBy: { sequenceNumber: 'asc' },
-            },
-          },
-        },
-      },
+      include: routeInclude,
       orderBy: { name: 'asc' },
     });
+
+    if (companyId) {
+      const favoriteRouteIds = new Set(
+        (
+          await this.prisma.companyFavoriteRoute.findMany({
+            where: { companyId },
+            select: { routeId: true },
+          })
+        ).map((f) => f.routeId),
+      );
+      return routes.map((route) => ({ ...route, isFavorite: favoriteRouteIds.has(route.id) }));
+    }
+
+    return routes;
   }
 
   async findById(id: string) {

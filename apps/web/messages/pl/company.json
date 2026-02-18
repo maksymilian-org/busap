@@ -182,6 +182,11 @@
     "stops": "Przystanki",
     "confirmDelete": "Czy na pewno chcesz usunąć tę trasę?",
     "deleted": "Trasa usunięta",
+    "favoritesOnly": "Tylko ulubione",
+    "showAll": "Pokaż wszystkie",
+    "author": "Autor",
+    "addedToFavorites": "Dodano do ulubionych",
+    "removedFromFavorites": "Usunięto z ulubionych",
     "tabs": {
       "info": "Informacje",
       "schedules": "Harmonogramy"
@@ -439,12 +444,18 @@
     "addStop": "Dodaj przystanek",
     "noStops": "Brak przystanków",
     "searchPlaceholder": "Szukaj po nazwie lub mieście...",
+    "favoritesOnly": "Tylko ulubione",
+    "showAll": "Pokaż wszystkie",
+    "addedToFavorites": "Dodano do ulubionych",
+    "removedFromFavorites": "Usunięto z ulubionych",
     "table": {
       "name": "Nazwa",
       "code": "Kod",
       "city": "Miasto",
       "coordinates": "Współrzędne",
       "status": "Status",
+      "author": "Autor",
+      "favorite": "Ulubiony",
       "actions": "Akcje"
     },
     "status": {

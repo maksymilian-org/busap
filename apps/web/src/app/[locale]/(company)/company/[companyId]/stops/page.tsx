@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
-import { MapPin, Plus, Search, Edit, X, List, Map, Loader2 } from 'lucide-react';
+import { MapPin, Plus, Search, Edit, X, List, Map, Loader2, Star } from 'lucide-react';
 import { BusapMap, StopMarker } from '@/components/map';
 
 interface StopData {
@@ -27,6 +27,8 @@ interface StopData {
   countryCode?: string;
   formattedAddress?: string;
   isActive: boolean;
+  isFavorite?: boolean;
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
 }
 
 export default function CompanyStopsPage() {
@@ -39,6 +41,7 @@ export default function CompanyStopsPage() {
   const [stops, setStops] = useState<StopData[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingStop, setEditingStop] = useState<StopData | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
@@ -47,18 +50,18 @@ export default function CompanyStopsPage() {
   const loadStops = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.set('companyId', companyId);
-      if (search) params.set('query', search);
-      params.set('limit', '100');
-      const data = await api.fetch<any>(`/stops?${params}`);
+      const urlParams = new URLSearchParams();
+      urlParams.set('companyId', companyId);
+      if (!showFavoritesOnly) urlParams.set('favorites', 'false');
+      urlParams.set('limit', '100');
+      const data = await api.fetch<any>(`/stops?${urlParams}`);
       setStops(Array.isArray(data) ? data : data.data || []);
     } catch (err) {
       console.error('Failed to load stops:', err);
     } finally {
       setLoading(false);
     }
-  }, [companyId, search]);
+  }, [companyId, showFavoritesOnly]);
 
   useEffect(() => {
     if (!isManagerOf(companyId)) {
@@ -67,6 +70,30 @@ export default function CompanyStopsPage() {
     }
     loadStops();
   }, [companyId, isManagerOf, router, loadStops]);
+
+  const handleToggleFavorite = async (stop: StopData) => {
+    if (!isManagerOf(companyId)) return;
+    try {
+      if (stop.isFavorite) {
+        await api.delete(`/stops/favorites/${stop.id}?companyId=${companyId}`);
+        toast({ variant: 'success', title: t('removedFromFavorites') });
+      } else {
+        await api.post('/stops/favorites', { companyId, stopId: stop.id });
+        toast({ variant: 'success', title: t('addedToFavorites') });
+      }
+      loadStops();
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: tCommon('status.error'), description: err.message });
+    }
+  };
+
+  const filteredStops = search
+    ? stops.filter(
+        (s) =>
+          s.name.toLowerCase().includes(search.toLowerCase()) ||
+          s.city?.toLowerCase().includes(search.toLowerCase()),
+      )
+    : stops;
 
   if (!isManagerOf(companyId)) {
     return null;
@@ -78,7 +105,7 @@ export default function CompanyStopsPage() {
         <div>
           <h1 className="text-2xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            {t('subtitle', { count: stops.length })}
+            {t('subtitle', { count: filteredStops.length })}
           </p>
         </div>
         <div className="flex gap-2">
@@ -98,6 +125,14 @@ export default function CompanyStopsPage() {
               <Map className="h-4 w-4" />
             </Button>
           </div>
+          <Button
+            variant={showFavoritesOnly ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowFavoritesOnly((v) => !v)}
+          >
+            <Star className="h-4 w-4 mr-1" />
+            {showFavoritesOnly ? t('favoritesOnly') : t('showAll')}
+          </Button>
           <Button onClick={() => setShowCreateModal(true)}>
             <Plus className="h-4 w-4 mr-2" />
             {t('addStop')}
@@ -132,7 +167,7 @@ export default function CompanyStopsPage() {
                 setShowCreateModal(true);
               }}
             >
-              {stops.map((stop) => (
+              {filteredStops.map((stop) => (
                 <StopMarker
                   key={stop.id}
                   position={[stop.latitude, stop.longitude]}
@@ -159,24 +194,26 @@ export default function CompanyStopsPage() {
                     <th className="px-4 py-3 text-left font-medium">{t('table.city')}</th>
                     <th className="px-4 py-3 text-left font-medium">{t('table.coordinates')}</th>
                     <th className="px-4 py-3 text-left font-medium">{t('table.status')}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t('table.author')}</th>
+                    <th className="px-4 py-3 text-center font-medium">{t('table.favorite')}</th>
                     <th className="px-4 py-3 text-right font-medium">{t('table.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                      <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
                         {tCommon('actions.loading')}
                       </td>
                     </tr>
-                  ) : stops.length === 0 ? (
+                  ) : filteredStops.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                      <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
                         {t('noStops')}
                       </td>
                     </tr>
                   ) : (
-                    stops.map((stop) => (
+                    filteredStops.map((stop) => (
                       <tr key={stop.id} className="border-b hover:bg-muted/30">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
@@ -199,6 +236,29 @@ export default function CompanyStopsPage() {
                           >
                             {stop.isActive ? t('status.active') : t('status.inactive')}
                           </span>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground text-xs">
+                          {stop.createdBy
+                            ? `${stop.createdBy.firstName} ${stop.createdBy.lastName}`
+                            : '-'}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {isManagerOf(companyId) ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleToggleFavorite(stop)}
+                              title={stop.isFavorite ? t('removedFromFavorites') : t('addedToFavorites')}
+                            >
+                              <Star
+                                className={`h-4 w-4 ${stop.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`}
+                              />
+                            </Button>
+                          ) : (
+                            stop.isFavorite && (
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mx-auto" />
+                            )
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Button

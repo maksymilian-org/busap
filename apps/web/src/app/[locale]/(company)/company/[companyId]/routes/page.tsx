@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from '@/i18n/navigation';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
-import { Route as RouteIcon, Plus, X, Edit, Trash2, Calendar, Copy, ChevronDown, ChevronRight, Eye, Clock, ArrowLeftRight } from 'lucide-react';
+import { Route as RouteIcon, Plus, X, Edit, Trash2, Calendar, Copy, ChevronDown, ChevronRight, Eye, Clock, ArrowLeftRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,8 @@ interface RouteData {
   comment?: string | null;
   type: string;
   isActive: boolean;
+  isFavorite?: boolean;
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   currentVersion?: {
     id: string;
     stops: Array<{
@@ -67,6 +69,7 @@ export default function CompanyRoutesPage() {
 
   const [routes, setRoutes] = useState<RouteData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(true);
   const [expandedRoute, setExpandedRoute] = useState<string | null>(null);
   const [routeSchedules, setRouteSchedules] = useState<Record<string, ScheduleData[]>>({});
   const [showScheduleModal, setShowScheduleModal] = useState<string | null>(null); // routeId
@@ -74,14 +77,16 @@ export default function CompanyRoutesPage() {
 
   const fetchRoutes = useCallback(async () => {
     try {
-      const response = await api.get(`/routes?companyId=${companyId}`);
+      const urlParams = new URLSearchParams({ companyId });
+      if (!showFavoritesOnly) urlParams.set('favorites', 'false');
+      const response = await api.get(`/routes?${urlParams}`);
       setRoutes(Array.isArray(response) ? response : []);
     } catch (error) {
       console.error('Failed to fetch routes:', error);
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyId, showFavoritesOnly]);
 
   const handleDelete = async (routeId: string) => {
     if (!confirm(t('routes.confirmDelete'))) return;
@@ -151,6 +156,22 @@ export default function CompanyRoutesPage() {
     }
   };
 
+  const handleToggleFavorite = async (route: RouteData) => {
+    if (!isManagerOf(companyId)) return;
+    try {
+      if (route.isFavorite) {
+        await api.delete(`/routes/favorites/${route.id}?companyId=${companyId}`);
+        toast({ variant: 'success', title: t('routes.removedFromFavorites') });
+      } else {
+        await api.post('/routes/favorites', { companyId, routeId: route.id });
+        toast({ variant: 'success', title: t('routes.addedToFavorites') });
+      }
+      fetchRoutes();
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: tCommon('status.error'), description: err.message });
+    }
+  };
+
   useEffect(() => {
     if (!isManagerOf(companyId)) {
       router.push('/company');
@@ -170,10 +191,20 @@ export default function CompanyRoutesPage() {
           <h1 className="text-2xl font-bold">{t('routes.title')}</h1>
           <p className="text-muted-foreground">{t('routes.description')}</p>
         </div>
-        <Button onClick={() => router.push(`/company/${companyId}/routes/new`)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t('routes.addRoute')}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant={showFavoritesOnly ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowFavoritesOnly((v) => !v)}
+          >
+            <Star className="h-4 w-4 mr-1" />
+            {showFavoritesOnly ? t('routes.favoritesOnly') : t('routes.showAll')}
+          </Button>
+          <Button onClick={() => router.push(`/company/${companyId}/routes/new`)}>
+            <Plus className="mr-2 h-4 w-4" />
+            {t('routes.addRoute')}
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -227,6 +258,11 @@ export default function CompanyRoutesPage() {
                           </p>
                         ) : null;
                       })()}
+                      {route.createdBy && (
+                        <p className="text-xs text-muted-foreground">
+                          {t('routes.author')}: {route.createdBy.firstName} {route.createdBy.lastName}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -250,6 +286,18 @@ export default function CompanyRoutesPage() {
                       {expandedRoute === route.id ? <ChevronDown className="h-4 w-4 ml-1" /> : <ChevronRight className="h-4 w-4 ml-1" />}
                     </Button>
                     <div className="flex gap-1">
+                      {isManagerOf(companyId) && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleToggleFavorite(route)}
+                          title={route.isFavorite ? t('routes.removedFromFavorites') : t('routes.addedToFavorites')}
+                        >
+                          <Star
+                            className={`h-4 w-4 ${route.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`}
+                          />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"

@@ -12,29 +12,50 @@ export class StopsService {
   ) {}
 
   async findAll(companyId?: string, favoritesOnly = true) {
+    const createdBySelect = {
+      select: { id: true, firstName: true, lastName: true },
+    };
+
     if (favoritesOnly && companyId) {
       // Return only favorite stops for this company
       const favorites = await this.prisma.companyFavoriteStop.findMany({
         where: { companyId },
         include: {
-          stop: true,
+          stop: {
+            include: { createdBy: createdBySelect },
+          },
         },
       });
       return favorites
-        .map((f) => f.stop)
+        .map((f) => ({ ...f.stop, isFavorite: true }))
         .filter((s) => s.isActive)
         .sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    return this.prisma.stop.findMany({
+    const stops = await this.prisma.stop.findMany({
       where: {
         isActive: true,
         ...(companyId && {
           OR: [{ companyId: null }, { companyId }],
         }),
       },
+      include: { createdBy: createdBySelect },
       orderBy: { name: 'asc' },
     });
+
+    if (companyId) {
+      const favoriteStopIds = new Set(
+        (
+          await this.prisma.companyFavoriteStop.findMany({
+            where: { companyId },
+            select: { stopId: true },
+          })
+        ).map((f) => f.stopId),
+      );
+      return stops.map((stop) => ({ ...stop, isFavorite: favoriteStopIds.has(stop.id) }));
+    }
+
+    return stops;
   }
 
   async findById(id: string) {

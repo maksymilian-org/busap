@@ -40,7 +40,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, isAnyDriver } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
@@ -193,6 +193,24 @@ export default function DashboardLayout({
               >
                 <Shield className="h-5 w-5" />
                 {tCommon('navigation.adminPanel')}
+              </Link>
+            )}
+            {isAnyDriver() && !pathname.startsWith('/driver') && (
+              <Link
+                href="/driver"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <Truck className="h-5 w-5" />
+                {t('layout.driverPanel')}
+              </Link>
+            )}
+            {pathname.startsWith('/driver') && (
+              <Link
+                href="/passenger"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <Bus className="h-5 w-5" />
+                {t('layout.passengerPanel')}
               </Link>
             )}
             {user.companyMemberships?.some((m) => m.role === 'owner' || m.role === 'manager') && (
