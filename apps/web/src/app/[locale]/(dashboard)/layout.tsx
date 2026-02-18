@@ -25,6 +25,7 @@ import {
   BarChart3,
   Shield,
   Building2,
+  CalendarDays,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -55,8 +56,7 @@ export default function DashboardLayout({
 
   const driverNav = [
     { name: t('driverNav.myCourses'), href: '/driver', icon: LayoutDashboard },
-    { name: t('driverNav.onRoute'), href: '/driver/active', icon: Route },
-    { name: t('driverNav.history'), href: '/driver/history', icon: Clock },
+    { name: t('driverNav.schedule'), href: '/driver/schedule', icon: CalendarDays },
   ];
 
   const managerNav = [

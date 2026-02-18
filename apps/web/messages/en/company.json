@@ -8,6 +8,7 @@
     "members": "Team",
     "schedules": "Schedules",
     "calendars": "Calendars",
+    "drivers": "Drivers",
     "news": "News",
     "myCompanies": "My Companies"
   },
@@ -412,6 +413,24 @@
       "submitting": "Saving...",
       "success": "News updated"
     }
+  },
+  "drivers": {
+    "title": "Drivers",
+    "subtitle": "View driver schedules",
+    "selectDriver": "Select driver",
+    "noDrivers": "No drivers in company",
+    "totalTrips": "Total trips",
+    "workingTime": "Working time",
+    "noTrips": "No trips in this period",
+    "viewDaily": "Day",
+    "viewWeekly": "Week",
+    "viewMonthly": "Month",
+    "columnDate": "Date",
+    "columnRoute": "Route",
+    "columnDeparture": "Departure",
+    "columnArrival": "Arrival",
+    "columnVehicle": "Vehicle",
+    "columnStatus": "Status"
   },
   "stops": {
     "title": "Stops",

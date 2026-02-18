@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { VirtualTripService } from './virtual-trip.service';
 import { CreateTripInput, UpdateTripInput, SearchTripsInput, TripStatus } from '@busap/shared';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TripsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private virtualTripService: VirtualTripService,
+  ) {}
 
   async findAll(params: SearchTripsInput) {
     const {
@@ -373,6 +377,43 @@ export class TripsService {
     }));
 
     return tripsWithAssignment;
+  }
+
+  /**
+   * Get driver schedule (virtual + materialized trips) for a date range
+   */
+  async getDriverSchedule(driverId: string, fromDate: Date, toDate: Date) {
+    // Get driver's company memberships
+    const memberships = await this.prisma.companyUser.findMany({
+      where: {
+        userId: driverId,
+        role: 'driver',
+        isActive: true,
+      },
+      select: { companyId: true },
+    });
+
+    if (memberships.length === 0) {
+      return [];
+    }
+
+    // Get virtual trips for each company
+    const allTrips = await Promise.all(
+      memberships.map((m) =>
+        this.virtualTripService.getTripsForDateRange(m.companyId, fromDate, toDate, {
+          driverId,
+        }),
+      ),
+    );
+
+    // Merge and sort by departure time
+    return allTrips
+      .flat()
+      .sort(
+        (a, b) =>
+          new Date(a.scheduledDepartureTime).getTime() -
+          new Date(b.scheduledDepartureTime).getTime(),
+      );
   }
 
   /**

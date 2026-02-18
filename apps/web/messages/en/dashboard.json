@@ -13,8 +13,7 @@
   },
   "driverNav": {
     "myCourses": "My Courses",
-    "onRoute": "On Route",
-    "history": "History"
+    "schedule": "Schedule"
   },
   "managerNav": {
     "dashboard": "Dashboard",
@@ -106,7 +105,33 @@
   },
   "driver": {
     "title": "Driver Panel",
-    "subtitle": "Manage your courses"
+    "subtitle": "Manage your courses",
+    "todayTrips": "Trips today",
+    "completedTrips": "Completed",
+    "nextDeparture": "Next departure",
+    "nextTripTitle": "Next trip",
+    "countdownLabel": "Countdown",
+    "startTrip": "Start",
+    "completeTrip": "Complete",
+    "noNextTrip": "No scheduled trips",
+    "vehicle": "Vehicle",
+    "capacity": "Capacity",
+    "allTodayTrips": "All trips today",
+    "schedule": {
+      "title": "Schedule",
+      "viewDaily": "Day",
+      "viewWeekly": "Week",
+      "viewMonthly": "Month",
+      "totalTrips": "Total trips",
+      "workingTime": "Working time",
+      "noTrips": "No trips in this period",
+      "columnDate": "Date",
+      "columnRoute": "Route",
+      "columnDeparture": "Departure",
+      "columnArrival": "Arrival",
+      "columnVehicle": "Vehicle",
+      "columnStatus": "Status"
+    }
   },
   "manager": {
     "title": "Manager Panel",

@@ -13,8 +13,7 @@
   },
   "driverNav": {
     "myCourses": "Moje kursy",
-    "onRoute": "W trasie",
-    "history": "Historia"
+    "schedule": "Harmonogram"
   },
   "managerNav": {
     "dashboard": "Dashboard",
@@ -106,7 +105,33 @@
   },
   "driver": {
     "title": "Panel kierowcy",
-    "subtitle": "Zarządzaj swoimi kursami"
+    "subtitle": "Zarządzaj swoimi kursami",
+    "todayTrips": "Kursy dzisiaj",
+    "completedTrips": "Ukończone",
+    "nextDeparture": "Następny odjazd",
+    "nextTripTitle": "Następny kurs",
+    "countdownLabel": "Odliczanie",
+    "startTrip": "Rozpocznij",
+    "completeTrip": "Zakończ",
+    "noNextTrip": "Brak zaplanowanych kursów",
+    "vehicle": "Pojazd",
+    "capacity": "Miejsca",
+    "allTodayTrips": "Wszystkie kursy dzisiaj",
+    "schedule": {
+      "title": "Harmonogram",
+      "viewDaily": "Dzień",
+      "viewWeekly": "Tydzień",
+      "viewMonthly": "Miesiąc",
+      "totalTrips": "Łączna liczba kursów",
+      "workingTime": "Czas pracy",
+      "noTrips": "Brak kursów w tym okresie",
+      "columnDate": "Data",
+      "columnRoute": "Trasa",
+      "columnDeparture": "Odjazd",
+      "columnArrival": "Przyjazd",
+      "columnVehicle": "Pojazd",
+      "columnStatus": "Status"
+    }
   },
   "manager": {
     "title": "Panel managera",

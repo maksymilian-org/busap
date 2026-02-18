@@ -109,6 +109,20 @@ export class TripsController {
     return this.tripsService.getDriverNextTrip(user.dbUser.id);
   }
 
+  @Get('driver/schedule')
+  @ApiBearerAuth()
+  @Roles(UserRole.DRIVER)
+  @ApiOperation({ summary: 'Get driver schedule (virtual + materialized) for date range' })
+  async getDriverSchedule(
+    @CurrentUser() user: any,
+    @Query('fromDate') fromDate: string,
+    @Query('toDate') toDate: string,
+  ) {
+    const from = new Date(fromDate);
+    const to = toDate ? new Date(toDate) : new Date(from.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return this.tripsService.getDriverSchedule(user.dbUser.id, from, to);
+  }
+
   @Get('driver/:driverId')
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.OWNER, UserRole.SUPERADMIN)

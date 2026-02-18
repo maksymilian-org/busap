@@ -13,6 +13,7 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
   isOwnerOf: (companyId: string) => boolean;
   isManagerOf: (companyId: string) => boolean;
+  isAnyDriver: () => boolean;
   getMyCompanies: () => UserCompanyMembership[];
 }
 
@@ -81,6 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ) ?? false;
   }, [user?.companyMemberships]);
 
+  const isAnyDriver = useMemo(() => {
+    return () =>
+      user?.companyMemberships?.some((m) => m.role === 'driver') ?? false;
+  }, [user?.companyMemberships]);
+
   const getMyCompanies = useMemo(() => {
     return () =>
       user?.companyMemberships?.filter(
@@ -99,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshUser,
         isOwnerOf,
         isManagerOf,
+        isAnyDriver,
         getMyCompanies,
       }}
     >

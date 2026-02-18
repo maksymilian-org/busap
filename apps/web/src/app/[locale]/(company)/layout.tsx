@@ -14,6 +14,7 @@ import {
   CalendarDays,
   Newspaper,
   LayoutDashboard,
+  UserCog,
   LogOut,
   Menu,
   X,
@@ -87,6 +88,11 @@ export default function CompanyLayout({
           name: t('nav.calendars'),
           href: `/company/${currentCompanyId}/calendars`,
           icon: CalendarDays,
+        },
+        {
+          name: t('nav.drivers'),
+          href: `/company/${currentCompanyId}/drivers`,
+          icon: UserCog,
         },
         {
           name: t('nav.news'),

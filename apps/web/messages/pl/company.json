@@ -8,6 +8,7 @@
     "members": "Zespół",
     "schedules": "Harmonogramy",
     "calendars": "Kalendarze",
+    "drivers": "Kierowcy",
     "news": "Aktualności",
     "myCompanies": "Moje firmy"
   },
@@ -412,6 +413,24 @@
       "submitting": "Zapisywanie...",
       "success": "Aktualność zaktualizowana"
     }
+  },
+  "drivers": {
+    "title": "Kierowcy",
+    "subtitle": "Przeglądaj harmonogramy kierowców",
+    "selectDriver": "Wybierz kierowcę",
+    "noDrivers": "Brak kierowców w firmie",
+    "totalTrips": "Łączna liczba kursów",
+    "workingTime": "Czas pracy",
+    "noTrips": "Brak kursów w tym okresie",
+    "viewDaily": "Dzień",
+    "viewWeekly": "Tydzień",
+    "viewMonthly": "Miesiąc",
+    "columnDate": "Data",
+    "columnRoute": "Trasa",
+    "columnDeparture": "Odjazd",
+    "columnArrival": "Przyjazd",
+    "columnVehicle": "Pojazd",
+    "columnStatus": "Status"
   },
   "stops": {
     "title": "Przystanki",
