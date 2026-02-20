@@ -10,7 +10,12 @@
     "calendars": "Calendars",
     "drivers": "Drivers",
     "news": "News",
-    "myCompanies": "My Companies"
+    "myCompanies": "My Companies",
+    "map": "Map"
+  },
+  "map": {
+    "zoomToLoad": "Zoom in to see stops",
+    "viewDetails": "Details"
   },
   "roles": {
     "owner": "Owner",
@@ -435,7 +440,8 @@
     "columnDeparture": "Departure",
     "columnArrival": "Arrival",
     "columnVehicle": "Vehicle",
-    "columnStatus": "Status"
+    "columnStatus": "Status",
+    "viewProfile": "View driver profile"
   },
   "stops": {
     "title": "Stops",

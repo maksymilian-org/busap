@@ -10,7 +10,12 @@
     "calendars": "Kalendarze",
     "drivers": "Kierowcy",
     "news": "Aktualności",
-    "myCompanies": "Moje firmy"
+    "myCompanies": "Moje firmy",
+    "map": "Mapa"
+  },
+  "map": {
+    "zoomToLoad": "Przybliż mapę, aby zobaczyć przystanki",
+    "viewDetails": "Szczegóły"
   },
   "roles": {
     "owner": "Właściciel",
@@ -435,7 +440,8 @@
     "columnDeparture": "Odjazd",
     "columnArrival": "Przyjazd",
     "columnVehicle": "Pojazd",
-    "columnStatus": "Status"
+    "columnStatus": "Status",
+    "viewProfile": "Otwórz profil kierowcy"
   },
   "stops": {
     "title": "Przystanki",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { Fragment, useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
@@ -20,7 +20,6 @@ import {
   Phone,
   MapPin,
   X,
-  Check,
   Crown,
   Briefcase,
   Car,
@@ -28,9 +27,13 @@ import {
   Upload,
   Truck,
   Route,
-  Bus,
-  Clock,
+  Newspaper,
+  Calendar,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
+import { PublicPageCard } from '@/components/company/PublicPageCard';
+import { RouteSchedulesSection } from '@/components/routes/RouteSchedulesSection';
 import { cn } from '@/lib/utils';
 
 interface CompanyData {
@@ -41,7 +44,12 @@ interface CompanyData {
   description?: string;
   contactEmail: string;
   contactPhone?: string;
+  contactPhone2?: string;
+  contactPhone3?: string;
   address?: string;
+  website?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
   isActive: boolean;
   createdAt: string;
 }
@@ -80,14 +88,13 @@ interface RouteData {
   isActive: boolean;
 }
 
-interface TripData {
+interface NewsData {
   id: string;
-  status: string;
-  scheduledDepartureTime: string;
-  scheduledArrivalTime?: string;
-  route?: { id: string; name: string };
-  vehicle?: { id: string; registrationNumber: string };
-  driver?: { id: string; firstName: string; lastName: string };
+  title: string;
+  content: string;
+  excerpt?: string;
+  publishedAt?: string;
+  isActive: boolean;
 }
 
 interface StopData {
@@ -130,8 +137,9 @@ export default function CompanyDetailsPage() {
   const [members, setMembers] = useState<MemberData[]>([]);
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [routes, setRoutes] = useState<RouteData[]>([]);
-  const [trips, setTrips] = useState<TripData[]>([]);
   const [stops, setStops] = useState<StopData[]>([]);
+  const [news, setNews] = useState<NewsData[]>([]);
+  const [expandedRoute, setExpandedRoute] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [editingMember, setEditingMember] = useState<MemberData | null>(null);
@@ -173,15 +181,6 @@ export default function CompanyDetailsPage() {
     }
   }, [companyId]);
 
-  const loadTrips = useCallback(async () => {
-    try {
-      const data = await api.fetch<any>(`/trips?companyId=${companyId}&include=route,vehicle,driver`);
-      setTrips(Array.isArray(data) ? data : data.data || []);
-    } catch (err) {
-      console.error('Failed to load trips:', err);
-    }
-  }, [companyId]);
-
   const loadStops = useCallback(async () => {
     try {
       const data = await api.fetch<any>(`/stops?companyId=${companyId}`);
@@ -191,14 +190,23 @@ export default function CompanyDetailsPage() {
     }
   }, [companyId]);
 
+  const loadNews = useCallback(async () => {
+    try {
+      const data = await api.fetch<any>(`/companies/${companyId}/news`);
+      setNews(Array.isArray(data) ? data : data.data || []);
+    } catch (err) {
+      console.error('Failed to load news:', err);
+    }
+  }, [companyId]);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      await Promise.all([loadCompany(), loadMembers(), loadVehicles(), loadRoutes(), loadTrips(), loadStops()]);
+      await Promise.all([loadCompany(), loadMembers(), loadVehicles(), loadRoutes(), loadStops(), loadNews()]);
       setLoading(false);
     };
     load();
-  }, [loadCompany, loadMembers, loadVehicles, loadRoutes, loadTrips, loadStops]);
+  }, [loadCompany, loadMembers, loadVehicles, loadRoutes, loadStops, loadNews]);
 
   const handleRemoveMember = async (userId: string) => {
     if (!confirm(t('details.confirmRemove'))) return;
@@ -307,6 +315,16 @@ export default function CompanyDetailsPage() {
         </CardContent>
       </Card>
 
+      {/* Public Page */}
+      {company.slug && (
+        <PublicPageCard
+          slug={company.slug}
+          label={t('details.publicPage')}
+          copyLabel={t('details.copyUrl')}
+          copiedLabel={t('details.urlCopied')}
+        />
+      )}
+
       {/* Members */}
       <Card>
         <CardHeader>
@@ -344,7 +362,16 @@ export default function CompanyDetailsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">
-                      {member.user.firstName} {member.user.lastName}
+                      {member.role === 'driver' ? (
+                        <Link
+                          href={`/admin/drivers/${member.userId}`}
+                          className="hover:text-primary hover:underline"
+                        >
+                          {member.user.firstName} {member.user.lastName}
+                        </Link>
+                      ) : (
+                        <>{member.user.firstName} {member.user.lastName}</>
+                      )}
                     </div>
                     <div className="text-sm text-muted-foreground truncate">
                       {member.user.email}
@@ -410,7 +437,11 @@ export default function CompanyDetailsPage() {
                 <tbody>
                   {vehicles.map((v) => (
                     <tr key={v.id} className="border-b hover:bg-muted/30">
-                      <td className="px-3 py-2 font-medium">{v.registrationNumber}</td>
+                      <td className="px-3 py-2 font-medium">
+                        <Link href={`/admin/vehicles/${v.id}`} className="hover:text-primary hover:underline">
+                          {v.registrationNumber}
+                        </Link>
+                      </td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {[v.brand, v.model].filter(Boolean).join(' ') || '-'}
                       </td>
@@ -446,23 +477,36 @@ export default function CompanyDetailsPage() {
             {t('details.routes', { count: routes.length })}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {routes.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">{t('details.noRoutes')}</p>
+            <p className="text-center text-muted-foreground py-4 px-4">{t('details.noRoutes')}</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="px-3 py-2 text-left font-medium">{t('details.routeTable.name')}</th>
-                    <th className="px-3 py-2 text-left font-medium">{t('details.routeTable.code')}</th>
-                    <th className="px-3 py-2 text-left font-medium">{t('details.routeTable.type')}</th>
-                    <th className="px-3 py-2 text-left font-medium">{t('details.routeTable.status')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {routes.map((r) => (
-                    <tr key={r.id} className="border-b hover:bg-muted/30">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="px-3 py-2 text-left font-medium w-8"></th>
+                  <th className="px-3 py-2 text-left font-medium">{t('details.routeTable.name')}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t('details.routeTable.code')}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t('details.routeTable.type')}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t('details.routeTable.status')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {routes.map((r) => (
+                  <Fragment key={r.id}>
+                    <tr
+                      className="border-b hover:bg-muted/30 cursor-pointer"
+                      onClick={() => setExpandedRoute(expandedRoute === r.id ? null : r.id)}
+                    >
+                      <td className="px-3 py-2">
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                          {expandedRoute === r.id ? (
+                            <ChevronDown className="h-3.5 w-3.5" />
+                          ) : (
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </td>
                       <td className="px-3 py-2 font-medium">{r.name}</td>
                       <td className="px-3 py-2 text-muted-foreground">{r.code || '-'}</td>
                       <td className="px-3 py-2">
@@ -483,77 +527,17 @@ export default function CompanyDetailsPage() {
                         </span>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Trips */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bus className="h-5 w-5" />
-            {t('details.trips', { count: trips.length })}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {trips.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">{t('details.noTrips')}</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="px-3 py-2 text-left font-medium">{t('details.tripTable.route')}</th>
-                    <th className="px-3 py-2 text-left font-medium">{t('details.tripTable.vehicle')}</th>
-                    <th className="px-3 py-2 text-left font-medium">{t('details.tripTable.driver')}</th>
-                    <th className="px-3 py-2 text-left font-medium">{t('details.tripTable.departure')}</th>
-                    <th className="px-3 py-2 text-left font-medium">{t('details.tripTable.status')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {trips.slice(0, 10).map((trip) => (
-                    <tr key={trip.id} className="border-b hover:bg-muted/30">
-                      <td className="px-3 py-2 font-medium">{trip.route?.name || '-'}</td>
-                      <td className="px-3 py-2 text-muted-foreground">{trip.vehicle?.registrationNumber || '-'}</td>
-                      <td className="px-3 py-2 text-muted-foreground">
-                        {trip.driver ? `${trip.driver.firstName} ${trip.driver.lastName}` : '-'}
-                      </td>
-                      <td className="px-3 py-2 text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {new Date(trip.scheduledDepartureTime).toLocaleString()}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2">
-                        <span
-                          className={cn(
-                            'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
-                            trip.status === 'completed'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : trip.status === 'in_progress'
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                              : trip.status === 'cancelled'
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                          )}
-                        >
-                          {trip.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {trips.length > 10 && (
-                <p className="text-center text-sm text-muted-foreground py-2">
-                  {t('details.showingTrips', { shown: 10, total: trips.length })}
-                </p>
-              )}
-            </div>
+                    {expandedRoute === r.id && (
+                      <tr>
+                        <td colSpan={5} className="p-0">
+                          <RouteSchedulesSection companyId={companyId} routeId={r.id} route={r} />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
           )}
         </CardContent>
       </Card>
@@ -583,7 +567,11 @@ export default function CompanyDetailsPage() {
                 <tbody>
                   {stops.map((stop) => (
                     <tr key={stop.id} className="border-b hover:bg-muted/30">
-                      <td className="px-3 py-2 font-medium">{stop.name}</td>
+                      <td className="px-3 py-2 font-medium">
+                        <Link href={`/admin/stops/${stop.id}`} className="hover:text-primary hover:underline">
+                          {stop.name}
+                        </Link>
+                      </td>
                       <td className="px-3 py-2 text-muted-foreground">{stop.code || '-'}</td>
                       <td className="px-3 py-2 text-muted-foreground">{stop.city || '-'}</td>
                       <td className="px-3 py-2">
@@ -602,6 +590,50 @@ export default function CompanyDetailsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* News */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Newspaper className="h-5 w-5" />
+            {t('details.news', { count: news.length })}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {news.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4">{t('details.noNews')}</p>
+          ) : (
+            <div className="space-y-3">
+              {news.map((item) => (
+                <div key={item.id} className="flex items-start justify-between gap-3 p-3 rounded-lg border hover:bg-muted/30">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{item.title}</div>
+                    {item.excerpt && (
+                      <p className="text-sm text-muted-foreground truncate mt-0.5">{item.excerpt}</p>
+                    )}
+                    {item.publishedAt && (
+                      <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(item.publishedAt).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+                  <span
+                    className={cn(
+                      'inline-flex flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium',
+                      item.isActive
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                    )}
+                  >
+                    {item.isActive ? t('details.newsPublished') : t('details.newsDraft')}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
@@ -957,12 +989,18 @@ function EditCompanyModal({
 }) {
   const [form, setForm] = useState({
     name: company.name,
+    slug: company.slug,
     contactEmail: company.contactEmail,
     contactPhone: company.contactPhone || '',
+    contactPhone2: company.contactPhone2 || '',
+    contactPhone3: company.contactPhone3 || '',
     description: company.description || '',
     address: company.address || '',
-    isActive: company.isActive,
     logoUrl: company.logoUrl || '',
+    website: company.website || '',
+    facebookUrl: company.facebookUrl || '',
+    instagramUrl: company.instagramUrl || '',
+    isActive: company.isActive,
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -977,8 +1015,10 @@ function EditCompanyModal({
     try {
       const { url } = await api.uploadFile('/storage/upload/company-logo', file);
       setForm({ ...form, logoUrl: url });
+      toast({ variant: 'success', title: t('editModal.uploadSuccess') });
     } catch (err: any) {
-      setError(err.message || t('createModal.uploadError'));
+      setError(err.message || t('editModal.uploadError'));
+      toast({ variant: 'destructive', title: tCommon('status.error'), description: err.message });
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -1017,7 +1057,7 @@ function EditCompanyModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium">{t('createModal.logo')}</label>
+            <label className="text-sm font-medium">{t('editModal.logo')}</label>
             <input
               ref={fileInputRef}
               type="file"
@@ -1027,11 +1067,7 @@ function EditCompanyModal({
             />
             <div className="mt-1 flex items-center gap-3">
               {form.logoUrl ? (
-                <img
-                  src={form.logoUrl}
-                  alt="Logo"
-                  className="h-14 w-14 rounded-lg object-cover border"
-                />
+                <img src={form.logoUrl} alt="Logo" className="h-14 w-14 rounded-lg object-cover border" />
               ) : (
                 <div className="flex h-14 w-14 items-center justify-center rounded-lg border bg-muted">
                   <Building2 className="h-6 w-6 text-muted-foreground" />
@@ -1045,13 +1081,13 @@ function EditCompanyModal({
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Upload className="h-3.5 w-3.5 mr-1" />
-                {uploading ? t('createModal.uploading') : t('createModal.selectLogo')}
+                {uploading ? t('editModal.uploading') : t('editModal.selectLogo')}
               </Button>
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium">{t('createModal.name')}</label>
+            <label className="text-sm font-medium">{t('editModal.name')}</label>
             <input
               type="text"
               required
@@ -1062,7 +1098,7 @@ function EditCompanyModal({
           </div>
 
           <div>
-            <label className="text-sm font-medium">{t('createModal.contactEmail')}</label>
+            <label className="text-sm font-medium">{t('editModal.contactEmail')}</label>
             <input
               type="email"
               required
@@ -1073,7 +1109,7 @@ function EditCompanyModal({
           </div>
 
           <div>
-            <label className="text-sm font-medium">{t('createModal.contactPhone')}</label>
+            <label className="text-sm font-medium">{t('editModal.contactPhone')}</label>
             <input
               type="text"
               value={form.contactPhone}
@@ -1083,21 +1119,87 @@ function EditCompanyModal({
           </div>
 
           <div>
-            <label className="text-sm font-medium">{t('createModal.description')}</label>
-            <textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              rows={3}
+            <label className="text-sm font-medium">{t('editModal.contactPhone2')}</label>
+            <input
+              type="text"
+              value={form.contactPhone2}
+              onChange={(e) => setForm({ ...form, contactPhone2: e.target.value })}
               className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">{t('createModal.address')}</label>
+            <label className="text-sm font-medium">{t('editModal.contactPhone3')}</label>
+            <input
+              type="text"
+              value={form.contactPhone3}
+              onChange={(e) => setForm({ ...form, contactPhone3: e.target.value })}
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">{t('editModal.description')}</label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={3}
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">{t('editModal.address')}</label>
             <input
               type="text"
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">{t('editModal.slug')}</label>
+            <input
+              type="text"
+              value={form.slug}
+              onChange={(e) =>
+                setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })
+              }
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <p className="text-xs text-muted-foreground mt-1">{t('editModal.slugHint')}</p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">{t('editModal.website')}</label>
+            <input
+              type="url"
+              value={form.website}
+              onChange={(e) => setForm({ ...form, website: e.target.value })}
+              placeholder="https://"
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Facebook</label>
+            <input
+              type="url"
+              value={form.facebookUrl}
+              onChange={(e) => setForm({ ...form, facebookUrl: e.target.value })}
+              placeholder="https://facebook.com/..."
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Instagram</label>
+            <input
+              type="url"
+              value={form.instagramUrl}
+              onChange={(e) => setForm({ ...form, instagramUrl: e.target.value })}
+              placeholder="https://instagram.com/..."
               className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -1111,7 +1213,7 @@ function EditCompanyModal({
               className="rounded border"
             />
             <label htmlFor="companyActive" className="text-sm font-medium">
-              {t('createModal.isActive')}
+              {t('editModal.isActive')}
             </label>
           </div>
 

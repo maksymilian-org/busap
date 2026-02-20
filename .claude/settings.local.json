@@ -118,7 +118,12 @@
       "WebFetch(domain:giscience.github.io)",
       "Bash(docker stop:*)",
       "Bash(docker run:*)",
-      "Bash(git -C '/c/Users/mfurtak/Projects/maksymilian.org/busap' status --short)"
+      "Bash(git -C '/c/Users/mfurtak/Projects/maksymilian.org/busap' status --short)",
+      "Bash(bash -c:*)",
+      "Bash(python3:*)",
+      "Bash(/tmp/truncate_routes.py:*)"
     ]
-  }
+  },
+  "prefersReducedMotion": false,
+  "outputStyle": "default"
 }

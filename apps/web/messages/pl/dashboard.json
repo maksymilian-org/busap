@@ -5,10 +5,11 @@
     "managerPanel": "Panel managera"
   },
   "passengerNav": {
-    "dashboard": "Dashboard",
-    "search": "Szukaj",
+    "connections": "Połączenia",
+    "routes": "Trasy",
+    "stops": "Przystanki",
+    "companies": "Firmy",
     "map": "Mapa",
-    "favorites": "Ulubione",
     "news": "Aktualności"
   },
   "driverNav": {
@@ -159,5 +160,75 @@
     "subtitle": "Aktualności z ulubionych firm",
     "noNews": "Brak aktualności",
     "noNewsHint": "Dodaj firmy do ulubionych, aby widzieć ich aktualności"
+  },
+  "connections": {
+    "title": "Połączenia",
+    "subtitle": "Wyszukuj i zapisuj swoje trasy",
+    "saveConnection": "Zapisz połączenie",
+    "saved": "Zapisane połączenia",
+    "noSaved": "Brak zapisanych połączeń",
+    "noSavedHint": "Zapisz połączenie, by szybko powtórzyć wyszukiwanie",
+    "connectionSaved": "Połączenie zapisane",
+    "connectionExists": "Połączenie już istnieje",
+    "connectionRemoved": "Połączenie usunięte",
+    "filters": "Filtry",
+    "filterCity": "Miasto",
+    "filterCountry": "Kraj",
+    "searchRoute": "Szukaj"
+  },
+  "routes": {
+    "title": "Trasy",
+    "subtitle": "Przeglądaj dostępne trasy ({count})",
+    "searchPlaceholder": "Szukaj tras...",
+    "filterCompany": "Firma",
+    "filterAll": "Wszystkie",
+    "filterType": "Typ",
+    "favorites": "Twoje ulubione",
+    "noFavorites": "Brak ulubionych tras",
+    "noRoutes": "Brak tras",
+    "detail": {
+      "stopsOnRoute": "Przystanki na trasie",
+      "backToRoutes": "← Wróć do tras",
+      "operatedBy": "Operator"
+    }
+  },
+  "stops": {
+    "title": "Przystanki",
+    "subtitle": "Przeglądaj przystanki ({count})",
+    "searchPlaceholder": "Szukaj przystanków...",
+    "filterCity": "Miasto",
+    "filterCountry": "Kraj",
+    "favorites": "Twoje ulubione",
+    "noFavorites": "Brak ulubionych przystanków",
+    "noStops": "Brak przystanków",
+    "detail": {
+      "routesViaStop": "Trasy przez ten przystanek",
+      "noRoutes": "Brak tras",
+      "backToStops": "← Wróć do przystanków",
+      "upcomingTrips": "Nadchodzące kursy",
+      "noUpcomingTrips": "Brak nadchodzących kursów",
+      "tripRoute": "Trasa",
+      "tripDirection": "Kierunek",
+      "tripDeparture": "Odjazd",
+      "tripVehicle": "Pojazd"
+    }
+  },
+  "companies": {
+    "title": "Firmy",
+    "subtitle": "Przeglądaj przewoźników ({count})",
+    "searchPlaceholder": "Szukaj firm...",
+    "favorites": "Twoje ulubione",
+    "noFavorites": "Brak ulubionych firm",
+    "noCompanies": "Brak firm",
+    "detail": {
+      "routes": "Trasy ({count})",
+      "noRoutes": "Brak tras",
+      "backToCompanies": "← Wróć do firm",
+      "publicPage": "Strona publiczna"
+    }
+  },
+  "map": {
+    "viewDetails": "Szczegóły przystanku",
+    "zoomToLoad": "Przybliż mapę, aby zobaczyć przystanki"
   }
 }

@@ -132,24 +132,24 @@ export class CalendarsController {
 
   @Post()
   @ApiBearerAuth()
-  @Roles(UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Create a new calendar (superadmin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Create a new calendar (admin+)' })
   async create(@Body() data: CreateCalendarDto) {
     return this.calendarsService.create(data);
   }
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Update a calendar (superadmin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Update a calendar (admin+)' })
   async update(@Param('id') id: string, @Body() data: UpdateCalendarDto) {
     return this.calendarsService.update(id, data);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles(UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Delete a calendar (superadmin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Delete a calendar (admin+)' })
   async delete(@Param('id') id: string) {
     return this.calendarsService.delete(id);
   }
@@ -158,16 +158,16 @@ export class CalendarsController {
 
   @Post(':id/entries')
   @ApiBearerAuth()
-  @Roles(UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Add an entry to a calendar (superadmin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Add an entry to a calendar (admin+)' })
   async createEntry(@Param('id') id: string, @Body() data: CreateCalendarEntryDto) {
     return this.calendarsService.createEntry(id, data);
   }
 
   @Put(':id/entries/:entryId')
   @ApiBearerAuth()
-  @Roles(UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Update a calendar entry (superadmin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Update a calendar entry (admin+)' })
   async updateEntry(
     @Param('id') id: string,
     @Param('entryId') entryId: string,
@@ -178,8 +178,8 @@ export class CalendarsController {
 
   @Delete(':id/entries/:entryId')
   @ApiBearerAuth()
-  @Roles(UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Delete a calendar entry (superadmin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Delete a calendar entry (admin+)' })
   async deleteEntry(@Param('id') id: string, @Param('entryId') entryId: string) {
     return this.calendarsService.deleteEntry(id, entryId);
   }

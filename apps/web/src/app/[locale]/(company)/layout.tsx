@@ -23,6 +23,7 @@ import {
   User,
   ChevronLeft,
   MapPin,
+  Map,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -78,6 +79,11 @@ export default function CompanyLayout({
           name: t('nav.stops'),
           href: `/company/${currentCompanyId}/stops`,
           icon: MapPin,
+        },
+        {
+          name: t('nav.map'),
+          href: `/company/${currentCompanyId}/map`,
+          icon: Map,
         },
         {
           name: t('nav.members'),

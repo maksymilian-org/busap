@@ -9,6 +9,7 @@
     "users": "Users",
     "invitations": "Invitations",
     "companies": "Companies",
+    "connections": "Connections",
     "stops": "Stops",
     "routes": "Routes",
     "vehicles": "Vehicles",
@@ -16,7 +17,9 @@
     "schedules": "Schedules",
     "calendars": "Calendars",
     "simulator": "Simulator",
-    "audit": "Audit Logs"
+    "audit": "Audit Logs",
+    "map": "Map",
+    "drivers": "Drivers"
   },
   "dashboard": {
     "title": "Admin Panel",
@@ -168,7 +171,23 @@
       "title": "Edit company",
       "submit": "Save changes",
       "submitting": "Saving...",
-      "success": "Company updated"
+      "success": "Company updated",
+      "logo": "Company logo",
+      "selectLogo": "Select logo",
+      "uploading": "Uploading...",
+      "uploadSuccess": "Logo uploaded",
+      "uploadError": "Failed to upload logo",
+      "name": "Company name",
+      "contactEmail": "Email",
+      "contactPhone": "Phone",
+      "contactPhone2": "Phone 2",
+      "contactPhone3": "Phone 3",
+      "description": "Description",
+      "address": "Address",
+      "slug": "Slug (URL)",
+      "slugHint": "Letters, numbers and hyphens only",
+      "website": "Website",
+      "isActive": "Company active"
     },
     "details": {
       "title": "Company Details",
@@ -247,8 +266,48 @@
         "status": "Status"
       },
       "statusActive": "Active",
-      "statusInactive": "Inactive"
+      "statusInactive": "Inactive",
+      "publicPage": "Public page",
+      "copyUrl": "Copy URL",
+      "urlCopied": "Copied",
+      "news": "News ({count})",
+      "noNews": "No news for this company",
+      "newsPublished": "Published",
+      "newsDraft": "Draft"
     }
+  },
+  "drivers": {
+    "title": "Drivers",
+    "subtitle": "Browse drivers by company",
+    "selectCompany": "Select company",
+    "noCompany": "Select a company to see drivers",
+    "noDrivers": "No drivers in this company",
+    "table": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "detail": {
+      "back": "Back to drivers",
+      "schedule": "Schedule (this week)",
+      "history": "Trip history",
+      "stats": "Statistics",
+      "uniqueRoutes": "Unique routes",
+      "uniqueVehicles": "Unique vehicles",
+      "noHistory": "No trip history",
+      "columnDate": "Date",
+      "columnRoute": "Route",
+      "columnDeparture": "Departure",
+      "columnArrival": "Arrival",
+      "columnVehicle": "Vehicle",
+      "columnStatus": "Status"
+    }
+  },
+  "map": {
+    "title": "Stops map",
+    "viewDetails": "Details",
+    "editStop": "Edit",
+    "zoomToLoad": "Zoom in to see stops"
   },
   "stops": {
     "title": "Stops",
@@ -279,6 +338,14 @@
       "latitude": "Latitude",
       "longitude": "Longitude",
       "address": "Address",
+      "county": "County",
+      "region": "Region/Province",
+      "postalCode": "Postal code",
+      "countryCode": "Country code (2 chars)",
+      "geocodeButton": "Fill address from coordinates",
+      "geocoding": "Fetching address...",
+      "mapTitle": "Position on map",
+      "mapHint": "Click map to change position",
       "submit": "Add",
       "submitting": "Saving...",
       "success": "Stop created"
@@ -318,6 +385,7 @@
       "loop": "Loop"
     },
     "details": "Details",
+    "schedules": "Schedules",
     "confirmDelete": "Are you sure you want to delete this route?",
     "deleted": "Route deleted",
     "createModal": {
@@ -385,6 +453,19 @@
       "submit": "Save changes",
       "submitting": "Saving...",
       "success": "Vehicle updated"
+    },
+    "lastPosition": "Last position",
+    "tripHistory": "Trip history",
+    "noTrips": "No trips",
+    "tripTable": {
+      "date": "Date",
+      "route": "Route",
+      "time": "Time",
+      "driver": "Driver",
+      "status": "Status"
+    },
+    "detail": {
+      "back": "← Back to vehicles"
     }
   },
   "trips": {
@@ -594,6 +675,7 @@
     "title": "Calendars",
     "subtitle": "Holiday and special day calendar management ({count})",
     "addCalendar": "Add calendar",
+    "addSystemCalendar": "Add system calendar",
     "searchPlaceholder": "Search by name...",
     "table": {
       "name": "Name",
@@ -666,6 +748,20 @@
       "success": "Entry added",
       "deleted": "Entry deleted",
       "confirmDelete": "Are you sure you want to delete this entry?"
+    }
+  },
+  "connections": {
+    "title": "Connections",
+    "subtitle": "Search and monitor connections",
+    "searchPlaceholder": "Search...",
+    "noResults": "No results",
+    "table": {
+      "route": "Route",
+      "company": "Company",
+      "departure": "Departure",
+      "arrival": "Arrival",
+      "status": "Status",
+      "actions": "Actions"
     }
   }
 }

@@ -7,3 +7,4 @@ export { default as NumberedStopMarker } from './NumberedStopMarker';
 export { default as ExistingStopsLayer } from './ExistingStopsLayer';
 export { default as GeoJsonRouteLayer } from './GeoJsonRouteLayer';
 export { default as WaypointMarker } from './WaypointMarker';
+export { default as PublicStopsLayer } from './PublicStopsLayer';

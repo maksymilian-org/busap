@@ -41,6 +41,7 @@ model User {
   favoriteCompanies   UserFavoriteCompany[]
   favoriteRoutes      UserFavoriteRoute[]
   favoriteStops       UserFavoriteStop[]
+  savedConnections    SavedConnection[]
 
   @@map("users")
 }
@@ -174,6 +175,8 @@ model Stop {
   routeStops       RouteStop[]
   companyFavorites CompanyFavoriteStop[]
   userFavorites    UserFavoriteStop[]
+  connectionsFrom  SavedConnection[]     @relation("ConnectionFromStop")
+  connectionsTo    SavedConnection[]     @relation("ConnectionToStop")
 
   @@index([companyId])
   @@index([latitude, longitude])
@@ -643,6 +646,22 @@ model UserFavoriteStop {
 
   @@unique([userId, stopId])
   @@map("user_favorite_stops")
+}
+
+model SavedConnection {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  fromStopId String   @map("from_stop_id")
+  toStopId   String   @map("to_stop_id")
+  name       String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fromStop Stop @relation("ConnectionFromStop", fields: [fromStopId], references: [id])
+  toStop   Stop @relation("ConnectionToStop", fields: [toStopId], references: [id])
+
+  @@unique([userId, fromStopId, toStopId])
+  @@map("saved_connections")
 }
 
 // ==================== Schedule Stop Times ====================

@@ -9,6 +9,7 @@
     "users": "Użytkownicy",
     "invitations": "Zaproszenia",
     "companies": "Firmy",
+    "connections": "Połączenia",
     "stops": "Przystanki",
     "routes": "Trasy",
     "vehicles": "Pojazdy",
@@ -16,7 +17,9 @@
     "schedules": "Harmonogramy",
     "calendars": "Kalendarze",
     "simulator": "Symulator",
-    "audit": "Logi audytu"
+    "audit": "Logi audytu",
+    "map": "Mapa",
+    "drivers": "Kierowcy"
   },
   "dashboard": {
     "title": "Panel administracyjny",
@@ -168,7 +171,23 @@
       "title": "Edytuj firmę",
       "submit": "Zapisz zmiany",
       "submitting": "Zapisywanie...",
-      "success": "Firma zaktualizowana"
+      "success": "Firma zaktualizowana",
+      "logo": "Logo firmy",
+      "selectLogo": "Wybierz logo",
+      "uploading": "Przesyłanie...",
+      "uploadSuccess": "Logo przesłane",
+      "uploadError": "Nie udało się przesłać logo",
+      "name": "Nazwa firmy",
+      "contactEmail": "Email",
+      "contactPhone": "Telefon",
+      "contactPhone2": "Telefon 2",
+      "contactPhone3": "Telefon 3",
+      "description": "Opis",
+      "address": "Adres",
+      "slug": "Slug (URL)",
+      "slugHint": "Tylko litery, cyfry i myślniki",
+      "website": "Strona WWW",
+      "isActive": "Firma aktywna"
     },
     "details": {
       "title": "Szczegóły firmy",
@@ -247,8 +266,48 @@
         "status": "Status"
       },
       "statusActive": "Aktywny",
-      "statusInactive": "Nieaktywny"
+      "statusInactive": "Nieaktywny",
+      "publicPage": "Strona publiczna",
+      "copyUrl": "Kopiuj URL",
+      "urlCopied": "Skopiowano",
+      "news": "Aktualności ({count})",
+      "noNews": "Brak aktualności dla tej firmy",
+      "newsPublished": "Opublikowany",
+      "newsDraft": "Szkic"
     }
+  },
+  "drivers": {
+    "title": "Kierowcy",
+    "subtitle": "Przeglądaj kierowców według firm",
+    "selectCompany": "Wybierz firmę",
+    "noCompany": "Wybierz firmę, aby zobaczyć kierowców",
+    "noDrivers": "Brak kierowców w tej firmie",
+    "table": {
+      "name": "Imię i nazwisko",
+      "email": "Email",
+      "phone": "Telefon"
+    },
+    "detail": {
+      "back": "Powrót do kierowców",
+      "schedule": "Harmonogram (ten tydzień)",
+      "history": "Historia kursów",
+      "stats": "Statystyki",
+      "uniqueRoutes": "Unikalne trasy",
+      "uniqueVehicles": "Unikalne pojazdy",
+      "noHistory": "Brak historii kursów",
+      "columnDate": "Data",
+      "columnRoute": "Trasa",
+      "columnDeparture": "Odjazd",
+      "columnArrival": "Przyjazd",
+      "columnVehicle": "Pojazd",
+      "columnStatus": "Status"
+    }
+  },
+  "map": {
+    "title": "Mapa przystanków",
+    "viewDetails": "Szczegóły",
+    "editStop": "Edytuj",
+    "zoomToLoad": "Przybliż mapę, aby zobaczyć przystanki"
   },
   "stops": {
     "title": "Przystanki",
@@ -279,6 +338,14 @@
       "latitude": "Szerokość geo.",
       "longitude": "Długość geo.",
       "address": "Adres",
+      "county": "Powiat",
+      "region": "Region/Województwo",
+      "postalCode": "Kod pocztowy",
+      "countryCode": "Kod kraju (2 lit.)",
+      "geocodeButton": "Uzupełnij adres z koordynatów",
+      "geocoding": "Pobieranie adresu...",
+      "mapTitle": "Pozycja na mapie",
+      "mapHint": "Kliknij mapę, by zmienić pozycję",
       "submit": "Dodaj",
       "submitting": "Zapisywanie...",
       "success": "Przystanek utworzony"
@@ -318,6 +385,7 @@
       "loop": "Pętla"
     },
     "details": "Szczegóły",
+    "schedules": "Harmonogramy",
     "confirmDelete": "Czy na pewno chcesz usunąć tę trasę?",
     "deleted": "Trasa usunięta",
     "createModal": {
@@ -385,6 +453,19 @@
       "submit": "Zapisz zmiany",
       "submitting": "Zapisywanie...",
       "success": "Pojazd zaktualizowany"
+    },
+    "lastPosition": "Ostatnia pozycja",
+    "tripHistory": "Historia kursów",
+    "noTrips": "Brak kursów",
+    "tripTable": {
+      "date": "Data",
+      "route": "Trasa",
+      "time": "Godzina",
+      "driver": "Kierowca",
+      "status": "Status"
+    },
+    "detail": {
+      "back": "← Powrót do pojazdów"
     }
   },
   "trips": {
@@ -594,6 +675,7 @@
     "title": "Kalendarze",
     "subtitle": "Zarządzanie kalendarzami świąt i dni specjalnych ({count})",
     "addCalendar": "Dodaj kalendarz",
+    "addSystemCalendar": "Dodaj systemowy kalendarz",
     "searchPlaceholder": "Szukaj po nazwie...",
     "table": {
       "name": "Nazwa",
@@ -666,6 +748,20 @@
       "success": "Wpis dodany",
       "deleted": "Wpis usunięty",
       "confirmDelete": "Czy na pewno chcesz usunąć ten wpis?"
+    }
+  },
+  "connections": {
+    "title": "Połączenia",
+    "subtitle": "Wyszukuj i monitoruj połączenia",
+    "searchPlaceholder": "Szukaj...",
+    "noResults": "Brak wyników",
+    "table": {
+      "route": "Trasa",
+      "company": "Firma",
+      "departure": "Odjazd",
+      "arrival": "Przyjazd",
+      "status": "Status",
+      "actions": "Akcje"
     }
   }
 }

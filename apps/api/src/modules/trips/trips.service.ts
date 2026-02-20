@@ -3,6 +3,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { VirtualTripService } from './virtual-trip.service';
 import { CreateTripInput, UpdateTripInput, SearchTripsInput, TripStatus } from '@busap/shared';
 import { Prisma } from '@prisma/client';
+import { expandRRule, getSingleDate } from '../schedules/utils/rrule.util';
+import { parseTimeToDate } from '../schedules/utils/trip-generator.util';
+import { formatDate } from '../calendars/utils/easter.util';
 
 @Injectable()
 export class TripsService {
@@ -268,14 +271,37 @@ export class TripsService {
     date?: Date,
     companyId?: string,
   ) {
-    const targetDate = date ?? new Date();
+    const fromDate = date ?? new Date();
+    const toDate = new Date(fromDate);
+    toDate.setDate(toDate.getDate() + 7); // search next 7 days
 
-    // Find trips with matching route
-    const trips = await this.prisma.trip.findMany({
+    // 1. Find active route versions that contain fromStop, then post-filter for toStop order
+    const routeVersions = await this.prisma.routeVersion.findMany({
       where: {
-        status: TripStatus.SCHEDULED,
-        scheduledDepartureTime: { gte: targetDate },
+        isActive: true,
+        stops: { some: { stopId: fromStopId } },
+      },
+      include: {
+        stops: { orderBy: { sequenceNumber: 'asc' } },
+      },
+    });
+
+    const validRouteVersionIds = routeVersions
+      .filter((rv) => {
+        const fromIdx = rv.stops.findIndex((s) => s.stopId === fromStopId);
+        const toIdx = rv.stops.findIndex((s) => s.stopId === toStopId);
+        return fromIdx !== -1 && toIdx !== -1 && fromIdx < toIdx;
+      })
+      .map((rv) => rv.id);
+
+    if (validRouteVersionIds.length === 0) return [];
+
+    // 2. Fetch active trip_schedules for matching routes
+    const schedules = await this.prisma.tripSchedule.findMany({
+      where: {
+        isActive: true,
         ...(companyId && { companyId }),
+        route: { currentVersionId: { in: validRouteVersionIds } },
       },
       include: {
         route: {
@@ -283,32 +309,147 @@ export class TripsService {
             company: true,
             currentVersion: {
               include: {
-                stops: {
-                  include: { stop: true },
-                  orderBy: { sequenceNumber: 'asc' },
-                },
+                stops: { include: { stop: true }, orderBy: { sequenceNumber: 'asc' } },
               },
             },
           },
         },
         vehicle: true,
-        stopTimes: {
-          include: {
-            routeStop: { include: { stop: true } },
-          },
-        },
+        driver: true,
+        exceptions: true,
+      },
+    });
+
+    // 3. Fetch materialized trips for the date range on matching routes
+    const materializedTrips = await this.prisma.trip.findMany({
+      where: {
+        scheduledDepartureTime: { gte: fromDate, lte: toDate },
+        ...(companyId && { companyId }),
+        route: { currentVersionId: { in: validRouteVersionIds } },
+      },
+      include: {
+        route: { include: { company: true } },
+        vehicle: true,
+        driver: true,
       },
       orderBy: { scheduledDepartureTime: 'asc' },
       take: 50,
     });
 
-    // Filter trips that go from fromStop to toStop
-    return trips.filter((trip: typeof trips[number]) => {
-      const stops = trip.route.currentVersion?.stops ?? [];
-      const fromIndex = stops.findIndex((s: { stopId: string }) => s.stopId === fromStopId);
-      const toIndex = stops.findIndex((s: { stopId: string }) => s.stopId === toStopId);
-      return fromIndex !== -1 && toIndex !== -1 && fromIndex < toIndex;
-    });
+    const materializedKeys = new Set(
+      materializedTrips
+        .filter((t) => t.scheduleId && t.scheduleDate)
+        .map((t) => `${t.scheduleId}:${formatDate(t.scheduleDate!)}`),
+    );
+
+    // 4. Expand schedules into virtual trips
+    const results: any[] = [];
+
+    for (const schedule of schedules) {
+      const scheduleStart =
+        schedule.validFrom && schedule.validFrom > fromDate ? schedule.validFrom : fromDate;
+      const scheduleEnd =
+        schedule.validTo && schedule.validTo < toDate ? schedule.validTo : toDate;
+
+      let dates: Date[];
+      if (schedule.scheduleType === 'single') {
+        dates = getSingleDate(schedule.validFrom).filter(
+          (d) => d >= fromDate && d <= toDate,
+        );
+      } else if (schedule.rrule) {
+        dates = expandRRule(schedule.rrule, scheduleStart, scheduleEnd);
+      } else {
+        dates = [];
+      }
+
+      const exceptionMap = new Map(
+        schedule.exceptions.map((ex: any) => [formatDate(ex.date), ex]),
+      );
+
+      for (const d of dates) {
+        const dateStr = formatDate(d);
+        const exception = exceptionMap.get(dateStr);
+        if (exception?.type === 'skip') continue;
+        if (materializedKeys.has(`${schedule.id}:${dateStr}`)) continue;
+
+        const deptTime = exception?.newDepartureTime || schedule.departureTime;
+        const arrTime = exception?.newArrivalTime || schedule.arrivalTime;
+        const tripDate = new Date(dateStr);
+        const deptDatetime = parseTimeToDate(tripDate, deptTime);
+        const arrDatetime = parseTimeToDate(tripDate, arrTime);
+        if (arrDatetime < deptDatetime) arrDatetime.setDate(arrDatetime.getDate() + 1);
+        if (deptDatetime < fromDate || deptDatetime > toDate) continue;
+
+        results.push({
+          id: `virtual:${schedule.id}:${dateStr}`,
+          scheduledDepartureTime: deptDatetime.toISOString(),
+          scheduledArrivalTime: arrDatetime.toISOString(),
+          status: TripStatus.SCHEDULED,
+          route: {
+            id: schedule.route.id,
+            name: schedule.route.name,
+            code: (schedule.route as any).code ?? null,
+          },
+          company: {
+            id: schedule.route.company.id,
+            name: schedule.route.company.name,
+            logoUrl: (schedule.route.company as any).logoUrl ?? null,
+          },
+          vehicle: schedule.vehicle,
+          driver: schedule.driver,
+          duration: Math.round(
+            (arrDatetime.getTime() - deptDatetime.getTime()) / 60000,
+          ),
+          routeVersion: schedule.route.currentVersion
+            ? {
+                stops: schedule.route.currentVersion.stops.map((s: any) => ({
+                  stop: s.stop,
+                  sequenceNumber: s.sequenceNumber,
+                  departureOffset: 0,
+                })),
+              }
+            : undefined,
+        });
+      }
+    }
+
+    // 5. Add materialized trips
+    for (const trip of materializedTrips) {
+      results.push({
+        id: trip.id,
+        scheduledDepartureTime: trip.scheduledDepartureTime.toISOString(),
+        scheduledArrivalTime: trip.scheduledArrivalTime?.toISOString() ?? null,
+        status: trip.status,
+        route: {
+          id: trip.route.id,
+          name: trip.route.name,
+          code: (trip.route as any).code ?? null,
+        },
+        company: {
+          id: trip.route.company.id,
+          name: trip.route.company.name,
+          logoUrl: (trip.route.company as any).logoUrl ?? null,
+        },
+        vehicle: trip.vehicle,
+        driver: trip.driver,
+        duration:
+          trip.scheduledArrivalTime
+            ? Math.round(
+                (trip.scheduledArrivalTime.getTime() -
+                  trip.scheduledDepartureTime.getTime()) /
+                  60000,
+              )
+            : undefined,
+      });
+    }
+
+    results.sort(
+      (a, b) =>
+        new Date(a.scheduledDepartureTime).getTime() -
+        new Date(b.scheduledDepartureTime).getTime(),
+    );
+
+    return results.slice(0, 50);
   }
 
   /**

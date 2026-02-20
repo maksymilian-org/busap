@@ -63,11 +63,13 @@ interface RouteBuilderProps {
   mode: 'create' | 'edit';
   /** When false (e.g. owner/manager), name field is read-only and name is not sent on update */
   canEditName?: boolean;
+  /** Where to navigate on save or back. Defaults to /company/:companyId/routes */
+  backHref?: string;
 }
 
 let stopCounter = 0;
 
-export default function RouteBuilder({ companyId, existingRoute, mode, canEditName = true }: RouteBuilderProps) {
+export default function RouteBuilder({ companyId, existingRoute, mode, canEditName = true, backHref }: RouteBuilderProps) {
   const t = useTranslations('company.routes.builder');
   const tCommon = useTranslations('common');
   const router = useRouter();
@@ -340,7 +342,7 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
       });
 
       toast({ variant: 'success', title: t('saved') });
-      router.push(`/company/${companyId}/routes`);
+      router.push(backHref ?? `/company/${companyId}/routes`);
     } catch (err: any) {
       toast({ variant: 'destructive', title: tCommon('status.error'), description: err.message });
     } finally {
@@ -356,7 +358,7 @@ export default function RouteBuilder({ companyId, existingRoute, mode, canEditNa
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push(`/company/${companyId}/routes`)}
+            onClick={() => router.push(backHref ?? `/company/${companyId}/routes`)}
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             {t('backToRoutes')}

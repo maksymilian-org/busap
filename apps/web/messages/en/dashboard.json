@@ -5,10 +5,11 @@
     "managerPanel": "Manager Panel"
   },
   "passengerNav": {
-    "dashboard": "Dashboard",
-    "search": "Search",
+    "connections": "Connections",
+    "routes": "Routes",
+    "stops": "Stops",
+    "companies": "Companies",
     "map": "Map",
-    "favorites": "Favorites",
     "news": "News"
   },
   "driverNav": {
@@ -159,5 +160,75 @@
     "subtitle": "News from favorite companies",
     "noNews": "No news",
     "noNewsHint": "Add companies to favorites to see their news"
+  },
+  "connections": {
+    "title": "Connections",
+    "subtitle": "Search and save your routes",
+    "saveConnection": "Save connection",
+    "saved": "Saved connections",
+    "noSaved": "No saved connections",
+    "noSavedHint": "Save a connection to quickly repeat a search",
+    "connectionSaved": "Connection saved",
+    "connectionExists": "Connection already saved",
+    "connectionRemoved": "Connection removed",
+    "filters": "Filters",
+    "filterCity": "City",
+    "filterCountry": "Country",
+    "searchRoute": "Search"
+  },
+  "routes": {
+    "title": "Routes",
+    "subtitle": "Browse available routes ({count})",
+    "searchPlaceholder": "Search routes...",
+    "filterCompany": "Company",
+    "filterAll": "All",
+    "filterType": "Type",
+    "favorites": "Your favorites",
+    "noFavorites": "No favorite routes",
+    "noRoutes": "No routes",
+    "detail": {
+      "stopsOnRoute": "Stops on route",
+      "backToRoutes": "← Back to routes",
+      "operatedBy": "Operator"
+    }
+  },
+  "stops": {
+    "title": "Stops",
+    "subtitle": "Browse stops ({count})",
+    "searchPlaceholder": "Search stops...",
+    "filterCity": "City",
+    "filterCountry": "Country",
+    "favorites": "Your favorites",
+    "noFavorites": "No favorite stops",
+    "noStops": "No stops",
+    "detail": {
+      "routesViaStop": "Routes via this stop",
+      "noRoutes": "No routes",
+      "backToStops": "← Back to stops",
+      "upcomingTrips": "Upcoming trips",
+      "noUpcomingTrips": "No upcoming trips",
+      "tripRoute": "Route",
+      "tripDirection": "Direction",
+      "tripDeparture": "Departure",
+      "tripVehicle": "Vehicle"
+    }
+  },
+  "companies": {
+    "title": "Companies",
+    "subtitle": "Browse carriers ({count})",
+    "searchPlaceholder": "Search companies...",
+    "favorites": "Your favorites",
+    "noFavorites": "No favorite companies",
+    "noCompanies": "No companies",
+    "detail": {
+      "routes": "Routes ({count})",
+      "noRoutes": "No routes",
+      "backToCompanies": "← Back to companies",
+      "publicPage": "Public page"
+    }
+  },
+  "map": {
+    "viewDetails": "Stop details",
+    "zoomToLoad": "Zoom in to see stops"
   }
 }

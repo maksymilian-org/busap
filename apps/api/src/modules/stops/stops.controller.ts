@@ -101,6 +101,13 @@ export class StopsController {
     return this.stopsService.getNearbyStops(latitude, longitude, radius);
   }
 
+  @Get(':id/upcoming-trips')
+  @Public()
+  @ApiOperation({ summary: 'Get upcoming trips for a stop' })
+  async getUpcomingTrips(@Param('id') id: string) {
+    return this.stopsService.getUpcomingTrips(id);
+  }
+
   @Get(':id')
   @Public()
   @ApiOperation({ summary: 'Get stop by ID' })

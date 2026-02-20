@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateStopInput, UpdateStopInput, SearchStopsInput } from '@busap/shared';
+import { CreateStopInput, UpdateStopInput, SearchStopsInput, TripStatus } from '@busap/shared';
 import { Prisma } from '@prisma/client';
 import { GeocodingService } from '../geocoding/geocoding.service';
 
@@ -73,15 +73,41 @@ export class StopsService {
   async search(params: SearchStopsInput) {
     const { query, companyId, latitude, longitude, radius, limit = 20, offset = 0 } = params;
 
-    const where: any = { isActive: true };
-
+    // Use raw query with unaccent for diacritics-insensitive search
     if (query) {
-      where.OR = [
-        { name: { contains: query, mode: 'insensitive' } },
-        { city: { contains: query, mode: 'insensitive' } },
-        { code: { contains: query, mode: 'insensitive' } },
-      ];
+      const q = `%${query}%`;
+      const companyFilter = companyId
+        ? Prisma.sql`AND (company_id IS NULL OR company_id = ${companyId})`
+        : Prisma.empty;
+
+      const results = await this.prisma.$queryRaw<any[]>`
+        SELECT id, name, code, city, latitude, longitude, is_active AS "isActive",
+               country, address, postal_code AS "postalCode", company_id AS "companyId"
+        FROM stops
+        WHERE is_active = true
+          AND (unaccent(name) ILIKE unaccent(${q})
+            OR unaccent(city) ILIKE unaccent(${q})
+            OR code ILIKE ${q})
+          ${companyFilter}
+        ORDER BY name
+        LIMIT ${limit} OFFSET ${offset}
+      `;
+
+      if (latitude !== undefined && longitude !== undefined) {
+        const stopsWithDistance = results.map((stop: any) => ({
+          ...stop,
+          distance: this.calculateDistance(latitude, longitude, stop.latitude, stop.longitude),
+        }));
+        const filtered = radius
+          ? stopsWithDistance.filter((s: { distance: number }) => s.distance <= radius)
+          : stopsWithDistance;
+        return filtered.sort((a: { distance: number }, b: { distance: number }) => a.distance - b.distance);
+      }
+
+      return results;
     }
+
+    const where: any = { isActive: true };
 
     if (companyId) {
       where.AND = [
@@ -244,6 +270,55 @@ export class StopsService {
 
     return this.prisma.companyFavoriteStop.delete({
       where: { id: favorite.id },
+    });
+  }
+
+  async getUpcomingTrips(stopId: string) {
+    await this.findById(stopId);
+
+    const now = new Date();
+
+    const trips = await this.prisma.trip.findMany({
+      where: {
+        status: TripStatus.SCHEDULED,
+        scheduledDepartureTime: { gte: now },
+      },
+      include: {
+        route: {
+          include: {
+            currentVersion: {
+              include: {
+                stops: {
+                  include: { stop: true },
+                  orderBy: { sequenceNumber: 'asc' },
+                },
+              },
+            },
+          },
+        },
+        vehicle: true,
+      },
+      orderBy: { scheduledDepartureTime: 'asc' },
+      take: 100,
+    });
+
+    const result = trips.filter((trip: typeof trips[number]) => {
+      const stops = trip.route.currentVersion?.stops ?? [];
+      return stops.some((s: { stopId: string }) => s.stopId === stopId);
+    });
+
+    return result.slice(0, 20).map((trip: typeof trips[number]) => {
+      const stops = trip.route.currentVersion?.stops ?? [];
+      const firstStop = stops[0]?.stop?.name ?? '-';
+      const lastStop = stops[stops.length - 1]?.stop?.name ?? '-';
+      return {
+        id: trip.id,
+        routeName: trip.route.name,
+        routeCode: (trip.route as any).code,
+        direction: `${firstStop} → ${lastStop}`,
+        scheduledDepartureTime: trip.scheduledDepartureTime,
+        vehicleRegistration: trip.vehicle?.registrationNumber ?? null,
+      };
     });
   }
 

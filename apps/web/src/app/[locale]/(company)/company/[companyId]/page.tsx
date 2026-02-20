@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
-import { Clock, Truck, Route, Users, Plus, ArrowRight, Building2, Mail, Phone, MapPin, Edit, X, Upload, Globe, ExternalLink, Copy, Check } from 'lucide-react';
+import { Clock, Truck, Route, Users, Plus, ArrowRight, Building2, Mail, Phone, MapPin, Edit, X, Upload } from 'lucide-react';
+import { PublicPageCard } from '@/components/company/PublicPageCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -218,7 +219,12 @@ export default function CompanyDashboardPage() {
 
       {/* Public Page Link */}
       {company?.slug && (
-        <PublicPageCard t={t} slug={company.slug} />
+        <PublicPageCard
+          slug={company.slug}
+          label={t('dashboard.publicPage')}
+          copyLabel={t('dashboard.copyUrl')}
+          copiedLabel={t('dashboard.urlCopied')}
+        />
       )}
 
       {/* Stats Grid */}
@@ -278,45 +284,6 @@ export default function CompanyDashboardPage() {
         />
       )}
     </div>
-  );
-}
-
-function PublicPageCard({ t, slug }: { t: any; slug: string }) {
-  const [copied, setCopied] = useState(false);
-  const locale = useLocale();
-  const publicUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/${locale}/c/${slug}`
-    : `/${locale}/c/${slug}`;
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(publicUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-4 p-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-          <Globe className="h-5 w-5 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">{t('dashboard.publicPage')}</p>
-          <p className="text-xs text-muted-foreground truncate">{publicUrl}</p>
-        </div>
-        <div className="flex gap-1">
-          <Button variant="outline" size="sm" onClick={handleCopy}>
-            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-            <span className="ml-1">{copied ? t('dashboard.urlCopied') : t('dashboard.copyUrl')}</span>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <a href={publicUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 

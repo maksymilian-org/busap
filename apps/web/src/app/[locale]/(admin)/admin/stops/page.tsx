@@ -7,8 +7,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
-import { MapPin, Plus, Search, Edit, X, List, Map, Trash2 } from 'lucide-react';
+import { MapPin, Plus, Search, Edit, List, Map, Trash2 } from 'lucide-react';
 import { BusapMap, StopMarker } from '@/components/map';
+import { StopFormModal } from '@/components/stops/StopFormModal';
+import { Link } from '@/i18n/navigation';
 
 interface StopData {
   id: string;
@@ -19,6 +21,11 @@ interface StopData {
   address?: string;
   city?: string;
   country?: string;
+  county?: string;
+  region?: string;
+  postalCode?: string;
+  countryCode?: string;
+  formattedAddress?: string;
   isActive: boolean;
 }
 
@@ -33,6 +40,7 @@ export default function AdminStopsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingStop, setEditingStop] = useState<StopData | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [mapInitialCoords, setMapInitialCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   const loadStops = useCallback(async () => {
     setLoading(true);
@@ -90,7 +98,7 @@ export default function AdminStopsPage() {
               <Map className="h-4 w-4" />
             </Button>
           </div>
-          <Button onClick={() => setShowCreateModal(true)}>
+          <Button onClick={() => { setMapInitialCoords(null); setShowCreateModal(true); }}>
             <Plus className="h-4 w-4 mr-2" />
             {t('addStop')}
           </Button>
@@ -120,6 +128,7 @@ export default function AdminStopsPage() {
               center={[52.0, 19.5]}
               zoom={6}
               onClick={(lat, lng) => {
+                setMapInitialCoords({ lat, lng });
                 setShowCreateModal(true);
               }}
             >
@@ -172,7 +181,12 @@ export default function AdminStopsPage() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-primary" />
-                            <span className="font-medium">{stop.name}</span>
+                            <Link
+                              href={`/admin/stops/${stop.id}`}
+                              className="font-medium hover:underline"
+                            >
+                              {stop.name}
+                            </Link>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">{stop.code || '-'}</td>
@@ -227,175 +241,20 @@ export default function AdminStopsPage() {
           t={t}
           tCommon={tCommon}
           stop={editingStop || undefined}
+          initialCoords={mapInitialCoords}
           onClose={() => {
             setShowCreateModal(false);
             setEditingStop(null);
+            setMapInitialCoords(null);
           }}
           onSaved={() => {
             setShowCreateModal(false);
             setEditingStop(null);
+            setMapInitialCoords(null);
             loadStops();
           }}
         />
       )}
-    </div>
-  );
-}
-
-function StopFormModal({
-  t,
-  tCommon,
-  stop,
-  onClose,
-  onSaved,
-}: {
-  t: any;
-  tCommon: any;
-  stop?: StopData;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const [form, setForm] = useState({
-    name: stop?.name || '',
-    code: stop?.code || '',
-    latitude: stop?.latitude || 52.2297,
-    longitude: stop?.longitude || 21.0122,
-    address: stop?.address || '',
-    city: stop?.city || '',
-    country: stop?.country || 'PL',
-    isActive: stop?.isActive ?? true,
-  });
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const isEdit = !!stop;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSubmitting(true);
-
-    try {
-      if (isEdit) {
-        await api.fetch(`/stops/${stop.id}`, {
-          method: 'PUT',
-          body: JSON.stringify(form),
-        });
-        toast({ variant: 'success', title: t('editModal.success') });
-      } else {
-        await api.fetch('/stops', {
-          method: 'POST',
-          body: JSON.stringify(form),
-        });
-        toast({ variant: 'success', title: t('createModal.success') });
-      }
-      onSaved();
-    } catch (err: any) {
-      setError(err.message);
-      toast({ variant: 'destructive', title: tCommon('status.error'), description: err.message });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">
-            {isEdit ? t('editModal.title') : t('createModal.title')}
-          </h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">{t('createModal.name')}</label>
-            <input
-              type="text"
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">{t('createModal.code')}</label>
-              <input
-                type="text"
-                value={form.code}
-                onChange={(e) => setForm({ ...form, code: e.target.value })}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">{t('createModal.city')}</label>
-              <input
-                type="text"
-                value={form.city}
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">{t('createModal.latitude')}</label>
-              <input
-                type="number"
-                step="any"
-                required
-                value={form.latitude}
-                onChange={(e) => setForm({ ...form, latitude: parseFloat(e.target.value) })}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">{t('createModal.longitude')}</label>
-              <input
-                type="number"
-                step="any"
-                required
-                value={form.longitude}
-                onChange={(e) => setForm({ ...form, longitude: parseFloat(e.target.value) })}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">{t('createModal.address')}</label>
-            <input
-              type="text"
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          {error && <p className="text-sm text-destructive">{error}</p>}
-
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {tCommon('actions.cancel')}
-            </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting
-                ? isEdit
-                  ? t('editModal.submitting')
-                  : t('createModal.submitting')
-                : isEdit
-                ? t('editModal.submit')
-                : t('createModal.submit')}
-            </Button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }

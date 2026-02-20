@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Truck, Search, Edit, X, Upload, Plus, Trash2 } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import { fuzzyFilter } from '@/lib/fuzzy-search';
 
 interface VehicleData {
@@ -146,7 +147,9 @@ export default function AdminVehiclesPage() {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="font-medium">{v.registrationNumber}</span>
+                        <Link href={`/admin/vehicles/${v.id}`} className="font-medium hover:text-primary hover:underline">
+                          {v.registrationNumber}
+                        </Link>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">
                         {[v.brand, v.model].filter(Boolean).join(' ') || '-'}

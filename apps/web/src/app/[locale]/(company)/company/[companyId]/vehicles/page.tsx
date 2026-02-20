@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from '@/i18n/navigation';
+import { useRouter, Link } from '@/i18n/navigation';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Truck, Plus, Users, X, Edit, Trash2, Upload } from 'lucide-react';
@@ -132,7 +132,9 @@ export default function CompanyVehiclesPage() {
                     </div>
                   )}
                   <div>
-                    <p className="font-semibold">{vehicle.registrationNumber}</p>
+                    <Link href={`/company/${companyId}/vehicles/${vehicle.id}`} className="font-semibold hover:text-primary hover:underline">
+                      {vehicle.registrationNumber}
+                    </Link>
                     <p className="text-sm text-muted-foreground">
                       {vehicle.brand} {vehicle.model}
                     </p>

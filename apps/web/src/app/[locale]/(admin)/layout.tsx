@@ -11,7 +11,6 @@ import {
   MapPin,
   Route,
   Truck,
-  Clock,
   Mail,
   Shield,
   LayoutDashboard,
@@ -23,6 +22,10 @@ import {
   User,
   ScrollText,
   Radio,
+  ArrowLeftRight,
+  CalendarDays,
+  Map,
+  UserCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -47,10 +50,13 @@ export default function AdminLayout({
     { name: t('nav.users'), href: '/admin/users', icon: Users },
     { name: t('nav.invitations'), href: '/admin/invitations', icon: Mail },
     { name: t('nav.companies'), href: '/admin/companies', icon: Building2 },
+    { name: t('nav.connections'), href: '/admin/connections', icon: ArrowLeftRight },
     { name: t('nav.stops'), href: '/admin/stops', icon: MapPin },
+    { name: t('nav.map'), href: '/admin/map', icon: Map },
     { name: t('nav.routes'), href: '/admin/routes', icon: Route },
+    { name: t('nav.calendars'), href: '/admin/calendars', icon: CalendarDays },
     { name: t('nav.vehicles'), href: '/admin/vehicles', icon: Truck },
-    { name: t('nav.trips'), href: '/admin/trips', icon: Clock },
+    { name: t('nav.drivers'), href: '/admin/drivers', icon: UserCheck },
     { name: t('nav.simulator'), href: '/admin/simulator', icon: Radio },
     { name: t('nav.audit'), href: '/admin/audit', icon: ScrollText },
   ];

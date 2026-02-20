@@ -1,16 +1,32 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/auth-context';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { Building2, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function MyCompaniesPage() {
   const t = useTranslations('company');
   const { getMyCompanies, user } = useAuth();
+  const router = useRouter();
 
   const myCompanies = getMyCompanies();
+
+  useEffect(() => {
+    if (myCompanies.length === 1) {
+      router.replace(`/company/${myCompanies[0].companyId}`);
+    }
+  }, [myCompanies.length]);
+
+  if (myCompanies.length === 1) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

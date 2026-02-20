@@ -6,10 +6,8 @@ import { useTheme } from 'next-themes';
 import { useAuth } from '@/contexts/auth-context';
 import {
   Bus,
-  Search,
   Map,
   Clock,
-  Heart,
   Newspaper,
   User,
   Settings,
@@ -26,6 +24,8 @@ import {
   Shield,
   Building2,
   CalendarDays,
+  ArrowLeftRight,
+  MapPin,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -47,10 +47,11 @@ export default function DashboardLayout({
   const tCompany = useTranslations('company');
 
   const passengerNav = [
-    { name: t('passengerNav.dashboard'), href: '/passenger', icon: LayoutDashboard },
-    { name: t('passengerNav.search'), href: '/passenger/search', icon: Search },
+    { name: t('passengerNav.connections'), href: '/passenger', icon: ArrowLeftRight },
+    { name: t('passengerNav.routes'), href: '/passenger/routes', icon: Route },
+    { name: t('passengerNav.stops'), href: '/passenger/stops', icon: MapPin },
+    { name: t('passengerNav.companies'), href: '/passenger/companies', icon: Building2 },
     { name: t('passengerNav.map'), href: '/passenger/map', icon: Map },
-    { name: t('passengerNav.favorites'), href: '/passenger/favorites', icon: Heart },
     { name: t('passengerNav.news'), href: '/passenger/news', icon: Newspaper },
   ];
 
@@ -164,7 +165,10 @@ export default function DashboardLayout({
           {/* Navigation */}
           <nav className="flex-1 space-y-1 p-4">
             {navigation.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive =
+                item.href === '/passenger'
+                  ? pathname === '/passenger'
+                  : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.name}

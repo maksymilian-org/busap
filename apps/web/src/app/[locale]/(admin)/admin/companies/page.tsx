@@ -103,68 +103,70 @@ export default function AdminCompaniesPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredCompanies.map((company) => (
-            <Card key={company.id} className="overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
-                      {company.logoUrl ? (
-                        <img
-                          src={company.logoUrl}
-                          alt={company.name}
-                          className="h-10 w-10 object-cover"
-                        />
-                      ) : (
-                        <Building2 className="h-5 w-5 text-primary" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{company.name}</h3>
-                      <p className="text-xs text-muted-foreground">{company.slug}</p>
-                    </div>
-                  </div>
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                      company.isActive
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    }`}
-                  >
-                    {company.isActive ? t('status.active') : t('status.inactive')}
-                  </span>
-                </div>
-
-                {company.description && (
-                  <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
-                    {company.description}
-                  </p>
-                )}
-
-                <div className="mt-4 space-y-1 text-sm text-muted-foreground">
-                  <p>{company.contactEmail}</p>
-                  {company.contactPhone && <p>{company.contactPhone}</p>}
-                  {company.address && <p>{company.address}</p>}
-                </div>
-
-                <div className="mt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    asChild
-                  >
-                    <Link href={`/admin/companies/${company.id}`}>
-                      <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                      {tCommon('actions.details')}
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Logo</th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Nazwa</th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Slug</th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Email</th>
+                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                    <th className="px-4 py-3 text-right font-medium text-muted-foreground">Akcje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCompanies.map((company) => (
+                    <tr key={company.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded overflow-hidden bg-primary/10">
+                          {company.logoUrl ? (
+                            <img src={company.logoUrl} alt={company.name} className="h-8 w-8 object-cover" />
+                          ) : (
+                            <Building2 className="h-4 w-4 text-primary" />
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        <Link href={`/admin/companies/${company.id}`} className="hover:underline">
+                          {company.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{company.slug}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{company.contactEmail}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                          company.isActive
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}>
+                          {company.isActive ? t('status.active') : t('status.inactive')}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button variant="outline" size="sm" asChild>
+                            <Link href={`/admin/companies/${company.id}`}>
+                              <Edit className="h-3.5 w-3.5 mr-1" />
+                              {tCommon('actions.details')}
+                            </Link>
+                          </Button>
+                          <a href={`/c/${company.slug}`} target="_blank" rel="noopener noreferrer">
+                            <Button variant="ghost" size="sm">
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </Button>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {showCreateModal && (

@@ -177,6 +177,69 @@ docs/PLAN.md (faza 5)
 
 ---
 
+## Sesja: 2026-02-18 — Passenger & Admin Panel Rework
+
+### Zaimplementowane funkcjonalności
+
+**F1 — Backend SavedConnection:**
+- Nowy model `SavedConnection` w `schema.prisma` z relacjami do User i Stop
+- Migracja: `20260218120000_add_saved_connections`
+- Nowy moduł `apps/api/src/modules/connections/` (module + controller + service)
+- Endpointy: `GET /connections`, `POST /connections`, `DELETE /connections/:id`
+- Zarejestrowany w `app.module.ts`
+
+**F2 — Nawigacja:**
+- Dashboard layout: nowa `passengerNav` (Connections, Routes, Stops, Companies, Map, News)
+- Poprawiona logika `isActive` dla `/passenger` (exact match)
+- Admin layout: dodano Connections, usunięto Trips
+- Tłumaczenia pl/en zaktualizowane (dashboard.json, admin.json)
+
+**F3 — Connections Page (`/passenger`):**
+- Podmieniono stary Dashboard na stronę Connections z formularzem wyszukiwania
+- Sekcja Saved Connections z przyciskami Search i Delete
+- Przycisk BookmarkPlus do zapisu połączenia (POST /connections)
+- Accordion z filtrami (miasto/kraj)
+- Linkowanie: nazwy tras/firm/przystanków w wynikach są linkami
+- `search/page.tsx` i `favorites/page.tsx` → redirect do `/passenger`
+
+**F4a — Passenger Routes:**
+- `passenger/routes/page.tsx` — lista tras z fuzzySearch, filtrami, ulubionymi
+- `passenger/routes/[id]/page.tsx` — detail z mapą, listą przystanków, linkami
+
+**F4b — Passenger Stops:**
+- `passenger/stops/page.tsx` — search na żywo (debounce 300ms), ulubione
+- `passenger/stops/[id]/page.tsx` — detail z mapą, trasami i firmami
+
+**F4c — Passenger Companies:**
+- `passenger/companies/page.tsx` — lista z fuzzySearch, ulubionymi
+- `passenger/companies/[id]/page.tsx` — detail z trasami, linkiem do publicznej strony
+
+**F5a — Admin Companies → tabela:**
+- Podmieniono `md:grid-cols-3` grid na tabelę HTML
+- Kolumny: Logo | Nazwa | Slug | Email | Status | Akcje
+
+**F5b — Admin Trips → redirect:**
+- `admin/trips/page.tsx` → redirect do `/admin/routes`
+
+**F5c — Admin Connections page:**
+- `admin/connections/page.tsx` — formularz search + tabela wyników kursów
+
+**F6 — Mapa globalna:**
+- `PublicStopsLayer.tsx` — warstwa przystanków bez `companyId`
+- `passenger/map/page.tsx` — pełnoekranowa mapa z mini-modalem po kliknięciu przystanku
+- Wyeksportowano `PublicStopsLayer` z `components/map/index.ts`
+
+### Pliki do uruchomienia po sesji
+
+```bash
+# 1. Zatrzymaj API dev server
+# 2. Uruchom migrację:
+cd apps/api && npx prisma migrate dev
+# 3. Uruchom API ponownie
+```
+
+---
+
 ## Co robic po wznowieniu sesji
 
 1. Przeczytaj `docs/PLAN.md` - plan rozwoju z checklistami

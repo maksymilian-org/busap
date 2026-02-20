@@ -24,6 +24,7 @@ import { GeocodingModule } from './modules/geocoding/geocoding.module';
 import { NewsModule } from './modules/news/news.module';
 import { UserFavoritesModule } from './modules/user-favorites/user-favorites.module';
 import { OrsModule } from './modules/ors/ors.module';
+import { ConnectionsModule } from './modules/connections/connections.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { OrsModule } from './modules/ors/ors.module';
     NewsModule,
     UserFavoritesModule,
     OrsModule,
+    ConnectionsModule,
   ],
 })
 export class AppModule {}

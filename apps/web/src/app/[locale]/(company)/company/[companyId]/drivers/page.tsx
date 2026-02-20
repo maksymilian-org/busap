@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from '@/i18n/navigation';
+import { useRouter, Link } from '@/i18n/navigation';
 import { api } from '@/lib/api';
 import {
   Clock,
@@ -14,6 +14,7 @@ import {
   ChevronRight,
   CalendarDays,
   UserCog,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -232,18 +233,28 @@ export default function CompanyDriversPage() {
         <>
           <div>
             <label className="block text-sm font-medium mb-2">{t('selectDriver')}</label>
-            <select
-              className="w-full max-w-sm rounded-md border bg-background px-3 py-2 text-sm"
-              value={selectedDriverId ?? ''}
-              onChange={(e) => setSelectedDriverId(e.target.value || null)}
-            >
-              <option value="">{t('selectDriver')}</option>
-              {drivers.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.firstName} {d.lastName} ({d.email})
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-3">
+              <select
+                className="w-full max-w-sm rounded-md border bg-background px-3 py-2 text-sm"
+                value={selectedDriverId ?? ''}
+                onChange={(e) => setSelectedDriverId(e.target.value || null)}
+              >
+                <option value="">{t('selectDriver')}</option>
+                {drivers.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.firstName} {d.lastName} ({d.email})
+                  </option>
+                ))}
+              </select>
+              {selectedDriverId && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/company/${companyId}/drivers/${selectedDriverId}`}>
+                    <ExternalLink className="h-4 w-4 mr-1.5" />
+                    {t('viewProfile')}
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
 
           {selectedDriverId && (
